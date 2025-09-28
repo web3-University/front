@@ -1,6 +1,6 @@
 {
   "name": "@web3-university/components",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Web3 University UI Components Library",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
