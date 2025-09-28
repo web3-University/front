@@ -1,0 +1,12 @@
+# 忽略依赖目录
+node_modules
+
+# 忽略构建产物
+dist
+
+# 忽略锁定文件
+package-lock.json
+
+# 忽略日志文件
+*.log
+*.tsbuildinfo

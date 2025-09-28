@@ -1,0 +1,27 @@
+{
+  "$schema": "node_modules/lerna/schemas/lerna-schema.json",
+  "version": "independent",
+  "npmClient": "pnpm",
+  "packages": ["packages/*"],
+  "command": {
+    "version": {
+      "conventionalCommits": true,
+      "message": "chore(release): publish",
+      "allowBranch": ["main", "dev"],
+      "ignoreChanges": [
+        "**/*.md",
+        "**/*.test.js",
+        "**/*.spec.js",
+        "**/*-lock.json"
+      ]
+    },
+    "publish": {
+      "conventionalCommits": true,
+      "message": "chore(release): publish",
+      "ignoreChanges": ["**/*.md", "**/*.test.js"]
+    },
+    "bootstrap": {
+      "hoist": true
+    }
+  }
+}
