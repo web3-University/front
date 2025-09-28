@@ -1,0 +1,40 @@
+# GitHub Actions CI 工作流配置文件
+name: CI Pipeline # 工作流名称
+
+# 触发条件：推送或拉取请求时执行
+on:
+  # push: # 推送代码时触发
+    branches: [dev] # 在dev分支触发
+  pull_request: # 拉取请求时触发
+    branches: [main] # 在pr到main分支触发
+
+# 设置并发控制，确保同一分支只有一个工作流运行
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# 任务定义
+jobs:
+  # ESLint 代码检查
+  lint: # 代码检查任务名称
+    runs-on: ubuntu-latest # 运行环境：Ubuntu最新版
+    timeout-minutes: 10 # 任务超时时间：10分钟
+
+    steps: # 执行步骤列表
+      # 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4 # 安装PNPM包管理器
+        with: # 配置参数
+          version: 8 # 使用PNPM版本8
+
+      - uses: actions/setup-node@v4 # 设置Node.js环境
+        with: # 配置参数
+          node-version: 20 # 使用Node.js版本20
+          cache: 'pnpm' # 启用PNPM缓存加速安装
+
+      - name: Install dependencies and run ESLint # 安装依赖并运行ESLint
+        run: | # 多行命令脚本
+          pnpm install --no-frozen-lockfile # 安装依赖（允许更新锁定文件）
+          pnpm run lint # 运行ESLint代码风格检查
