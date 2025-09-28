@@ -1,0 +1,3 @@
+packages:
+  - "packages/*" # 工作区包路径 ，
+

@@ -1,0 +1,27 @@
+{
+  // 保存时自动格式化
+  "editor.formatOnSave": true,
+  // 保存时自动执行 Biome 的修复操作（如可访问性问题、代码风格等）
+  "editor.codeActionsOnSave": {
+    "source.fixAll.biome": "explicit"
+  },
+  // 将 Biome 设置为默认格式化工具（针对常见文件类型）
+  "[javascript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  }
+}

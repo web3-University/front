@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+/jest-stare
 
 # next.js
 /.next/

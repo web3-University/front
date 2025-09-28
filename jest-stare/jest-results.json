@@ -1,0 +1,323 @@
+{
+  "numFailedTestSuites": 0,
+  "numFailedTests": 0,
+  "numPassedTestSuites": 2,
+  "numPassedTests": 13,
+  "numPendingTestSuites": 0,
+  "numPendingTests": 0,
+  "numRuntimeErrorTestSuites": 0,
+  "numTodoTests": 0,
+  "numTotalTestSuites": 2,
+  "numTotalTests": 13,
+  "openHandles": [],
+  "snapshot": {
+    "added": 0,
+    "didUpdate": false,
+    "failure": false,
+    "filesAdded": 0,
+    "filesRemoved": 0,
+    "filesRemovedList": [],
+    "filesUnmatched": 0,
+    "filesUpdated": 0,
+    "matched": 0,
+    "total": 0,
+    "unchecked": 0,
+    "uncheckedKeysByFile": [],
+    "unmatched": 0,
+    "updated": 0
+  },
+  "startTime": 1759032091603,
+  "success": false,
+  "testResults": [
+    {
+      "leaks": false,
+      "numFailingTests": 0,
+      "numPassingTests": 3,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1759032092001,
+        "loadTestEnvironmentEnd": 1759032091784,
+        "loadTestEnvironmentStart": 1759032091623,
+        "runtime": 217,
+        "setupAfterEnvEnd": 1759032091858,
+        "setupAfterEnvStart": 1759032091832,
+        "setupFilesEnd": 1759032091788,
+        "setupFilesStart": 1759032091784,
+        "slow": false,
+        "start": 1759032091784
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/Users/ Fl2025/web3-University/front/tests/unit/hooks/useImmer.test.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "useImmer hook"
+          ],
+          "duration": 7,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "useImmer hook initializes with default value correctly",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "startAt": 1759032091989,
+          "status": "passed",
+          "title": "initializes with default value correctly"
+        },
+        {
+          "ancestorTitles": [
+            "useImmer hook"
+          ],
+          "duration": 2,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "useImmer hook updates state immutably using produce function",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "startAt": 1759032091996,
+          "status": "passed",
+          "title": "updates state immutably using produce function"
+        },
+        {
+          "ancestorTitles": [
+            "useImmer hook"
+          ],
+          "duration": 2,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "useImmer hook can update state multiple times",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 2,
+          "retryReasons": [],
+          "startAt": 1759032091998,
+          "status": "passed",
+          "title": "can update state multiple times"
+        }
+      ],
+      "failureMessage": null
+    },
+    {
+      "leaks": false,
+      "numFailingTests": 0,
+      "numPassingTests": 10,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "openHandles": [],
+      "perfStats": {
+        "end": 1759032092052,
+        "loadTestEnvironmentEnd": 1759032092013,
+        "loadTestEnvironmentStart": 1759032092008,
+        "runtime": 39,
+        "setupAfterEnvEnd": 1759032092039,
+        "setupAfterEnvStart": 1759032092024,
+        "setupFilesEnd": 1759032092013,
+        "setupFilesStart": 1759032092013,
+        "slow": false,
+        "start": 1759032092013
+      },
+      "skipped": false,
+      "snapshot": {
+        "added": 0,
+        "fileDeleted": false,
+        "matched": 0,
+        "unchecked": 0,
+        "uncheckedKeys": [],
+        "unmatched": 0,
+        "updated": 0
+      },
+      "testFilePath": "/Users/ Fl2025/web3-University/front/tests/unit/utils/addressFormat.test.js",
+      "testResults": [
+        {
+          "ancestorTitles": [
+            "addressFormat"
+          ],
+          "duration": 0,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "addressFormat formats valid Ethereum address correctly",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "startAt": 1759032092049,
+          "status": "passed",
+          "title": "formats valid Ethereum address correctly"
+        },
+        {
+          "ancestorTitles": [
+            "addressFormat"
+          ],
+          "duration": 0,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "addressFormat handles short address correctly",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "startAt": 1759032092049,
+          "status": "passed",
+          "title": "handles short address correctly"
+        },
+        {
+          "ancestorTitles": [
+            "addressFormat"
+          ],
+          "duration": 0,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "addressFormat returns \"无效地址\" for address not starting with 0x",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "startAt": 1759032092049,
+          "status": "passed",
+          "title": "returns \"无效地址\" for address not starting with 0x"
+        },
+        {
+          "ancestorTitles": [
+            "addressFormat"
+          ],
+          "duration": 1,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "addressFormat returns \"无效地址\" for empty string",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "startAt": 1759032092049,
+          "status": "passed",
+          "title": "returns \"无效地址\" for empty string"
+        },
+        {
+          "ancestorTitles": [
+            "addressFormat"
+          ],
+          "duration": 0,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "addressFormat returns \"无效地址\" for null input",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "startAt": 1759032092050,
+          "status": "passed",
+          "title": "returns \"无效地址\" for null input"
+        },
+        {
+          "ancestorTitles": [
+            "addressFormat"
+          ],
+          "duration": 0,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "addressFormat returns \"无效地址\" for undefined input",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "startAt": 1759032092050,
+          "status": "passed",
+          "title": "returns \"无效地址\" for undefined input"
+        },
+        {
+          "ancestorTitles": [
+            "addressFormat"
+          ],
+          "duration": 0,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "addressFormat handles minimum valid address length",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "startAt": 1759032092050,
+          "status": "passed",
+          "title": "handles minimum valid address length"
+        },
+        {
+          "ancestorTitles": [
+            "addressFormat"
+          ],
+          "duration": 0,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "addressFormat handles address with exactly 6 characters after 0x",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "startAt": 1759032092050,
+          "status": "passed",
+          "title": "handles address with exactly 6 characters after 0x"
+        },
+        {
+          "ancestorTitles": [
+            "addressFormat"
+          ],
+          "duration": 0,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "addressFormat handles very long address",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "startAt": 1759032092051,
+          "status": "passed",
+          "title": "handles very long address"
+        },
+        {
+          "ancestorTitles": [
+            "addressFormat"
+          ],
+          "duration": 0,
+          "failing": false,
+          "failureDetails": [],
+          "failureMessages": [],
+          "fullName": "addressFormat handles address with mixed case",
+          "invocations": 1,
+          "location": null,
+          "numPassingAsserts": 1,
+          "retryReasons": [],
+          "startAt": 1759032092051,
+          "status": "passed",
+          "title": "handles address with mixed case"
+        }
+      ],
+      "failureMessage": null
+    }
+  ],
+  "wasInterrupted": false
+}
