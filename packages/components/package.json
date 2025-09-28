@@ -1,6 +1,6 @@
 {
   "name": "@web3-university/components",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "Web3 University UI Components Library",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -25,11 +25,11 @@
   },
   "gitHead": "e10dcfa6475024a68778eba0c83e0279e9a9c746",
   "devDependencies": {
-    "@types/react": "^19.1.15",
-    "rollup": "^4.0.0",
     "@rollup/plugin-commonjs": "^25.0.0",
     "@rollup/plugin-node-resolve": "^15.0.0",
     "@rollup/plugin-typescript": "^11.0.0",
+    "@types/react": "^19.1.15",
+    "rollup": "^4.0.0",
     "rollup-plugin-dts": "^6.0.0",
     "typescript": "^5.0.0"
   }
