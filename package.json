@@ -17,8 +17,7 @@
     "lint:staged": "lint-staged",
     "build:packages": "lerna run build",
     "clean:packages": "lerna clean --yes",
-    "publish:packages": "lerna publish",
-    "publish:direct": "node scripts/direct-publish.js"
+    "publish:packages": "lerna publish"
   },
   "lint-staged": {
     "src/**/*.{ts,tsx,js,jsx}": [
