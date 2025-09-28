@@ -1,5 +1,5 @@
 import { getDefaultConfig } from "@rainbow-me/rainbowkit";
-import { cookieStorage, createStorage } from "wagmi";
+import { cookieStorage, createConfig, createStorage, http } from "wagmi";
 import { arbitrum, mainnet, polygon, sepolia } from "wagmi/chains";
 
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
@@ -12,12 +12,32 @@ if (!projectId) {
 
 export const wagmiChains = [mainnet, polygon, arbitrum, sepolia];
 
-export const wagmiConfig = getDefaultConfig({
-  appName: "Web3 School Dapp",
-  projectId: projectId ?? "demo", // demo 仅用于开发，生产环境请替换
-  chains: wagmiChains,
-  ssr: true,
-  storage: createStorage({
-    storage: cookieStorage,
-  }),
-});
+const storage =
+  typeof window === "undefined"
+    ? undefined
+    : createStorage({
+        storage: cookieStorage,
+      });
+
+const transports = {
+  [mainnet.id]: http(),
+  [polygon.id]: http(),
+  [arbitrum.id]: http(),
+  [sepolia.id]: http(),
+} as const;
+
+export const wagmiConfig =
+  typeof window === "undefined"
+    ? createConfig({
+        ssr: true,
+        chains: wagmiChains,
+        connectors: [],
+        transports,
+      })
+    : getDefaultConfig({
+        appName: "Web3 School Dapp",
+        projectId: projectId ?? "demo", // demo 仅用于开发，生产环境请替换
+        chains: wagmiChains,
+        ssr: true,
+        storage,
+      });
