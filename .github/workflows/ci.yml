@@ -3,8 +3,8 @@ name: CI Pipeline # 工作流名称
 
 # 触发条件：推送或拉取请求时执行
 on:
-  push: # 推送代码时触发
-    branches: [dev] # 在dev分支触发
+  # push: # 推送代码时触发
+  # branches: [dev] # 在dev分支触发
   pull_request: # 拉取请求时触发
     branches: [main] # 在pr到main分支触发
 
