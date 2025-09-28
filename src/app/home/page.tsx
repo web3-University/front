@@ -1,8 +1,7 @@
 import HomeView from "@/components/home/HomeView";
 import Header from "@/components/layout/Header";
 
-// 根路由：复用首页组件
-export default function Page() {
+export default function HomeRoute() {
   return (
     <>
       <Header />

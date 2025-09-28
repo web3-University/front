@@ -14,6 +14,7 @@
     "isolatedModules": true,
     "jsx": "preserve", // 保留JSX语法，由Next.js处理
     "incremental": true,
+    "baseUrl": ".",
     "plugins": [
       {
         "name": "next"
