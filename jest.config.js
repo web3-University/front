@@ -2,7 +2,8 @@
 module.exports = {
   projects: [
     '<rootDir>/apps/web',
-    '<rootDir>/packages/components',
+    '<rootDir>/packages/ui',
+    '<rootDir>/packages/libs',
   ],
   collectCoverageFrom: [
     'apps/*/src/**/*.{js,jsx,ts,tsx}',

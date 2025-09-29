@@ -23,6 +23,7 @@
     "build:packages": "lerna run build",
     "clean:packages": "lerna clean --yes",
     "publish:packages": "lerna publish",
+    "publish:libs": "pnpm --filter @web3-university/libs publish:libs",
     "dev:web": "pnpm --filter @web3-university/web dev",
     "build:web": "pnpm --filter @web3-university/web build"
   },
