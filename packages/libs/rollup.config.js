@@ -24,6 +24,7 @@ export default [
       commonjs(),
       typescript({ tsconfig: "./tsconfig.json" }),
     ],
+    external: [],
   },
 
   // 类型声明文件
@@ -31,5 +32,6 @@ export default [
     input: "src/index.ts",
     output: [{ file: "dist/index.d.ts", format: "es" }],
     plugins: [dts()],
+    external: [],
   },
 ];

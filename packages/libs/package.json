@@ -1,16 +1,18 @@
 {
   "name": "@web3-university/libs",
   "version": "0.0.1",
+  "type": "module",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "rollup -c",
+    "build": "rollup -c --no-watch",
     "clean": "rimraf dist",
     "publish:libs": "npm publish --registry=http://8.138.248.76:4873/"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "repository": {
     "type": "git",
