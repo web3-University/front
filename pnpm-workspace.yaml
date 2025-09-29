@@ -1,3 +1,4 @@
 packages:
-  - "packages/*" # 工作区包路径 ，
+  - "apps/*" # 应用程序
+  - "packages/*" # 共享包
 
