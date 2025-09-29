@@ -1,9 +1,0 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* 主题占位变量（真值后面再填） */
-:root {
-  --brand: 255 132 0; /* 例：橙 */
-  --brand-2: 139 92 246; /* 例：紫 */
-}

@@ -1,0 +1,36 @@
+{
+  "name": "@web3-university/ui",
+  "version": "1.0.4",
+  "description": "Web3 University UI Components Library",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "rollup --config rollup.config.mjs",
+    "dev": "rollup --config rollup.config.mjs -w",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "web3",
+    "components",
+    "react",
+    "typescript"
+  ],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.17.1",
+  "dependencies": {
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "gitHead": "e10dcfa6475024a68778eba0c83e0279e9a9c746",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.0",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "@types/react": "^19.1.15",
+    "rollup": "^4.0.0",
+    "rollup-plugin-dts": "^6.0.0",
+    "typescript": "^5.0.0"
+  }
+}

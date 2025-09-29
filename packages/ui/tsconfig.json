@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "declaration": true,
+    "declarationDir": "./dist/esm/types",
+    "sourceMap": true,
+    "jsx": "react-jsx",
+    "rootDir": "./src",
+    "incremental": false,
+    "composite": false,
+    "noEmit": false,
+    "emitDeclarationOnly": false,
+    "module": "ESNext",
+    "target": "ESNext"
+  },
+  "include": ["./src/**/*"],
+  "exclude": ["node_modules", "dist", "__tests__"]
+}
