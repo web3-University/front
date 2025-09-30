@@ -29,7 +29,9 @@
     "publish:clean": "rimraf dist",
     "publish:libs": "pnpm --filter @web3-university/libs publish:libs",
     "dev:web": "pnpm --filter @web3-university/web dev",
-    "build:web": "pnpm --filter @web3-university/web build"
+    "build:web": "pnpm --filter @web3-university/web build",
+    "dev:storybook": "pnpm --filter @web3-university/storybook dev",
+    "build:storybook": "pnpm --filter @web3-university/storybook build"
   },
   "lint-staged": {
     "apps/**/*.{ts,tsx,js,jsx}": [

@@ -1,3 +1,3 @@
 export const ButtonCva = () => {
-  return <div className="ButtonCva">测试按钮</div>;
+  return <div className="ButtonCva">很帅</div>;
 };
