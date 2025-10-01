@@ -1,5 +1,13 @@
-import * as react_jsx_runtime from "react/jsx-runtime";
+import React from "react";
 
-declare const ButtonCva: () => react_jsx_runtime.JSX.Element;
+interface ButtonCvaProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: "primary" | "secondary" | "outline" | "ghost" | "danger";
+  size?: "sm" | "md" | "lg";
+  children: React.ReactNode;
+}
+declare const ButtonCva: React.ForwardRefExoticComponent<
+  ButtonCvaProps & React.RefAttributes<HTMLButtonElement>
+>;
 
 export { ButtonCva };
+export type { ButtonCvaProps };

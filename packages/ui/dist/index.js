@@ -1,6 +1,6 @@
 "use strict";
 
-var require$$0 = require("react");
+var React = require("react");
 
 var jsxRuntime = { exports: {} };
 
@@ -344,7 +344,7 @@ function requireReactJsxRuntime_development() {
           node._store &&
           (node._store.validated = 1);
       }
-      var React = require$$0,
+      var React$1 = React,
         REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"),
         REACT_PORTAL_TYPE = Symbol.for("react.portal"),
         REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"),
@@ -360,7 +360,7 @@ function requireReactJsxRuntime_development() {
         REACT_ACTIVITY_TYPE = Symbol.for("react.activity"),
         REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"),
         ReactSharedInternals =
-          React.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE,
+          React$1.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE,
         hasOwnProperty = Object.prototype.hasOwnProperty,
         isArrayImpl = Array.isArray,
         createTask = console.createTask
@@ -368,15 +368,15 @@ function requireReactJsxRuntime_development() {
           : function () {
               return null;
             };
-      React = {
+      React$1 = {
         "react-stack-bottom-frame": function (callStackForError) {
           return callStackForError();
         },
       };
       var specialPropKeyWarningShown;
       var didWarnAboutElementRef = {};
-      var unknownOwnerDebugStack = React["react-stack-bottom-frame"].bind(
-        React,
+      var unknownOwnerDebugStack = React$1["react-stack-bottom-frame"].bind(
+        React$1,
         UnknownOwner,
       )();
       var unknownOwnerDebugTask = createTask(getTaskName(UnknownOwner));
@@ -442,12 +442,105 @@ if (process.env.NODE_ENV === "production") {
 
 var jsxRuntimeExports = jsxRuntime.exports;
 
-const ButtonCva = () => {
-  return jsxRuntimeExports.jsx("div", {
-    className: "ButtonCva",
-    children: "\u5F88\u5E05",
-  });
+const baseStyles = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  borderRadius: "6px",
+  fontWeight: 500,
+  transition: "all 0.2s",
+  cursor: "pointer",
+  border: "none",
+  outline: "none",
 };
+const variantStyles = {
+  primary: {
+    backgroundColor: "#2563eb",
+    color: "#ffffff",
+  },
+  secondary: {
+    backgroundColor: "#4b5563",
+    color: "#ffffff",
+  },
+  outline: {
+    backgroundColor: "transparent",
+    color: "#2563eb",
+    border: "2px solid #2563eb",
+  },
+  ghost: {
+    backgroundColor: "transparent",
+    color: "#2563eb",
+  },
+  danger: {
+    backgroundColor: "#dc2626",
+    color: "#ffffff",
+  },
+};
+const variantHoverStyles = {
+  primary: {
+    backgroundColor: "#1d4ed8",
+  },
+  secondary: {
+    backgroundColor: "#374151",
+  },
+  outline: {
+    backgroundColor: "#eff6ff",
+  },
+  ghost: {
+    backgroundColor: "#eff6ff",
+  },
+  danger: {
+    backgroundColor: "#b91c1c",
+  },
+};
+const sizeStyles = {
+  sm: {
+    height: "32px",
+    padding: "0 12px",
+    fontSize: "14px",
+  },
+  md: {
+    height: "40px",
+    padding: "0 16px",
+    fontSize: "16px",
+  },
+  lg: {
+    height: "48px",
+    padding: "0 24px",
+    fontSize: "18px",
+  },
+};
+const disabledStyles = {
+  opacity: 0.5,
+  cursor: "not-allowed",
+  pointerEvents: "none",
+};
+const ButtonCva = React.forwardRef(
+  (
+    { variant = "primary", size = "md", style, children, disabled, ...props },
+    ref,
+  ) => {
+    const [isHovered, setIsHovered] = React.useState(false);
+    const buttonStyle = {
+      ...baseStyles,
+      ...variantStyles[variant],
+      ...sizeStyles[size],
+      ...(isHovered && !disabled ? variantHoverStyles[variant] : {}),
+      ...(disabled ? disabledStyles : {}),
+      ...style,
+    };
+    return jsxRuntimeExports.jsx("button", {
+      ref: ref,
+      style: buttonStyle,
+      disabled: disabled,
+      onMouseEnter: () => setIsHovered(true),
+      onMouseLeave: () => setIsHovered(false),
+      ...props,
+      children: children,
+    });
+  },
+);
+ButtonCva.displayName = "ButtonCva";
 
 exports.ButtonCva = ButtonCva;
 //# sourceMappingURL=index.js.map
