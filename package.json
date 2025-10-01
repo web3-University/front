@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "dev": "pnpm --filter @web3-university/web dev",
+    "dev:all": "pnpm --parallel --filter './packages/**' --filter './apps/**' dev",
     "build": "pnpm run build:packages && pnpm --filter @web3-university/web build",
     "start": "pnpm --filter @web3-university/web start",
     "lint": "biome check",

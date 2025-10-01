@@ -443,7 +443,7 @@ var jsxRuntimeExports = jsxRuntime.exports;
 const ButtonCva = () => {
   return jsxRuntimeExports.jsx("div", {
     className: "ButtonCva",
-    children: "\u6D4B\u8BD5\u6309\u94AE",
+    children: "\u5F88\u5E05",
   });
 };
 
