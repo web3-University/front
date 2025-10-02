@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { expect, fn, userEvent, within } from "@storybook/test";
 import { ButtonCva } from "@web3-university/ui";
 
 const meta = {
@@ -21,6 +22,9 @@ const meta = {
       control: "boolean",
     },
   },
+  args: {
+    onClick: fn(),
+  },
 } satisfies Meta<typeof ButtonCva>;
 
 export default meta;
@@ -30,6 +34,21 @@ export const Primary: Story = {
   args: {
     children: "Primary Button",
     variant: "primary",
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole("button");
+
+    // Test click functionality
+    await userEvent.click(button);
+    await expect(args.onClick).toHaveBeenCalled();
+
+    // Test hover state
+    await userEvent.hover(button);
+    await expect(button).toHaveStyle({ backgroundColor: "#1d4ed8" });
+
+    await userEvent.unhover(button);
+    await expect(button).toHaveStyle({ backgroundColor: "#2563eb" });
   },
 };
 
@@ -87,6 +106,21 @@ export const Disabled: Story = {
   args: {
     children: "Disabled Button",
     disabled: true,
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole("button");
+
+    // Test disabled state
+    await expect(button).toBeDisabled();
+    await expect(button).toHaveStyle({
+      opacity: "0.5",
+      cursor: "not-allowed",
+    });
+
+    // onClick should not be called when disabled
+    // (user-event can't click disabled buttons with pointer-events: none)
+    await expect(args.onClick).not.toHaveBeenCalled();
   },
 };
 
