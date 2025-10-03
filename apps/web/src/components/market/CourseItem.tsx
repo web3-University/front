@@ -1,97 +1,54 @@
+import { Star, Wallet } from "lucide-react";
 import CourseButton from "./CourseButton";
 
-const CourseItem = ({ course }: { course: any }) => {
+interface CourseItemProps {
+  course: any;
+  onBuy?: (course: any) => void;
+}
+
+const CourseItem: React.FC<CourseItemProps> = (props) => {
+  const { course, onBuy } = props;
+
   return (
-    <div
+    <article
       key={course.id}
-      className="bg-[#111c33] rounded-lg overflow-hidden shadow-lg transition-transform hover:scale-[1.02]"
+      className="group relative flex h-full flex-col overflow-hidden rounded-3xl bg-gradient-to-b from-white to-[#F7F5FF] px-6 pb-6 pt-6 shadow-[0_22px_60px_rgba(168,174,255,0.22)] ring-1 ring-[#ECEBFF] transition-transform duration-200 hover:-translate-y-2"
     >
-      <div className="relative">
-        <div className="aspect-w-16 aspect-h-9 bg-gray-800">
-          <div className="w-full h-full bg-gradient-to-br from-blue-900 to-purple-900 flex items-center justify-center">
-            {course.tag === "DeFi" && (
-              <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded">
-                {course.tag}
-              </div>
-            )}
-            {course.tag === "NFT" && (
-              <div className="absolute top-2 left-2 bg-purple-600 text-white text-xs font-bold px-2 py-1 rounded">
-                {course.tag}
-              </div>
-            )}
-            {course.tag === "热门" && (
-              <div className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">
-                {course.tag}
-              </div>
-            )}
-            {course.tag === "精选" && (
-              <div className="absolute top-2 left-2 bg-green-600 text-white text-xs font-bold px-2 py-1 rounded">
-                {course.tag}
-              </div>
-            )}
-            {course.tag === "安全" && (
-              <div className="absolute top-2 left-2 bg-yellow-600 text-white text-xs font-bold px-2 py-1 rounded">
-                {course.tag}
-              </div>
-            )}
-            {course.tag === "治理" && (
-              <div className="absolute top-2 left-2 bg-indigo-600 text-white text-xs font-bold px-2 py-1 rounded">
-                {course.tag}
-              </div>
-            )}
-
-            {/* 播放按钮或课程图标 */}
-            {course.id % 2 === 0 ? (
-              <div className="w-12 h-12 rounded-full bg-white bg-opacity-20 flex items-center justify-center"></div>
-            ) : (
-              <div className="text-3xl font-bold text-white">
-                {course.title.substring(0, 1)}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <button
-          type="button"
-          className="absolute top-2 right-2 text-gray-400 hover:text-white"
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
-          >
-            <title>收藏</title>
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-            ></path>
-          </svg>
-        </button>
+      <div
+        className={`relative h-48 w-full overflow-hidden rounded-2xl bg-gradient-to-br ${course.coverColor}`}
+      >
+        <span className="absolute left-4 top-4 inline-flex rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-[#2B2558]">
+          {course.category}
+        </span>
       </div>
 
-      <div className="p-4">
-        <h3 className="font-bold text-lg mb-1">{course.title}</h3>
-        <p className="text-sm text-gray-400 mb-3">{course.description}</p>
-        <div className="flex items-center text-sm mb-3">
-          <span className="text-gray-400">讲师：</span>
-          <span className="ml-1">{course.instructor}</span>
+      <div className="flex flex-1 flex-col gap-4 pt-6 text-left">
+        <div>
+          <h3 className="text-xl font-semibold text-[#2B2558]">
+            {course.title}
+          </h3>
+          <p className="mt-2 text-sm text-[#7B7EA9]">
+            讲师：{course.instructor}
+          </p>
         </div>
 
-        <div className="flex items-center mb-3">
-          <div className="flex text-yellow-400 mr-1"></div>
-          <span className="font-medium mr-1">{course.rating}</span>
-          <span className="text-gray-400 mr-2">({course.reviews})</span>
-          <span className="text-gray-400">{course.duration}</span>
+        <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center gap-2 text-[#F5B742]">
+            <Star className="h-4 w-4 fill-[#F5B742] text-[#F5B742]" />
+            <span className="font-semibold">{course.rating.toFixed(1)}</span>
+            <span className="text-xs text-[#8F92B5]">
+              ({course.students}人)
+            </span>
+          </div>
+          <div className="flex items-center gap-1 text-[#FF9F50]">
+            <Wallet className="h-4 w-4" />
+            <span className="text-base font-semibold">YD {course.price}</span>
+          </div>
         </div>
 
         <CourseButton course={course} />
       </div>
-    </div>
+    </article>
   );
 };
 
