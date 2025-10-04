@@ -1,7 +1,7 @@
-const baseConfig = require("../../jest.config.base.js");
+import baseConfig from "../../jest.config.base.js";
 
 /** @type {import('jest').Config} */
-module.exports = {
+export default {
   ...baseConfig,
   displayName: "libs",
   setupFilesAfterEnv: ["<rootDir>/__tests__/setup.js"],
