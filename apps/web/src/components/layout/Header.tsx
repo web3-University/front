@@ -101,6 +101,8 @@ export default function Header() {
                     ? "bg-[#ECEBFF] text-[#312A73] shadow-sm"
                     : "text-[#6A6D94] hover:bg-[#F6F6FF]",
                 )}
+                // Next.js Link prefetch 预加载 与 Quicklink 选一； (front/apps/web/src/app/layout.tsx)
+                // prefetch={!active}
               >
                 {route.label}
               </Link>
