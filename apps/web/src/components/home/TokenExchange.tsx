@@ -28,94 +28,111 @@ export default function TokenExchange() {
 
   return (
     <section className="relative overflow-hidden">
-      <div className="mx-auto grid max-w-[1200px] gap-12 px-6 py-24 text-white md:grid-cols-2">
-        <div className="rounded-3xl border border-white/10 bg-black/30 p-8 shadow-[0_25px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl">
-          <header className="flex items-center justify-between text-sm font-medium text-white/80">
-            <h2 className="text-2xl font-semibold text-[#B1FF5A]">
-              兑换 YD 代币
-            </h2>
-            <span>
-              当前余额：
-              <span className="font-semibold text-[#B1FF5A]">
-                {balance ? balance.formatted : 0}
-              </span>{" "}
-              YD
-            </span>
-          </header>
+      <div className="mx-auto max-w-[1200px] px-6 py-24">
+        <header className="mb-12 text-center md:text-left">
+          <h2 className="text-3xl font-bold text-[#2B2558] md:text-4xl">
+            兑换中心
+          </h2>
+          <p className="mt-3 text-base text-[#4D4F75]">
+            在测试网络中使用 ETH 快速兑换 YD 代币，后续可对接真实合约。
+          </p>
+        </header>
 
-          <div className="mt-8 space-y-6 rounded-2xl bg-white/5 p-6">
-            <div className="space-y-2">
-              <span className="text-sm text-white/70">支付</span>
-              <div className="flex items-center gap-3 rounded-xl bg-black/30 px-4 py-3 ring-1 ring-white/10">
-                <input
-                  value={ethAmount}
-                  onChange={(event) => handleEthChange(event.target.value)}
-                  className="w-full bg-transparent text-lg font-semibold text-white outline-none"
-                  inputMode="decimal"
-                  placeholder="0.0"
-                />
-                <span className="text-sm font-semibold text-white/70">ETH</span>
+        <div className="grid gap-12 text-white md:grid-cols-2">
+          <div className="rounded-3xl border border-white/10 bg-black/30 p-8 shadow-[0_25px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl">
+            <header className="flex items-center justify-between text-sm font-medium text-white/80">
+              <h3 className="text-2xl font-semibold text-[#B1FF5A]">
+                兑换 YD 代币
+              </h3>
+              <span>
+                当前余额：
+                <span className="font-semibold text-[#B1FF5A]">
+                  {balance ? balance.formatted : 0}
+                </span>{" "}
+                YD
+              </span>
+            </header>
+
+            <div className="mt-8 space-y-6 rounded-2xl bg-white/5 p-6">
+              <div className="space-y-2">
+                <span className="text-sm text-white/70">支付</span>
+                <div className="flex items-center gap-3 rounded-xl bg-black/30 px-4 py-3 ring-1 ring-white/10">
+                  <input
+                    value={ethAmount}
+                    onChange={(event) => handleEthChange(event.target.value)}
+                    className="w-full bg-transparent text-lg font-semibold text-white outline-none"
+                    inputMode="decimal"
+                    placeholder="0.0"
+                  />
+                  <span className="text-sm font-semibold text-white/70">
+                    ETH
+                  </span>
+                </div>
               </div>
-            </div>
 
-            <ArrowRight className="mx-auto h-5 w-5 text-white/40" />
+              <ArrowRight className="mx-auto h-5 w-5 text-white/40" />
 
-            <div className="space-y-2">
-              <span className="text-sm text-white/70">可得</span>
-              <div className="flex items-center gap-3 rounded-xl bg-black/30 px-4 py-3 ring-1 ring-[#B1FF5A]/20">
-                <input
-                  value={ydAmount ? ydAmount.toFixed(2) : "0"}
-                  readOnly
-                  className="w-full bg-transparent text-lg font-semibold text-white outline-none"
-                />
-                <span className="text-sm font-semibold text-[#B1FF5A]">YD</span>
+              <div className="space-y-2">
+                <span className="text-sm text-white/70">可得</span>
+                <div className="flex items-center gap-3 rounded-xl bg-black/30 px-4 py-3 ring-1 ring-[#B1FF5A]/20">
+                  <input
+                    value={ydAmount ? ydAmount.toFixed(2) : "0"}
+                    readOnly
+                    className="w-full bg-transparent text-lg font-semibold text-white outline-none"
+                  />
+                  <span className="text-sm font-semibold text-[#B1FF5A]">
+                    YD
+                  </span>
+                </div>
               </div>
+
+              <p className="text-xs text-white/60">
+                兑换比例：1 ETH = {RATE} YD
+              </p>
+
+              <Button
+                variant="primary"
+                fullWidth
+                onClick={handleExchange}
+                className="bg-gradient-to-r from-[#BAFF63] to-[#73FF6C] text-[#1C1C1C] hover:brightness-95"
+              >
+                立即兑换
+              </Button>
             </div>
-
-            <p className="text-xs text-white/60">兑换比例：1 ETH = {RATE} YD</p>
-
-            <Button
-              variant="primary"
-              fullWidth
-              onClick={handleExchange}
-              className="bg-gradient-to-r from-[#BAFF63] to-[#73FF6C] text-[#1C1C1C] hover:brightness-95"
-            >
-              立即兑换
-            </Button>
           </div>
-        </div>
 
-        <div className="flex flex-col justify-center gap-8 text-left">
-          <header>
-            <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1 text-xs uppercase tracking-[0.18em] text-[#B1FF5A]">
-              欢迎来到兑换中心
-            </p>
-            <h3 className="mt-4 text-3xl font-bold text-[#B1FF5A] md:text-4xl">
-              Web3 学院兑换站
-            </h3>
-            <p className="mt-3 max-w-md text-sm leading-relaxed text-white/75">
-              使用测试环境 ETH 一键兑换 YD
-              代币，用于购买课程、支付认证与参与治理。
-              当前兑换为测试合约，稍后可接入主网。
-            </p>
-          </header>
+          <div className="flex flex-col justify-center gap-8 text-left">
+            <header>
+              <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1 text-xs uppercase tracking-[0.18em] text-[#B1FF5A]">
+                欢迎来到兑换中心
+              </p>
+              <h3 className="mt-4 text-3xl font-bold text-[#B1FF5A] md:text-4xl">
+                Web3 学院兑换站
+              </h3>
+              <p className="mt-3 max-w-md text-sm leading-relaxed text-white/75">
+                使用测试环境 ETH 一键兑换 YD
+                代币，用于购买课程、支付认证与参与治理。
+                当前兑换为测试合约，稍后可接入主网。
+              </p>
+            </header>
 
-          <div className="grid gap-4 sm:grid-cols-3">
-            <ExchangeStat
-              icon={<Shield className="h-5 w-5" />}
-              label="安全合约"
-              value="多签托管"
-            />
-            <ExchangeStat
-              icon={<Coins className="h-5 w-5" />}
-              label="实时到账"
-              value="< 15 秒"
-            />
-            <ExchangeStat
-              icon={<Users className="h-5 w-5" />}
-              label="活跃兑换"
-              value="1,200+"
-            />
+            <div className="grid gap-4 sm:grid-cols-3">
+              <ExchangeStat
+                icon={<Shield className="h-5 w-5" />}
+                label="安全合约"
+                value="多签托管"
+              />
+              <ExchangeStat
+                icon={<Coins className="h-5 w-5" />}
+                label="实时到账"
+                value="< 15 秒"
+              />
+              <ExchangeStat
+                icon={<Users className="h-5 w-5" />}
+                label="活跃兑换"
+                value="1,200+"
+              />
+            </div>
           </div>
         </div>
       </div>
