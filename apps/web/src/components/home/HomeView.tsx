@@ -1,6 +1,8 @@
 import Hero from "@/components/home/Hero";
 import PlatformAdvantages from "@/components/home/PlatformAdvantages";
 import FeaturedCourses from "@/components/home/FeaturedCourses";
+import InstructorInvitation from "@/components/home/InstructorInvitation";
+import TokenExchange from "@/components/home/TokenExchange";
 
 // 首页主体内容，不含全局布局元素
 export default function HomeView() {
@@ -10,7 +12,8 @@ export default function HomeView() {
       <Hero />
       <PlatformAdvantages />
       <FeaturedCourses />
-      {/* TODO: 精选课程、教师招募等板块 */}
+      <InstructorInvitation />
+      <TokenExchange />
     </main>
   );
 }
