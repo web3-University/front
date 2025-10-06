@@ -39,7 +39,7 @@ export default function TokenExchange() {
         </header>
 
         <div className="grid gap-12 text-white md:grid-cols-2">
-          <div className="rounded-3xl border border-white/10 bg-black/30 p-8 shadow-[0_25px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl">
+          <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-[rgba(255,255,255,0.65)] to-[rgba(210,223,255,0.55)] p-8 text-[#253155] shadow-[0_25px_80px_rgba(116,136,255,0.32)] backdrop-blur-xl">
             <header className="flex items-center justify-between text-sm font-medium text-white/80">
               <h3 className="text-2xl font-semibold text-[#B1FF5A]">
                 兑换 YD 代币
