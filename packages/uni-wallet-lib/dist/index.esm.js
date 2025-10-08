@@ -1,44 +1,44 @@
 import { jsx as e, jsxs as t } from "react/jsx-runtime";
 import n, { useState as a, useRef as i, useEffect as r } from "react";
 import {
-  http as s,
-  createStorage as o,
-  cookieStorage as u,
-  WagmiProvider as d,
-  useAccount as p,
-  useChainId as c,
-  useChains as l,
-  useConnect as y,
-  useReconnect as m,
+  http as o,
+  createStorage as s,
+  cookieStorage as d,
+  WagmiProvider as c,
+  useAccount as u,
+  useChainId as l,
+  useChains as p,
+  useConnect as m,
+  useReconnect as y,
   useDisconnect as f,
   useEnsName as b,
-  useBalance as g,
-  useSwitchChain as w,
-  useReadContract as h,
+  useBalance as h,
+  useSwitchChain as g,
+  useReadContract as w,
   useWriteContract as v,
-  useWaitForTransactionReceipt as T,
-  useEstimateGas as x,
+  useWaitForTransactionReceipt as x,
+  useEstimateGas as T,
 } from "wagmi";
 import {
-  getDefaultConfig as _,
-  lightTheme as C,
-  darkTheme as k,
-  RainbowKitProvider as N,
-  ConnectButton as A,
+  getDefaultConfig as C,
+  lightTheme as N,
+  darkTheme as _,
+  RainbowKitProvider as k,
+  ConnectButton as M,
 } from "@rainbow-me/rainbowkit";
 import {
-  QueryClient as M,
+  QueryClient as A,
   QueryClientProvider as B,
 } from "@tanstack/react-query";
-import { sepolia as S, mainnet as E } from "wagmi/chains";
+import { sepolia as S, mainnet as I } from "wagmi/chains";
 import "@rainbow-me/rainbowkit/styles.css";
-import { formatEther as I, parseUnits as F, parseEther as R } from "viem";
-const L = [E, S];
-E.id, S.id, C(), C().colors, C().radii;
+import { formatEther as E, parseUnits as F, parseEther as z } from "viem";
+const R = [I, S];
+I.id, S.id, N(), N().colors, N().radii;
 const j = {
-    ...k(),
+    ..._(),
     colors: {
-      ...k().colors,
+      ..._().colors,
       accentColor: "#0070f3",
       accentColorForeground: "white",
       actionButtonBorder: "rgba(255, 255, 255, 0.04)",
@@ -54,7 +54,7 @@ const j = {
       connectButtonTextError: "#ffffff",
     },
     radii: {
-      ...k().radii,
+      ..._().radii,
       actionButton: "8px",
       connectButton: "8px",
       menuButton: "8px",
@@ -62,7 +62,7 @@ const j = {
       modalMobile: "16px",
     },
   },
-  O = new M({
+  O = new A({
     defaultOptions: { queries: { refetchOnWindowFocus: !1, retry: !1 } },
   });
 function P({
@@ -70,9 +70,9 @@ function P({
   theme: a = "auto",
   queryClient: i = O,
   initialState: r,
-  ...p
+  ...u
 }) {
-  const { config: c } = n.useMemo(
+  const { config: l } = n.useMemo(
       () =>
         (function (e) {
           const {
@@ -81,39 +81,39 @@ function P({
               alchemyApiKey: a,
               infuraApiKey: i,
             } = e,
-            r = L.reduce((e, t) => {
+            r = R.reduce((e, t) => {
               let n = "";
               return (
                 a &&
                   (n = `https://${t.name.toLowerCase().replace(/\s+/g, "-")}.g.alchemy.com/v2/${a}`),
                 i &&
                   (n = `https://${t.name.toLowerCase().replace(/\s+/g, "-")}.infura.io/v3/${i}`),
-                (e[t.id] = n ? s(n) : s()),
+                (e[t.id] = n ? o(n) : o()),
                 e
               );
             }, {});
           return {
-            config: _({
+            config: C({
               appName: t,
               projectId: n,
-              chains: L,
+              chains: R,
               ssr: !0,
-              storage: o({ storage: u }),
+              storage: s({ storage: d }),
             }),
             transports: r,
           };
-        })(p),
-      [p.appName, p.projectId, p.alchemyApiKey, p.infuraApiKey],
+        })(u),
+      [u.appName, u.projectId, u.alchemyApiKey, u.infuraApiKey],
     ),
-    l = n.useMemo(() => j, [a]);
-  return e(d, {
-    config: c,
+    p = n.useMemo(() => j, [a]);
+  return e(c, {
+    config: l,
     reconnectOnMount: !0,
     initialState: r,
     children: e(B, {
       client: i,
-      children: e(N, {
-        theme: l,
+      children: e(k, {
+        theme: p,
         modalSize: "compact",
         showRecentTransactions: !0,
         children: t,
@@ -121,57 +121,57 @@ function P({
     }),
   });
 }
-function z() {
+function D() {
   const {
       address: e,
       connector: t,
       isConnected: n,
       isConnecting: a,
       isReconnecting: i,
-    } = p(),
-    r = c(),
-    s = l(),
-    { connect: o, connectors: u } = y(),
-    { reconnect: d } = m(),
+    } = u(),
+    r = l(),
+    o = p(),
+    { connect: s, connectors: d } = m(),
+    { reconnect: c } = y(),
     { disconnect: b } = f(),
-    g = s.find((e) => e.id === r);
+    h = o.find((e) => e.id === r);
   return {
     isConnected: n,
     isConnecting: a,
     isReconnecting: i,
     address: e,
     connector: t ? { id: t.id, name: t.name, type: t.type } : void 0,
-    chain: g,
-    chains: s,
+    chain: h,
+    chains: o,
     connect: (e) => {
       if (e) {
-        const t = u.find((t) => t.id === e);
-        t && o({ connector: t });
+        const t = d.find((t) => t.id === e);
+        t && s({ connector: t });
       } else {
-        const e = u[0];
-        e && o({ connector: e });
+        const e = d[0];
+        e && s({ connector: e });
       }
     },
     reconnect: (e) => {
-      d(e);
+      c(e);
     },
     disconnect: () => {
       b();
     },
   };
 }
-function D() {
-  const { address: e, connector: t, isConnected: n } = p(),
-    a = c(),
-    i = l().find((e) => e.id === a),
+function H() {
+  const { address: e, connector: t, isConnected: n } = u(),
+    a = l(),
+    i = p().find((e) => e.id === a),
     { data: r } = b({ address: e }),
-    { data: s, isLoading: o } = g({ address: e }),
-    u = s
+    { data: o, isLoading: s } = h({ address: e }),
+    d = o
       ? {
-          value: s.value,
-          formatted: I(s.value),
-          symbol: s.symbol,
-          decimals: s.decimals,
+          value: o.value,
+          formatted: E(o.value),
+          symbol: o.symbol,
+          decimals: o.decimals,
         }
       : void 0;
   return {
@@ -183,15 +183,15 @@ function D() {
       ? { id: t.id, name: t.name, type: t.type, icon: t.icon }
       : void 0,
     chain: i,
-    balance: u,
-    isBalanceLoading: o,
+    balance: d,
+    isBalanceLoading: s,
   };
 }
-function H() {
-  const e = l(),
-    t = c(),
+function L() {
+  const e = p(),
+    t = l(),
     n = e.find((e) => e.id === t),
-    { switchChain: a, isPending: i, error: r, isSuccess: s, reset: o } = w();
+    { switchChain: a, isPending: i, error: r, isSuccess: o, reset: s } = g();
   return {
     currentChain: n,
     switchToNetwork: (e) => {
@@ -204,8 +204,8 @@ function H() {
     },
     isPending: i,
     error: r,
-    isSuccess: s,
-    reset: o,
+    isSuccess: o,
+    reset: s,
     isCurrentChain: (e) => t === e,
     canSwitchNetwork: !!a,
   };
@@ -217,18 +217,18 @@ function q({
   args: a,
   chainId: i,
   enabled: r = !0,
-  cacheTime: s = 0,
-  staleTime: o = 0,
+  cacheTime: o = 0,
+  staleTime: s = 0,
 }) {
-  const { data: u, ...d } = h({
+  const { data: d, ...c } = w({
     address: e,
     abi: t,
     functionName: n,
     args: a,
     chainId: i,
-    query: { enabled: r, gcTime: s, staleTime: o },
+    query: { enabled: r, gcTime: o, staleTime: s },
   });
-  return { data: u, ...d };
+  return { data: d, ...c };
 }
 function $({
   address: e,
@@ -237,37 +237,37 @@ function $({
   args: a,
   value: i,
   chainId: r,
-  enabled: s = !0,
-  gasLimit: o,
+  enabled: o = !0,
+  gasLimit: s,
 }) {
-  const { writeContract: u, writeContractAsync: d, ...p } = v();
+  const { writeContract: d, writeContractAsync: c, ...u } = v();
   return {
-    write: (d) => {
-      s &&
-        u({
+    write: (c) => {
+      o &&
+        d({
+          address: e,
+          abi: t,
+          functionName: n,
+          args: c?.args || a,
+          value: c?.value || i,
+          chainId: r,
+          gas: c?.gas || s,
+        });
+    },
+    writeAsync: async (d) => {
+      if (o)
+        return await c({
           address: e,
           abi: t,
           functionName: n,
           args: d?.args || a,
           value: d?.value || i,
           chainId: r,
-          gas: d?.gas || o,
+          gas: d?.gas || s,
         });
     },
-    writeAsync: async (u) => {
-      if (s)
-        return await d({
-          address: e,
-          abi: t,
-          functionName: n,
-          args: u?.args || a,
-          value: u?.value || i,
-          chainId: r,
-          gas: u?.gas || o,
-        });
-    },
-    receipt: T({ hash: p.data, query: { enabled: !!p.data } }),
-    ...p,
+    receipt: x({ hash: u.data, query: { enabled: !!u.data } }),
+    ...u,
   };
 }
 const U = [
@@ -601,7 +601,7 @@ const U = [
       type: "function",
     },
   ],
-  W = [
+  Y = [
     { inputs: [], stateMutability: "nonpayable", type: "constructor" },
     {
       anonymous: !1,
@@ -768,11 +768,11 @@ const U = [
       type: "function",
     },
   ];
-function Y({ address: e, spenderAddress: t, enabled: n = !0 }) {
-  const { address: a } = p(),
+function V({ address: e, spenderAddress: t, enabled: n = !0 }) {
+  const { address: a } = u(),
     i = (e) => {
-      if (!u) throw new Error("Decimals not loaded");
-      return F(e, u);
+      if (!d) throw new Error("Decimals not loaded");
+      return F(e, d);
     },
     { data: r } = q({
       address: e,
@@ -780,135 +780,135 @@ function Y({ address: e, spenderAddress: t, enabled: n = !0 }) {
       functionName: "totalSupply",
       enabled: n,
     }),
-    { data: s, refetch: o } = q({
+    { data: o, refetch: s } = q({
       address: e,
       abi: U,
       functionName: "balanceOf",
       args: a ? [a] : void 0,
       enabled: n && !!a,
     }),
-    { data: u } = q({
+    { data: d } = q({
       address: e,
       abi: U,
       functionName: "decimals",
       enabled: n,
     }),
-    { data: d, refetch: c } = q({
+    { data: c, refetch: l } = q({
       address: e,
       abi: U,
       functionName: "allowance",
       args: a && t ? [a, t] : void 0,
       enabled: n && !!a && !!t,
     }),
-    l = $({ address: e, abi: U, functionName: "transfer" }),
-    y = $({ address: e, abi: U, functionName: "approve" }),
-    m = $({ address: e, abi: U, functionName: "transferFrom" });
+    p = $({ address: e, abi: U, functionName: "transfer" }),
+    m = $({ address: e, abi: U, functionName: "approve" }),
+    y = $({ address: e, abi: U, functionName: "transferFrom" });
   return {
     totalSupply: r,
-    balance: s,
-    allowance: d,
-    transferReceipt: l.receipt,
-    approveReceipt: y.receipt,
-    transferFromReceipt: m.receipt,
-    refetchBalance: o,
-    refetchAllowance: c,
+    balance: o,
+    allowance: c,
+    transferReceipt: p.receipt,
+    approveReceipt: m.receipt,
+    transferFromReceipt: y.receipt,
+    refetchBalance: s,
+    refetchAllowance: l,
     transfer: async (e, t) => {
-      if (!l.writeAsync) throw new Error("Transfer not available");
+      if (!p.writeAsync) throw new Error("Transfer not available");
       const n = i(t);
-      return l.writeAsync({ args: [e, n] });
+      return p.writeAsync({ args: [e, n] });
     },
     approve: async (e, t) => {
-      if (!y.writeAsync) throw new Error("Approve not available");
+      if (!m.writeAsync) throw new Error("Approve not available");
       const n = i(t);
-      return y.writeAsync({ args: [e, n] });
+      return m.writeAsync({ args: [e, n] });
     },
     transferFrom: async (e, t, n) => {
-      if (!m.writeAsync) throw new Error("TransferFrom not available");
+      if (!y.writeAsync) throw new Error("TransferFrom not available");
       const a = i(n);
-      return m.writeAsync({ args: [e, t, a] });
+      return y.writeAsync({ args: [e, t, a] });
     },
   };
 }
-const V = "0xA812265c869F2BCB755980677812F253459A0cc7";
-function G({ address: e = V, spenderAddress: t, enabled: n = !0 }) {
-  const { address: i } = p(),
-    [r, s] = a(),
-    [o, u] = a(),
-    { data: d, refetch: c } = x({
+const W = "0xA812265c869F2BCB755980677812F253459A0cc7";
+function G({ address: e = W, spenderAddress: t, enabled: n = !0 }) {
+  const { address: i } = u(),
+    [r, o] = a(),
+    [s, d] = a(),
+    { data: c, refetch: l } = T({
       account: i,
       to: r,
-      value: o,
+      value: s,
       query: { enabled: !1 },
     }),
-    l = (e) => {
-      if (!g) throw new Error("Decimals not loaded");
-      return F(e, g);
+    p = (e) => {
+      if (!h) throw new Error("Decimals not loaded");
+      return F(e, h);
     },
-    y = async (e, t) => {
-      s(e),
-        u(t),
+    m = async (e, t) => {
+      o(e),
+        d(t),
         await new Promise((e) => setTimeout(e, 0)),
-        await c(),
-        s(void 0),
-        u(void 0);
+        await l(),
+        o(void 0),
+        d(void 0);
     },
-    { data: m } = q({
+    { data: y } = q({
       address: e,
-      abi: W,
+      abi: Y,
       functionName: "totalSupply",
       enabled: n,
     }),
     { data: f, refetch: b } = q({
       address: e,
-      abi: W,
+      abi: Y,
       functionName: "balanceOf",
       args: i ? [i] : void 0,
       enabled: n && !!i,
     }),
-    { data: g } = q({
+    { data: h } = q({
       address: e,
-      abi: W,
+      abi: Y,
       functionName: "decimals",
       enabled: n,
     }),
-    { data: w, refetch: h } = q({
+    { data: g, refetch: w } = q({
       address: e,
-      abi: W,
+      abi: Y,
       functionName: "allowance",
       args: i && t ? [i, t] : void 0,
       enabled: n && !!i && !!t,
     }),
-    v = $({ address: e, abi: W, functionName: "transfer" }),
-    T = $({ address: e, abi: W, functionName: "approve" }),
-    _ = $({ address: e, abi: W, functionName: "transferFrom" }),
-    C = $({ address: e, abi: W, functionName: "exchangeETHForTokens" });
+    v = $({ address: e, abi: Y, functionName: "transfer" }),
+    x = $({ address: e, abi: Y, functionName: "approve" }),
+    C = $({ address: e, abi: Y, functionName: "transferFrom" }),
+    N = $({ address: e, abi: Y, functionName: "exchangeETHForTokens" });
   return {
-    totalSupply: m,
+    totalSupply: y,
     balance: f,
-    allowance: w,
+    allowance: g,
     transferReceipt: v.receipt,
-    approveReceipt: T.receipt,
-    transferFromReceipt: _.receipt,
+    approveReceipt: x.receipt,
+    transferFromReceipt: C.receipt,
     refetchBalance: b,
-    refetchAllowance: h,
+    refetchAllowance: w,
     transfer: async (e, t) => {
       if (!v.writeAsync) throw new Error("Transfer not available");
-      const n = l(t);
-      return await y(e, n), v.writeAsync({ args: [e, n] });
+      const n = p(t);
+      return await m(e, n), v.writeAsync({ args: [e, n] });
     },
     approve: async (e, t) => {
-      if (!T.writeAsync) throw new Error("Approve not available");
-      const n = l(t);
-      return await y(V, void 0), T.writeAsync({ args: [e, n] });
+      if (!x.writeAsync) throw new Error("Approve not available");
+      const n = p(t);
+      return await m(W, void 0), x.writeAsync({ args: [e, n] });
     },
     transferFrom: async (e, t, n) => {
-      if (!_.writeAsync) throw new Error("TransferFrom not available");
-      const a = l(n);
-      return await y(t, a), _.writeAsync({ args: [e, t, a] });
+      if (!C.writeAsync) throw new Error("TransferFrom not available");
+      const a = p(n);
+      return await m(t, a), C.writeAsync({ args: [e, t, a] });
     },
     exchangeETHForTokens: async (e) => {
-      if (!C.writeAsync) throw new Error("Exchange not available");
-      return await y(V, R(e)), C.writeAsync({ value: R(e), gas: d });
+      if (!N.writeAsync) throw new Error("Exchange not available");
+      return await m(W, z(e)), N.writeAsync({ value: z(e), gas: c });
     },
   };
 }
@@ -1008,15 +1008,15 @@ function X(e, t) {
   }
 }
 X(
-  ".profile__menu-wrapper{position:relative}.profile__menu-trigger{align-items:center;background-color:rgba(22,163,74,.1);border:1px solid rgba(34,197,94,.3);border-radius:.5rem;cursor:pointer;display:flex;height:40px;justify-content:center;transition:all .2s ease;width:40px}.profile__avatar{background-color:oklch(.546 .245 262.881);border-radius:50%;color:#fff}.profile__menu-trigger:hover{background-color:oklch(.65 .2 265.15)}.profile__dropdown-menu{animation:slideDown .2s ease;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.1);min-width:180px;padding:8px;position:absolute;right:0;top:calc(100% + 8px);z-index:1000}@keyframes slideDown{0%{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}.profile__menu-item{align-items:center;background:transparent;border:none;border-radius:8px;color:#1e293b;cursor:pointer;display:flex;font-size:14px;font-weight:500;gap:12px;padding:10px 12px;text-align:left;transition:all .2s ease;width:100%}.profile__menu-item:hover{background-color:#f1f5f9}.profile__menu-item svg{flex-shrink:0}.profile__menu-item--danger{color:#ef4444}.profile__menu-item--danger:hover{background-color:#fef2f2}",
+  ".profile__menu-wrapper{position:relative}.profile__menu-trigger{align-items:center;background-color:#fff;border:1px solid #e7e5fb;border-radius:9999px;box-shadow:0 1px 2px 0 rgba(0,0,0,.05);color:#6a6d94;cursor:pointer;display:flex;height:2.5rem;justify-content:center;transition:transform .2s;width:2.5rem}.profile__menu-trigger:hover{transform:translateY(-1px)}.profile__avatar{border-radius:50%}.wallet-dropdown{background-color:#fff;border:1px solid #ecebff;border-radius:1rem;box-shadow:0 24px 60px rgba(154,161,255,.18);color:#2b2558;font-size:.875rem;line-height:1.25rem;padding:1rem;position:absolute;right:0;top:2.8rem;width:18rem}.wallet-header{align-items:flex-start;display:flex;justify-content:space-between}.wallet-label{color:#8b8eb5;font-size:.75rem;letter-spacing:.08em;line-height:1rem;text-transform:uppercase}.wallet-value{font-weight:600;margin-top:.25rem}.wallet-chain-id{background-color:#f4f4ff;border-radius:9999px;color:#5f6094;font-size:.75rem;font-weight:500;line-height:1rem;padding:.25rem .75rem}.wallet-section{margin-top:1rem}.wallet-address-box{align-items:center;background-color:#f8f8ff;border-radius:.75rem;display:flex;justify-content:space-between;margin-top:.25rem;padding:.5rem .75rem}.wallet-address-text{color:#2b2558;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:.875rem;line-height:1.25rem}.copy-button{background:transparent;border:none;border-radius:9999px;color:#6a6d94;cursor:pointer;padding:.25rem;transition:background-color .2s}.copy-button:hover{background-color:#fff}.balance-info-box{background-color:#f9f9ff;border-radius:.75rem;margin-top:1rem;padding:.75rem}.balance-info-label{align-items:center;color:#8b8eb5;display:flex;font-size:.75rem;gap:.5rem;letter-spacing:.08em;line-height:1rem;text-transform:uppercase}.balance-info-amount{font-size:1.125rem;font-weight:600;line-height:1.75rem;margin-top:.5rem}.disconnect-button{align-items:center;background-color:#f3f4f6;border:none;border-radius:.5rem;color:#374151;cursor:pointer;display:flex;font-weight:500;gap:.5rem;justify-content:center;margin-top:1rem;padding:.5rem 1rem;transition:background-color .2s;width:100%}.disconnect-button:hover:not(:disabled){background-color:#e5e7eb}.disconnect-button:disabled{cursor:not-allowed;opacity:.5}.disconnect-button.loading{opacity:.7}",
 );
-const Q = ({ openAccountModal: n }) => {
-  const [s, o] = a(!1),
+const Q = ({ account: n, chain: o, openAccountModal: s }) => {
+  const [d, c] = a(!1),
     u = i(null),
-    { disconnect: d } = z();
+    { disconnect: l } = D();
   r(() => {
     const e = (e) => {
-      u.current && !u.current.contains(e.target) && o(!1);
+      u.current && !u.current.contains(e.target) && c(!1);
     };
     return (
       document.addEventListener("mousedown", e),
@@ -1030,14 +1030,14 @@ const Q = ({ openAccountModal: n }) => {
     ref: u,
     children: [
       e("button", {
-        onClick: () => o(!s),
+        onClick: () => c(!d),
         type: "button",
         className: "profile__menu-trigger profile__avatar",
         "aria-label": "Account menu",
         children: t("svg", {
           xmlns: "http://www.w3.org/2000/svg",
-          width: "16",
-          height: "16",
+          width: "20",
+          height: "20",
           viewBox: "0 0 24 24",
           fill: "none",
           stroke: "currentColor",
@@ -1050,59 +1050,115 @@ const Q = ({ openAccountModal: n }) => {
           ],
         }),
       }),
-      s &&
+      d &&
         t("div", {
-          className: "profile__dropdown-menu",
+          className: "wallet-dropdown",
+          id: "walletDropdown",
           children: [
-            t("button", {
-              onClick: () => {
-                o(!1), n();
-              },
-              className: "profile__menu-item",
+            t("div", {
+              className: "wallet-header",
               children: [
-                t("svg", {
-                  xmlns: "http://www.w3.org/2000/svg",
-                  width: "16",
-                  height: "16",
-                  viewBox: "0 0 24 24",
-                  fill: "none",
-                  stroke: "currentColor",
-                  strokeWidth: "2",
-                  strokeLinecap: "round",
-                  strokeLinejoin: "round",
+                t("div", {
                   children: [
-                    e("path", {
-                      d: "M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2",
-                    }),
-                    e("circle", { cx: "12", cy: "7", r: "4" }),
+                    e("div", { className: "wallet-label", children: "网络" }),
+                    e("div", { className: "wallet-value", children: o.name }),
                   ],
                 }),
-                e("span", { children: "Profile" }),
+                e("div", { className: "wallet-chain-id", children: "ID 1" }),
+              ],
+            }),
+            t("div", {
+              className: "wallet-section",
+              children: [
+                e("div", { className: "wallet-label", children: "地址" }),
+                t("div", {
+                  className: "wallet-address-box",
+                  children: [
+                    e("span", {
+                      className: "wallet-address-text",
+                      children: n.displayName,
+                    }),
+                    e("button", {
+                      type: "button",
+                      className: "copy-button",
+                      "aria-label": "复制地址",
+                      onClick: () => {
+                        navigator.clipboard.writeText("");
+                      },
+                      children: t("svg", {
+                        width: "16",
+                        height: "16",
+                        viewBox: "0 0 24 24",
+                        fill: "none",
+                        stroke: "currentColor",
+                        "stroke-width": "2",
+                        children: [
+                          e("rect", {
+                            x: "9",
+                            y: "9",
+                            width: "13",
+                            height: "13",
+                            rx: "2",
+                            ry: "2",
+                          }),
+                          e("path", {
+                            d: "M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1",
+                          }),
+                        ],
+                      }),
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            t("div", {
+              className: "balance-info-box",
+              children: [
+                t("div", {
+                  className: "balance-info-label",
+                  children: [
+                    t("svg", {
+                      width: "16",
+                      height: "16",
+                      viewBox: "0 0 24 24",
+                      fill: "none",
+                      stroke: "currentColor",
+                      "stroke-width": "2",
+                      children: [
+                        e("circle", { cx: "12", cy: "12", r: "10" }),
+                        e("line", { x1: "12", y1: "16", x2: "12", y2: "12" }),
+                        e("line", { x1: "12", y1: "8", x2: "12.01", y2: "8" }),
+                      ],
+                    }),
+                    "当前余额",
+                  ],
+                }),
+                e("div", {
+                  className: "balance-info-amount",
+                  children: n.displayBalance,
+                }),
               ],
             }),
             t("button", {
+              className: "disconnect-button",
               onClick: () => {
-                o(!1), d();
+                c(!1), l();
               },
-              className: "profile__menu-item profile__menu-item--danger",
               children: [
                 t("svg", {
-                  xmlns: "http://www.w3.org/2000/svg",
                   width: "16",
                   height: "16",
                   viewBox: "0 0 24 24",
                   fill: "none",
                   stroke: "currentColor",
-                  strokeWidth: "2",
-                  strokeLinecap: "round",
-                  strokeLinejoin: "round",
+                  "stroke-width": "2",
                   children: [
                     e("path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" }),
                     e("polyline", { points: "16 17 21 12 16 7" }),
                     e("line", { x1: "21", y1: "12", x2: "9", y2: "12" }),
                   ],
                 }),
-                e("span", { children: "Logout" }),
+                "断开连接",
               ],
             }),
           ],
@@ -1111,30 +1167,30 @@ const Q = ({ openAccountModal: n }) => {
   });
 };
 X(
-  ".wallet-button{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif}.wallet-button__container{align-items:center;display:flex;gap:8px;height:44px;justify-content:center}.wallet-button__connect{background:linear-gradient(90deg,#eab308,#f97316);border:none;border-radius:12px;color:#fff;cursor:pointer;font-size:14px;font-weight:600;padding:12px 24px;transition:all .2s ease}.wallet-button__connect:hover{box-shadow:0 4px 12px rgba(102,126,234,.4);transform:translateY(-1px)}.wallet-button__wrong-network{background:#ff6b6b;border:none;border-radius:12px;color:#fff;cursor:pointer;font-size:14px;font-weight:600;padding:12px 24px;transition:all .2s ease}.wallet-button__wrong-network:hover{background:#ff5252}.wallet-button__connected{align-items:center;display:flex;gap:16px}.wallet-button__chain{align-items:center;background:oklch(.424 .199 265.638);border:1px solid #e2e8f0;border-radius:10px;color:#475569;display:flex;font-size:13px;font-weight:500;gap:1em;padding:8px 12px;transition:all .2s ease}.wallet-button__chain-icon{align-items:center;border-radius:.5rem;display:flex;gap:.5rem}.wallet-button__icon{align-items:center;background:linear-gradient(90deg,#facc15,#f97316);border-radius:50%;display:flex;height:1.5rem;justify-content:center;width:1.5rem}.wallet-button__balance{color:#fff;font-size:1rem;font-weight:600}.wallet-button__account{align-items:center;background-color:rgba(22,163,74,.2);border:1px solid rgba(34,197,94,.3);border-radius:.5rem;display:flex;gap:.5rem;height:40px;justify-content:space-evenly;min-width:150px;padding:0 12px}.wallet-button__status-bot{animation:pulse 2s cubic-bezier(.4,0,.6,1) infinite;background-color:#4ade80;border-radius:9999px;height:.5rem;width:.5rem}.wallet-icon{color:#4ade80;height:1rem;width:1rem}.wallet-button__address{color:#4ade80;font-size:.875rem;font-weight:600}",
+  ".wallet-button{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif}.wallet-button__container{align-items:center;display:flex;gap:8px;height:44px;justify-content:center}.wallet-button__connect{background:linear-gradient(90deg,#eab308,#f97316);border:none;border-radius:12px;color:#fff;cursor:pointer;font-size:14px;font-weight:600;padding:12px 24px;transition:all .2s ease}.wallet-button__connect:hover{box-shadow:0 4px 12px rgba(102,126,234,.4);transform:translateY(-1px)}.wallet-button__wrong-network{background:#ff6b6b;border:none;border-radius:12px;color:#fff;cursor:pointer;font-size:14px;font-weight:600;padding:12px 24px;transition:all .2s ease}.wallet-button__wrong-network:hover{background:#ff5252}.wallet-button__connected{align-items:center;display:flex;gap:16px}.wallet-button__chain{align-items:center;background:linear-gradient(90deg,#ffe7c5,#ffead4);border-radius:9999px;box-shadow:0 1px 2px 0 rgba(0,0,0,.05);box-shadow:0 0 0 1px hsla(0,0%,100%,.6);color:#5a4b23;display:flex;font-size:.875rem;font-weight:500;gap:.5rem;line-height:1.25rem;padding:8px 12px}.wallet-button__chain-icon{align-items:center;border-radius:.5rem;display:flex;gap:.5rem}.wallet-button__icon{align-items:center;background:linear-gradient(90deg,#facc15,#f97316);border-radius:50%;display:flex;height:1.5rem;justify-content:center;width:1.5rem}.wallet-button__account{align-items:center;background-color:rgba(22,163,74,.2);background-color:#fff;border:none;border-radius:.5rem;border-radius:9999px;box-shadow:0 1px 2px 0 rgba(0,0,0,.05);color:#66608d;cursor:pointer;display:flex;font-size:.875rem;gap:.5rem;height:40px;justify-content:space-evenly;line-height:1.25rem;min-width:150px;padding:.25rem .75rem;transform:translateY(-1px);transition:transform .2s}.wallet-button__status-bot{animation:pulse 2s cubic-bezier(.4,0,.6,1) infinite;background-color:#4ade80;border-radius:9999px;height:.5rem;width:.5rem}.wallet-icon{color:#4ade80;height:1rem;width:1rem}.wallet-button__address{color:#4ade80;color:#8b8eb5;font-size:.875rem;font-size:.75rem;font-weight:600;line-height:1rem}.notification-container{position:relative}.notification-button{background-color:#fff;border:1px solid #e7e5fb;border-radius:9999px;box-shadow:0 1px 2px 0 rgba(0,0,0,.05);box-sizing:border-box;color:#6a6d94;display:flex;height:2.5rem;position:relative;width:2.5rem}.notification-badge,.notification-button{align-items:center;justify-content:center}.notification-badge{background-color:#ff5a5f;border-radius:9999px;color:#fff;display:inline-flex;font-size:.625rem;font-weight:600;height:1rem;line-height:1rem;padding:.25 .25rem;position:absolute;right:-.25rem;top:-.25rem;width:1rem}",
 );
 const Z = ({
   label: n = "连接钱包",
   showBalance: a = !0,
   showChainName: i = !0,
   className: r = "",
-  size: s = "medium",
+  size: o = "medium",
 }) =>
   e("div", {
-    className: `wallet-button wallet-button--${s} ${r}`,
-    children: e(A.Custom, {
+    className: `wallet-button wallet-button--${o} ${r}`,
+    children: e(M.Custom, {
       children: ({
         account: r,
-        chain: s,
-        openAccountModal: o,
-        openConnectModal: u,
-        authenticationStatus: d,
-        mounted: p,
+        chain: o,
+        openAccountModal: s,
+        openConnectModal: d,
+        authenticationStatus: c,
+        mounted: u,
       }) =>
         e("div", {
           className: "wallet-button__container",
           children:
-            p && "loading" !== d && r && s && (!d || "authenticated" === d)
+            u && "loading" !== c && r && o && (!c || "authenticated" === c)
               ? t("div", {
                   className: "wallet-button__connected",
                   children: [
@@ -1142,25 +1198,22 @@ const Z = ({
                       t("div", {
                         className: "wallet-button__chain",
                         children: [
-                          s.iconUrl &&
+                          o.iconUrl &&
                             e("div", {
                               className: "wallet-button__chain-icon",
                               children: e("img", {
-                                alt: s.name ?? "Chain icon",
-                                src: s.iconUrl,
+                                alt: o.name ?? "Chain icon",
+                                src: o.iconUrl,
                                 className: "wallet-button__icon",
                               }),
                             }),
                           a &&
                             r.displayBalance &&
-                            e("span", {
-                              className: "wallet-button__balance",
-                              children: r.displayBalance,
-                            }),
+                            e("span", { children: r.displayBalance }),
                         ],
                       }),
                     t("button", {
-                      onClick: o,
+                      onClick: s,
                       type: "button",
                       className: "wallet-button__account",
                       children: [
@@ -1192,11 +1245,37 @@ const Z = ({
                         }),
                       ],
                     }),
-                    e(Q, { openAccountModal: o }),
+                    e("div", {
+                      className: "notification-container",
+                      children: t("div", {
+                        className: "notification-button",
+                        children: [
+                          t("svg", {
+                            width: "20",
+                            height: "20",
+                            viewBox: "0 0 24 24",
+                            fill: "none",
+                            stroke: "currentColor",
+                            "stroke-width": "2",
+                            children: [
+                              e("path", {
+                                d: "M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9",
+                              }),
+                              e("path", { d: "M13.73 21a2 2 0 0 1-3.46 0" }),
+                            ],
+                          }),
+                          e("span", {
+                            className: "notification-badge",
+                            children: "99",
+                          }),
+                        ],
+                      }),
+                    }),
+                    e(Q, { account: r, chain: o, openAccountModal: s }),
                   ],
                 })
               : e("button", {
-                  onClick: u,
+                  onClick: d,
                   type: "button",
                   className: "wallet-button__connect",
                   children: n,
@@ -1208,10 +1287,10 @@ export {
   Z as WalletButton,
   P as WalletProvider,
   J as useCourseContract,
-  Y as useERC20,
-  H as useNetworkSwitch,
+  V as useERC20,
+  L as useNetworkSwitch,
   G as useSimpleYDToken,
-  z as useWalletConnection,
-  D as useWalletInfo,
+  D as useWalletConnection,
+  H as useWalletInfo,
 };
 //# sourceMappingURL=index.esm.js.map
