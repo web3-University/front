@@ -9,5 +9,22 @@ declare const ButtonCva: React.ForwardRefExoticComponent<
   ButtonCvaProps & React.RefAttributes<HTMLButtonElement>
 >;
 
-export { ButtonCva };
-export type { ButtonCvaProps };
+interface CourseCardProps {
+  course: {
+    id: string;
+    title: string;
+    category: string;
+    instructor: string;
+    rating: number;
+    students: number;
+    price: number;
+    coverColor: string;
+  };
+  onDetail?: (course: CourseCardProps["course"]) => void;
+  clickable?: boolean;
+  children?: React.ReactNode;
+}
+declare const CourseCard: React.FC<CourseCardProps>;
+
+export { ButtonCva, CourseCard };
+export type { ButtonCvaProps, CourseCardProps };

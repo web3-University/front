@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 基础样式重置 */
+* {
+  box-sizing: border-box;
+}
+
+/* Storybook 容器样式 */
+.sb-show-main {
+  padding: 1rem;
+}
+
+/* 确保组件在 Storybook 中正确显示 */
+.sb-story {
+  background: #f8fafc;
+  min-height: 100vh;
+  padding: 2rem;
+}

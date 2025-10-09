@@ -1,3 +1,4 @@
+"use client";
 import CourseItem from "./CourseItem";
 
 export type FeaturedCourse = {

@@ -30,7 +30,12 @@ export default [
         tsconfig: "./tsconfig.json",
         declaration: true,
         declarationDir: "./dist/esm/types",
-        exclude: ["**/*.test.tsx", "**/*.test.ts", "**/*.spec.tsx", "**/*.spec.ts"],
+        exclude: [
+          "**/*.test.tsx",
+          "**/*.test.ts",
+          "**/*.spec.tsx",
+          "**/*.spec.ts",
+        ],
       }),
     ],
     external: ["react", "react-dom"],

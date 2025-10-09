@@ -1,0 +1,14 @@
+import type { Meta, StoryObj } from "@storybook/react";
+import { CourseCard } from "./CourseCard";
+declare const meta: Meta<typeof CourseCard>;
+export default meta;
+type Story = StoryObj<typeof meta>;
+export declare const Default: Story;
+export declare const DifferentCategories: Story;
+export declare const HighRated: Story;
+export declare const LowPrice: Story;
+export declare const NonClickable: Story;
+export declare const WithActions: Story;
+export declare const MissingData: Story;
+export declare const ExtremeData: Story;
+export declare const AllVariants: Story;
