@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef, createElement } from "react";
 
 var jsxRuntime = { exports: {} };
 
@@ -540,5 +540,253 @@ const ButtonCva = React.forwardRef(
 );
 ButtonCva.displayName = "ButtonCva";
 
-export { ButtonCva };
+/**
+ * @license lucide-react v0.544.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+
+const toKebabCase = (string) =>
+  string.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+const toCamelCase = (string) =>
+  string.replace(/^([A-Z])|[\s-_]+(\w)/g, (match, p1, p2) =>
+    p2 ? p2.toUpperCase() : p1.toLowerCase(),
+  );
+const toPascalCase = (string) => {
+  const camelCase = toCamelCase(string);
+  return camelCase.charAt(0).toUpperCase() + camelCase.slice(1);
+};
+const mergeClasses = (...classes) =>
+  classes
+    .filter((className, index, array) => {
+      return (
+        Boolean(className) &&
+        className.trim() !== "" &&
+        array.indexOf(className) === index
+      );
+    })
+    .join(" ")
+    .trim();
+const hasA11yProp = (props) => {
+  for (const prop in props) {
+    if (prop.startsWith("aria-") || prop === "role" || prop === "title") {
+      return true;
+    }
+  }
+};
+
+/**
+ * @license lucide-react v0.544.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+
+var defaultAttributes = {
+  xmlns: "http://www.w3.org/2000/svg",
+  width: 24,
+  height: 24,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 2,
+  strokeLinecap: "round",
+  strokeLinejoin: "round",
+};
+
+/**
+ * @license lucide-react v0.544.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+
+const Icon = forwardRef(
+  (
+    {
+      color = "currentColor",
+      size = 24,
+      strokeWidth = 2,
+      absoluteStrokeWidth,
+      className = "",
+      children,
+      iconNode,
+      ...rest
+    },
+    ref,
+  ) =>
+    createElement(
+      "svg",
+      {
+        ref,
+        ...defaultAttributes,
+        width: size,
+        height: size,
+        stroke: color,
+        strokeWidth: absoluteStrokeWidth
+          ? (Number(strokeWidth) * 24) / Number(size)
+          : strokeWidth,
+        className: mergeClasses("lucide", className),
+        ...(!children && !hasA11yProp(rest) && { "aria-hidden": "true" }),
+        ...rest,
+      },
+      [
+        ...iconNode.map(([tag, attrs]) => createElement(tag, attrs)),
+        ...(Array.isArray(children) ? children : [children]),
+      ],
+    ),
+);
+
+/**
+ * @license lucide-react v0.544.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+
+const createLucideIcon = (iconName, iconNode) => {
+  const Component = forwardRef(({ className, ...props }, ref) =>
+    createElement(Icon, {
+      ref,
+      iconNode,
+      className: mergeClasses(
+        `lucide-${toKebabCase(toPascalCase(iconName))}`,
+        `lucide-${iconName}`,
+        className,
+      ),
+      ...props,
+    }),
+  );
+  Component.displayName = toPascalCase(iconName);
+  return Component;
+};
+
+/**
+ * @license lucide-react v0.544.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+
+const __iconNode$1 = [
+  [
+    "path",
+    {
+      d: "M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z",
+      key: "r04s7s",
+    },
+  ],
+];
+const Star = createLucideIcon("star", __iconNode$1);
+
+/**
+ * @license lucide-react v0.544.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+
+const __iconNode = [
+  [
+    "path",
+    {
+      d: "M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1",
+      key: "18etb6",
+    },
+  ],
+  ["path", { d: "M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4", key: "xoc0q4" }],
+];
+const Wallet = createLucideIcon("wallet", __iconNode);
+
+const CourseCard = (props) => {
+  const { course, onDetail, clickable = true, children } = props;
+  // 添加安全检查
+  if (!course) {
+    console.error("CourseCard: course prop is required");
+    return null;
+  }
+  const handleCardClick = (e) => {
+    // 如果点击的是按钮区域，不触发卡片点击
+    if (e.target.closest('[data-slot="actions"]')) {
+      return;
+    }
+    if (clickable && onDetail) {
+      onDetail(course);
+    }
+  };
+  return jsxRuntimeExports.jsxs(
+    "article",
+    {
+      onClick: handleCardClick,
+      className: `group relative flex h-full flex-col overflow-hidden rounded-3xl bg-gradient-to-b from-white to-[#F7F5FF] px-6 pb-6 pt-6 shadow-[0_22px_60px_rgba(168,174,255,0.22)] ring-1 ring-[#ECEBFF] transition-transform duration-200 hover:-translate-y-2 ${clickable ? "cursor-pointer" : ""}`,
+      children: [
+        jsxRuntimeExports.jsx("div", {
+          className: `relative h-48 w-full overflow-hidden rounded-2xl bg-gradient-to-br ${course.coverColor || "from-gray-400 to-gray-600"}`,
+          children: jsxRuntimeExports.jsx("span", {
+            className:
+              "absolute left-4 top-4 inline-flex rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-[#2B2558]",
+            children: course.category || "未分类",
+          }),
+        }),
+        jsxRuntimeExports.jsxs("div", {
+          className: "flex flex-1 flex-col gap-4 pt-6 text-left",
+          children: [
+            jsxRuntimeExports.jsxs("div", {
+              children: [
+                jsxRuntimeExports.jsx("h3", {
+                  className: "text-xl font-semibold text-[#2B2558]",
+                  children: course.title || "未命名课程",
+                }),
+                jsxRuntimeExports.jsxs("p", {
+                  className: "mt-2 text-sm text-[#7B7EA9]",
+                  children: ["\u8BB2\u5E08\uFF1A", course.instructor || "未知"],
+                }),
+              ],
+            }),
+            jsxRuntimeExports.jsxs("div", {
+              className: "flex items-center justify-between text-sm",
+              children: [
+                jsxRuntimeExports.jsxs("div", {
+                  className: "flex items-center gap-2 text-[#F5B742]",
+                  children: [
+                    jsxRuntimeExports.jsx(Star, {
+                      className: "h-4 w-4 fill-[#F5B742] text-[#F5B742]",
+                    }),
+                    jsxRuntimeExports.jsx("span", {
+                      className: "font-semibold",
+                      children: (course.rating || 0).toFixed(1),
+                    }),
+                    jsxRuntimeExports.jsxs("span", {
+                      className: "text-xs text-[#8F92B5]",
+                      children: ["(", course.students || 0, "\u4EBA)"],
+                    }),
+                  ],
+                }),
+                jsxRuntimeExports.jsxs("div", {
+                  className: "flex items-center gap-1 text-[#FF9F50]",
+                  children: [
+                    jsxRuntimeExports.jsx(Wallet, { className: "h-4 w-4" }),
+                    jsxRuntimeExports.jsxs("span", {
+                      className: "text-base font-semibold",
+                      children: ["YD ", course.price || 0],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            children &&
+              jsxRuntimeExports.jsx("div", {
+                "data-slot": "actions",
+                children: children,
+              }),
+          ],
+        }),
+      ],
+    },
+    course.id,
+  );
+};
+
+export { ButtonCva, CourseCard };
 //# sourceMappingURL=index.esm.js.map

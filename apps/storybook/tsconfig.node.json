@@ -6,5 +6,10 @@
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true
   },
-  "include": [".storybook"]
+  "include": [
+    ".storybook/**/*.ts",
+    ".storybook/**/*.js",
+    "tailwind.config.js",
+    "postcss.config.js"
+  ]
 }

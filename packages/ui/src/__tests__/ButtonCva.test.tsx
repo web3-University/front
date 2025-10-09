@@ -1,7 +1,7 @@
-import React from "react";
+import { describe, expect, it, jest } from "@jest/globals";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, jest } from "@jest/globals";
+import React from "react";
 import { ButtonCva } from "../Button/ButtonCva";
 
 describe("ButtonCva", () => {

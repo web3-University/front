@@ -15,7 +15,8 @@
       "!build",
       "!jest-stare",
       "!cypress",
-      "!tests"
+      "!tests",
+      "!storybook"
     ]
   },
   "formatter": {
@@ -31,7 +32,8 @@
         "noUnknownAtRules": "off"
       },
       "a11y": {
-        "useKeyWithClickEvents": "off"
+        "useKeyWithClickEvents": "off",
+        "useButtonType": "off"
       }
     },
     "domains": {

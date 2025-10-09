@@ -1,0 +1,176 @@
+/* WalletButton Component Styles */
+.wallet-button {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+}
+
+.wallet-button__container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+}
+
+.wallet-button__connect {
+  background: linear-gradient(to right, #eab308, #f97316);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 12px 24px;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.wallet-button__connect:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.wallet-button__wrong-network {
+  background: #ff6b6b;
+  border: none;
+  border-radius: 12px;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 12px 24px;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.wallet-button__wrong-network:hover {
+  background: #ff5252;
+}
+
+.wallet-button__connected {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.wallet-button__chain {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  background: linear-gradient(to right, #ffe7c5, #ffead4);
+  padding: 8px 12px;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  color: #5a4b23;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+
+.wallet-button__chain-icon {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+}
+
+.wallet-button__icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  background: linear-gradient(to right, #facc15, #f97316);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wallet-button__account {
+  transform: translateY(-1px);
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  gap: 0.5rem;
+  background-color: rgba(22, 163, 74, 0.2);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 0.5rem;
+  padding: 0 12px;
+  height: 40px;
+  min-width: 150px;
+
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  background-color: white;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: #66608d;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border: 1px solid #e6e4fa;
+  transition: transform 0.2s;
+  cursor: pointer;
+  border: none;
+}
+
+.wallet-button__status-bot {
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: #4ade80;
+  border-radius: 9999px;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.wallet-icon {
+  width: 1rem;
+  height: 1rem;
+  color: #4ade80;
+}
+
+.wallet-button__address {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #4ade80;
+
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: #8b8eb5;
+}
+
+/* Notification Bell */
+.notification-container {
+  position: relative;
+}
+
+.notification-button {
+  position: relative;
+  display: flex;
+  height: 2.5rem;
+  width: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background-color: white;
+  color: #6a6d94;
+  border: 1px solid #e7e5fb;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+.notification-badge {
+  position: absolute;
+  right: -0.25rem;
+  top: -0.25rem;
+  display: inline-flex;
+  height: 1rem;
+  width: 1rem;
+
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background-color: #ff5a5f;
+  padding: 0.25 0.25rem;
+  font-size: 0.625rem;
+  line-height: 1rem;
+  font-weight: 600;
+  color: white;
+}
