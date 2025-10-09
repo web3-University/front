@@ -1,0 +1,55 @@
+{
+  "compilerOptions": {
+    // 编译目标为 ES2020，支持现代 JavaScript 特性
+    "target": "ES2020",
+    // 启用类字段定义的现代语法
+    "useDefineForClassFields": true,
+    // 包含的类型库：ES2020、DOM 和 DOM 迭代器
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    // 模块系统使用 ESNext，支持最新的模块语法
+    "module": "ESNext",
+    // 跳过库文件的类型检查，提高编译速度
+    "skipLibCheck": true,
+    // 模块解析策略使用打包器模式
+    "moduleResolution": "bundler",
+    // 不允许导入 .ts 扩展名
+    "allowImportingTsExtensions": false,
+    // 允许导入 JSON 模块
+    "resolveJsonModule": true,
+    // 每个文件都作为独立模块处理
+    "isolatedModules": true,
+    // 不生成输出文件（用于类型检查）
+    "noEmit": true,
+    // 使用 React 17+ 的新 JSX 转换
+    "jsx": "react-jsx",
+    // 启用严格模式类型检查
+    "strict": true,
+    // 检查未使用的局部变量
+    "noUnusedLocals": true,
+    // 检查未使用的参数
+    "noUnusedParameters": true,
+    // 检查 switch 语句中的 fallthrough 情况
+    "noFallthroughCasesInSwitch": true,
+    // 生成类型声明文件
+    "declaration": true,
+    // 生成声明文件的 source map
+    "declarationMap": true,
+    // 允许 ES 模块互操作
+    "esModuleInterop": true,
+    // 允许合成默认导入
+    "allowSyntheticDefaultImports": true,
+    // 强制文件名大小写一致
+    "forceConsistentCasingInFileNames": true,
+    // 设置基础路径
+    "baseUrl": ".",
+    // 路径映射配置，@/* 映射到 src/*
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "outDir": "./dist"
+  },
+  // 包含 src 目录下的所有文件
+  "include": ["src/**/*"],
+  // 排除 node_modules、dist 和 examples 目录
+  "exclude": ["node_modules", "dist"]
+}
