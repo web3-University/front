@@ -1,15 +1,4 @@
-type ChainType =
-  | "ethereum"
-  | "bitcoin"
-  | "solana"
-  | "cosmos"
-  | "polkadot"
-  | "tron"
-  | "ripple"
-  | "cardano"
-  | "tezos"
-  | "near"
-  | "generic";
+type ChainType = "ethereum" | "bitcoin" | "solana" | "cosmos" | "polkadot" | "tron" | "ripple" | "cardano" | "tezos" | "near" | "generic";
 /**
  * 格式化地址字符串
  *

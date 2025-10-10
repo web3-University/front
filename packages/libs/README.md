@@ -48,6 +48,48 @@ console.log(formatAddress("very-long-account-name.near", "near"));
 // 输出: "very-l...e.near"
 ```
 
+### 时间格式化 (formatTime)
+
+用于格式化时间，支持多种预定义格式、相对时间和自定义格式。
+
+```typescript
+import { formatTime } from '@web3-university/libs';
+
+// 默认格式 (YYYY-MM-DD HH:mm:ss)
+console.log(formatTime(new Date()));
+// 输出: "2025-10-10 23:45:30"
+
+// 指定格式
+console.log(formatTime(Date.now(), { format: "YYYY-MM-DD" }));
+// 输出: "2025-10-10"
+
+console.log(formatTime(new Date(), { format: "YYYY/MM/DD HH:mm:ss" }));
+// 输出: "2025/10/10 23:45:30"
+
+console.log(formatTime(new Date(), { format: "MM-DD HH:mm" }));
+// 输出: "10-10 23:45"
+
+// 相对时间
+console.log(formatTime(new Date(), { format: "relative" }));
+// 输出: "刚刚"
+
+const oneHourAgo = Date.now() - 60 * 60 * 1000;
+console.log(formatTime(oneHourAgo, { format: "relative" }));
+// 输出: "1小时前"
+
+// 自定义格式
+console.log(formatTime(new Date(), {
+  format: "custom",
+  customFormat: "YYYY年MM月DD日 HH:mm"
+}));
+// 输出: "2025年10月10日 23:45"
+
+// 支持多种输入类型
+formatTime(new Date())           // Date 对象
+formatTime(1728576000000)        // 时间戳
+formatTime("2025-10-10")         // 日期字符串
+```
+
 ## 📋 API 文档
 
 ### formatAddress(address, chain?)
@@ -101,6 +143,80 @@ formatAddress("alice.near", "near")
 // 返回: "alice.near" (短名称保持完整)
 ```
 
+### formatTime(time, options?)
+
+格式化时间字符串。
+
+#### 参数
+
+- `time` (TimeInput): 时间输入，可以是 Date 对象、时间戳（number）或日期字符串（string）
+- `options` (FormatOptions, 可选): 格式化选项
+  - `format` (FormatType): 格式类型，默认为 "YYYY-MM-DD HH:mm:ss"
+  - `customFormat` (string): 自定义格式字符串，仅在 format 为 "custom" 时使用
+
+#### 支持的格式类型
+
+| 格式类型 | 说明 | 示例输出 |
+|---------|------|---------|
+| `YYYY-MM-DD` | 年-月-日 | "2025-10-10" |
+| `YYYY-MM-DD HH:mm:ss` | 年-月-日 时:分:秒 (默认) | "2025-10-10 23:45:30" |
+| `YYYY/MM/DD` | 年/月/日 | "2025/10/10" |
+| `YYYY/MM/DD HH:mm:ss` | 年/月/日 时:分:秒 | "2025/10/10 23:45:30" |
+| `MM-DD HH:mm` | 月-日 时:分 | "10-10 23:45" |
+| `HH:mm:ss` | 时:分:秒 | "23:45:30" |
+| `relative` | 相对时间 | "刚刚"、"5分钟前"、"2小时前" |
+| `custom` | 自定义格式 | 根据 customFormat 参数 |
+
+#### 自定义格式占位符
+
+在使用 `format: "custom"` 时，可以使用以下占位符：
+
+- `YYYY` - 四位年份
+- `MM` - 两位月份（补零）
+- `DD` - 两位日期（补零）
+- `HH` - 两位小时（补零）
+- `mm` - 两位分钟（补零）
+- `ss` - 两位秒数（补零）
+
+#### 相对时间规则
+
+- 小于 60 秒：显示"刚刚"
+- 1-59 分钟：显示"X分钟前"
+- 1-23 小时：显示"X小时前"
+- 1-29 天：显示"X天前"
+- 1-11 个月：显示"X个月前"
+- 12 个月及以上：显示"X年前"
+
+#### 返回值
+
+- `string`: 格式化后的时间字符串
+- 如果输入无效，返回空字符串
+
+#### 示例
+
+```typescript
+const now = new Date();
+
+// 预定义格式
+formatTime(now, { format: "YYYY-MM-DD" })
+// 返回: "2025-10-10"
+
+// 相对时间
+formatTime(Date.now() - 5 * 60 * 1000, { format: "relative" })
+// 返回: "5分钟前"
+
+// 自定义格式
+formatTime(now, {
+  format: "custom",
+  customFormat: "YYYY年MM月DD日 星期"
+})
+// 返回: "2025年10月10日 星期"
+
+// 错误处理
+formatTime("invalid-date")
+// 返回: ""
+```
+
 ## 🧪 测试
 
 运行测试：
@@ -144,7 +260,8 @@ cd packages/libs && pnpm run publish:libs
 packages/libs/
 ├── src/
 │   ├── format/
-│   │   └── address.ts    # 地址格式化工具
+│   │   ├── address.ts    # 地址格式化工具
+│   │   └── time.ts       # 时间格式化工具
 │   └── index.ts          # 主入口文件
 ├── __tests__/
 │   ├── address.test.ts   # 地址格式化测试
