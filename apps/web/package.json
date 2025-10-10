@@ -13,6 +13,7 @@
   "dependencies": {
     "@rainbow-me/rainbowkit": "^2.2.8",
     "@tanstack/react-query": "^5.90.2",
+    "@web3-university/uni-wallet-lib": "workspace:*",
     "@web3-university/ui": "workspace:^",
     "axios": "^1.12.2",
     "class-variance-authority": "^0.7.1",

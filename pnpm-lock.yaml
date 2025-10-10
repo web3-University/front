@@ -129,6 +129,9 @@ importers:
       '@web3-university/ui':
         specifier: workspace:^
         version: link:../../packages/ui
+      '@web3-university/uni-wallet-lib':
+        specifier: workspace:*
+        version: link:../../packages/uni-wallet-lib
       axios:
         specifier: ^1.12.2
         version: 1.12.2

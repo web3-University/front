@@ -1,35 +1,23 @@
 "use client";
 
-import "@rainbow-me/rainbowkit/styles.css";
+import { WalletProvider } from "@web3-university/uni-wallet-lib";
+import type { ReactNode } from "react";
 
-import {
-  darkTheme,
-  lightTheme,
-  RainbowKitProvider,
-} from "@rainbow-me/rainbowkit";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { type ReactNode, useState } from "react";
-import { WagmiProvider } from "wagmi";
 import Header from "@/components/layout/Header";
-import { wagmiConfig } from "@/lib/web3/config";
+
+const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
 
 export function Providers({ children }: { children: ReactNode }) {
-  const [queryClient] = useState(() => new QueryClient());
+  if (!projectId) {
+    console.warn(
+      "NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID 未配置，钱包功能可能无法使用",
+    );
+  }
 
   return (
-    <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider
-          theme={{
-            lightMode: lightTheme(),
-            darkMode: darkTheme(),
-          }}
-          modalSize="wide"
-        >
-          <Header />
-          {children}
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    <WalletProvider appName="Web3 University" projectId={projectId ?? "demo"}>
+      <Header />
+      {children}
+    </WalletProvider>
   );
 }

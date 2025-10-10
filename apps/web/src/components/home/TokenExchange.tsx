@@ -1,28 +1,79 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { ArrowRight, Coins, Shield, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { useWallet } from "@/components/hooks/useWallet";
+import {
+  useSimpleYDToken,
+  useWalletInfo,
+} from "@web3-university/uni-wallet-lib";
+import { formatUnits } from "viem";
 
-const RATE = 1000; // 1 ETH = 1000 YD（测试环境兑换比例）
+const RATE = 4000; // 1 ETH = 4000 YD（测试环境兑换比例）
 
 export default function TokenExchange() {
-  const { address, balance } = useWallet();
+  const { isConnected } = useWalletInfo();
+  const tokenAddress = useMemo(() => {
+    const addr = process.env.NEXT_PUBLIC_YD_TOKEN_ADDRESS;
+    return addr ? (addr as `0x${string}`) : undefined;
+  }, []);
+
+  const {
+    balance: ydBalance,
+    exchangeETHForTokens,
+    refetchBalance,
+  } = useSimpleYDToken({ address: tokenAddress });
+
   const [ethAmount, setEthAmount] = useState("0.1");
-  const ydAmount = Number(ethAmount || 0) * RATE;
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  const ydAmount = useMemo(() => Number(ethAmount || 0) * RATE, [ethAmount]);
+
+  const ydBalanceLabel = useMemo(() => {
+    if (!ydBalance) return "0";
+    return Number(formatUnits(ydBalance, 18)).toFixed(4);
+  }, [ydBalance]);
 
   const handleEthChange = (value: string) => {
     if (value === "" || /^\d*(\.\d*)?$/.test(value)) {
       setEthAmount(value);
+      setError(null);
+      setSuccess(null);
     }
   };
 
-  const handleExchange = () => {
-    // TODO: 调用合约，将用户支付的 ETH 按照 RATE 兑换成 YD 代币
-    // 需要集成 wagmi/viem 的写操作，并处理交易签名与状态反馈
-    console.info("exchange placeholder", { address, ethAmount, ydAmount });
+  const handleExchange = async () => {
+    if (!isConnected) {
+      setError("请先连接钱包");
+      return;
+    }
+
+    if (!ethAmount || Number(ethAmount) <= 0) {
+      setError("请输入正确的 ETH 数量");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      setError(null);
+      setSuccess(null);
+
+      await exchangeETHForTokens(ethAmount);
+      await refetchBalance();
+
+      setSuccess(`兑换成功！已兑换 ${ydAmount.toFixed(2)} YD`);
+      setEthAmount("");
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "兑换失败，请稍后重试";
+      setError(message);
+      console.error("exchangeETHForTokens error", err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -46,7 +97,7 @@ export default function TokenExchange() {
               <span>
                 当前余额：
                 <span className="font-semibold text-[#4D6BFF]">
-                  {balance ? balance.formatted : 0}
+                  {ydBalanceLabel}
                 </span>{" "}
                 YD
               </span>
@@ -94,17 +145,24 @@ export default function TokenExchange() {
                 fullWidth
                 onClick={handleExchange}
                 className="bg-gradient-to-r from-[#FF9F6B] via-[#FFCD6B] to-[#73FF6C] text-[#1C1C1C] hover:brightness-95"
+                disabled={isSubmitting}
               >
-                立即兑换
+                {isSubmitting ? "兑换中..." : "立即兑换"}
               </Button>
+
+              {error ? (
+                <p className="text-xs text-red-500">{error}</p>
+              ) : success ? (
+                <p className="text-xs text-[#4D6BFF]">{success}</p>
+              ) : null}
             </div>
           </div>
 
           <div className="flex flex-col justify-center gap-8 text-left text-[#2B2558]">
             <header>
-              <p className="inline-flex items-center gap-2 rounded-full bg-[#E4ECFF]/80 px-4 py-1 text-xs uppercase tracking-[0.18em] text-[#4D6BFF]">
+              {/* <p className="inline-flex items-center gap-2 rounded-full bg-[#E4ECFF]/80 px-4 py-1 text-xs uppercase tracking-[0.18em] text-[#4D6BFF]">
                 欢迎来到兑换中心
-              </p>
+              </p> */}
               <h3 className="mt-4 text-3xl font-bold md:text-4xl">
                 Web3 学院兑换站
               </h3>
