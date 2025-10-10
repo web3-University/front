@@ -1,0 +1,35 @@
+{
+  "name": "@web3-university/hooks",
+  "version": "1.0.0",
+  "description": "Web3 University Custom React Hooks Library",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "rollup --config rollup.config.mjs",
+    "dev": "rollup --config rollup.config.mjs -w",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "web3",
+    "hooks",
+    "react",
+    "typescript"
+  ],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.17.1",
+  "peerDependencies": {
+    "react": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.0",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "@types/react": "^19.1.15",
+    "react": "19.1.0",
+    "rollup": "^4.0.0",
+    "rollup-plugin-dts": "^6.0.0",
+    "typescript": "^5.0.0"
+  }
+}

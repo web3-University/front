@@ -6,6 +6,7 @@ import {
   UseReadContractReturnType,
 } from "wagmi";
 import { QueryClient } from "@tanstack/react-query";
+import * as viem from "viem";
 import { Address, Chain, Abi, Hash, TransactionReceipt } from "viem";
 
 interface WalletConfigOptions {
@@ -139,28 +140,28 @@ declare function useWalletConnection(): WalletState & {
 };
 
 declare function useWalletInfo(): {
-  address: GetAccountReturnType<config>;
-  isConnected: GetAccountReturnType<config>;
-  ensName: Compute<any>;
-  chainId: GetChainIdReturnType<config_1>;
+  address: `0x${string}` | undefined;
+  isConnected: boolean;
+  ensName: viem.GetEnsNameReturnType | undefined;
+  chainId: number;
   connector:
     | {
-        id: any;
-        name: any;
-        type: any;
-        icon: any;
+        id: string;
+        name: string;
+        type: string;
+        icon: string | undefined;
       }
     | undefined;
-  chain: any;
+  chain: viem.Chain | undefined;
   balance:
     | {
-        value: any;
+        value: bigint;
         formatted: string;
-        symbol: any;
-        decimals: any;
+        symbol: string;
+        decimals: number;
       }
     | undefined;
-  isBalanceLoading: Compute<any>;
+  isBalanceLoading: boolean;
 };
 
 declare function useNetworkSwitch(): {
