@@ -1,6 +1,6 @@
-import type { Abi, Address } from "viem";
-import type { UseReadContractReturnType } from "wagmi";
 import { useReadContract } from "wagmi";
+import type { UseReadContractReturnType } from "wagmi";
+import { type Address, type Abi } from "viem";
 
 interface UseContractReadProps {
   address: Address; // 合约地址
