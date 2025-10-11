@@ -1,5 +1,5 @@
 {
-  "name": "@web3-university/uni-wallet-lib",
+  "name": "uni-wallet-lib",
   "author": "moGka",
   "version": "0.0.1",
   "description": "A comprehensive Web3 wallet library built on top of wagmi v2 and RainbowKit v2",

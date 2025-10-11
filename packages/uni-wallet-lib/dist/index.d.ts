@@ -6,7 +6,6 @@ import {
   UseReadContractReturnType,
 } from "wagmi";
 import { QueryClient } from "@tanstack/react-query";
-import * as viem from "viem";
 import { Address, Chain, Abi, Hash, TransactionReceipt } from "viem";
 
 interface WalletConfigOptions {
@@ -140,28 +139,28 @@ declare function useWalletConnection(): WalletState & {
 };
 
 declare function useWalletInfo(): {
-  address: `0x${string}` | undefined;
-  isConnected: boolean;
-  ensName: viem.GetEnsNameReturnType | undefined;
-  chainId: number;
+  address: GetAccountReturnType<config>;
+  isConnected: GetAccountReturnType<config>;
+  ensName: Compute<any>;
+  chainId: GetChainIdReturnType<config_1>;
   connector:
     | {
-        id: string;
-        name: string;
-        type: string;
-        icon: string | undefined;
+        id: any;
+        name: any;
+        type: any;
+        icon: any;
       }
     | undefined;
-  chain: viem.Chain | undefined;
+  chain: any;
   balance:
     | {
-        value: bigint;
+        value: any;
         formatted: string;
-        symbol: string;
-        decimals: number;
+        symbol: any;
+        decimals: any;
       }
     | undefined;
-  isBalanceLoading: boolean;
+  isBalanceLoading: Compute<any>;
 };
 
 declare function useNetworkSwitch(): {
@@ -198,10 +197,23 @@ declare function useERC20({
   transferFrom: (from: Address, to: Address, amount: string) => Promise<any>;
 };
 
+type UseContractReadReturn<T> = Omit<UseReadContractReturnType, "data"> & {
+  data: T;
+};
+
+type WriteReturnType = Hash | undefined;
+
 interface UseSimpleYDTokenProps {
   address?: Address;
   spenderAddress?: Address;
   enabled?: boolean;
+}
+interface StakeInfo {
+  amount: bigint;
+  startTime: number;
+  lockPeriod: number;
+  rewardRate: number;
+  lastClaimTime: number;
 }
 declare function useSimpleYDToken({
   address,
@@ -214,16 +226,26 @@ declare function useSimpleYDToken({
   transferReceipt: UseWaitForTransactionReceiptReturnType;
   approveReceipt: UseWaitForTransactionReceiptReturnType;
   transferFromReceipt: UseWaitForTransactionReceiptReturnType;
+  exchangeETHForTokensReceipt: UseWaitForTransactionReceiptReturnType;
+  stakeReceipt: UseWaitForTransactionReceiptReturnType;
+  unstakeReceipt: UseWaitForTransactionReceiptReturnType;
+  claimRewardReceipt: UseWaitForTransactionReceiptReturnType;
   refetchBalance: () => void;
   refetchAllowance: () => void;
-  transfer: (to: Address, amount: string) => Promise<any>;
-  approve: (spender: Address, amount: string) => Promise<any>;
-  transferFrom: (from: Address, to: Address, amount: string) => Promise<any>;
-  exchangeETHForTokens: (ether: string) => Promise<any>;
-};
-
-type UseContractReadReturn<T> = Omit<UseReadContractReturnType, "data"> & {
-  data: T;
+  getStakeInfo: (user: Address) => UseContractReadReturn<StakeInfo>;
+  calculatePendingReward: (user: Address) => UseContractReadReturn<bigint>;
+  canUnstake: (user: Address) => UseContractReadReturn<boolean>;
+  transfer: (to: Address, amount: string) => Promise<WriteReturnType>;
+  approve: (spender: Address, amount: string) => Promise<WriteReturnType>;
+  transferFrom: (
+    from: Address,
+    to: Address,
+    amount: string,
+  ) => Promise<WriteReturnType>;
+  exchangeETHForTokens: (ether: string) => Promise<WriteReturnType>;
+  stake: (amount: bigint, lockPeriod: bigint) => Promise<WriteReturnType>;
+  unstake: (forceUnlock: boolean) => Promise<WriteReturnType>;
+  claimReward: () => Promise<WriteReturnType>;
 };
 
 /**
@@ -236,6 +258,27 @@ interface Course {
   price: bigint;
   isPublished: boolean;
 }
+/**
+ * 学习进度信息结构体
+ */
+interface LearningProgress {
+  courseId: bigint;
+  completedLessons: bigint;
+  totalLessons: bigint;
+  progressPercent: bigint;
+  lastUpdateTime: bigint;
+}
+/**
+ * @dev 退款申请信息
+ */
+interface RefundRequest {
+  courseId: bigint;
+  student: Address;
+  refundAmount: bigint;
+  requestTime: bigint;
+  processed: boolean;
+  approved: boolean;
+}
 interface UseCourseContractProps {
   address: Address;
   tokenDecimals: number;
@@ -244,19 +287,15 @@ declare function useCourseContract({
   address,
   tokenDecimals,
 }: UseCourseContractProps): {
-  createCourseReceipt: UseWaitForTransactionReceiptReturnType;
-  purchaseCourseReceipt: UseWaitForTransactionReceiptReturnType;
   hasAccess: (
-    studentAddress?: Address,
+    student?: Address,
     courseId?: bigint,
   ) => UseContractReadReturn<boolean>;
   getCourse: (courseId?: bigint) => UseContractReadReturn<Course>;
-  getStudentCourses: (
-    studentAddress: Address,
-  ) => UseContractReadReturn<bigint[]>;
+  getStudentCourses: (student: Address) => UseContractReadReturn<bigint[]>;
   getCourseStudents: (courseId: bigint) => UseContractReadReturn<Address[]>;
   getInstructorCourses: (
-    instructorAddress: Address,
+    instructor: Address,
   ) => UseContractReadReturn<bigint[]>;
   getTotalCourses: () => UseContractReadReturn<bigint>;
   getCourseStudentCount: (courseId: bigint) => UseContractReadReturn<bigint>;
@@ -264,12 +303,59 @@ declare function useCourseContract({
     student: Address,
     courseIds: bigint[],
   ) => UseContractReadReturn<boolean[]>;
+  getCourseProgress: (
+    student: Address,
+    courseId: bigint,
+  ) => UseContractReadReturn<LearningProgress>;
+  getRefundRequest: (requestId: bigint) => UseContractReadReturn<RefundRequest>;
+  getRefundEligibilityDetails: (
+    student: Address,
+    courseId: bigint,
+  ) => UseContractReadReturn<[boolean, string, bigint, bigint, bigint, bigint]>;
+  isCertifiedInstructor(instructor: Address): UseContractReadReturn<boolean>;
   createCourse: (
     title: string,
     instructor: Address,
     price: string,
-  ) => Promise<any>;
-  purchaseCourse: (courseId: bigint) => Promise<any>;
+    totalLessons: bigint,
+  ) => Promise<WriteReturnType>;
+  purchaseCourse: (courseId: bigint) => Promise<WriteReturnType>;
+  updateCoursePrice: (
+    courseId: bigint,
+    newPrice: string,
+  ) => Promise<WriteReturnType>;
+  updateCourseProgress: (
+    courseId: bigint,
+    completedLessons: bigint,
+  ) => Promise<WriteReturnType>;
+  requestRefund: (courseId: bigint) => Promise<WriteReturnType>;
+  certifyInstructor: (instructor: Address) => Promise<WriteReturnType>;
+  revokeInstructor: (instructor: Address) => Promise<WriteReturnType>;
+  batchCertifyInstructors: (instructors: Address[]) => Promise<WriteReturnType>;
+  updateCourse: (
+    courseId: bigint,
+    title: string,
+    totalLessons: bigint,
+  ) => Promise<WriteReturnType>;
+  updatePlatformAddress: (
+    newPlatformAddress: Address,
+  ) => Promise<WriteReturnType>;
+  publishCourse: (courseId: bigint) => Promise<WriteReturnType>;
+  unpublishCourse: (courseId: bigint) => Promise<WriteReturnType>;
+  deleteCourse: (courseId: bigint) => Promise<WriteReturnType>;
+  createCourseReceipt: UseWaitForTransactionReceiptReturnType;
+  purchaseCourseReceipt: UseWaitForTransactionReceiptReturnType;
+  updateCoursePriceReceipt: UseWaitForTransactionReceiptReturnType;
+  updateCourseProgressReceipt: UseWaitForTransactionReceiptReturnType;
+  requestRefundReceipt: UseWaitForTransactionReceiptReturnType;
+  certifyInstructorReceipt: UseWaitForTransactionReceiptReturnType;
+  revokeInstructorReceipt: UseWaitForTransactionReceiptReturnType;
+  batchCertifyInstructorsReceipt: UseWaitForTransactionReceiptReturnType;
+  updatePlatformAddressReceipt: UseWaitForTransactionReceiptReturnType;
+  updateCourseReceipt: UseWaitForTransactionReceiptReturnType;
+  publishCourseReceipt: UseWaitForTransactionReceiptReturnType;
+  unpublishCourseReceipt: UseWaitForTransactionReceiptReturnType;
+  deleteCourseReceipt: UseWaitForTransactionReceiptReturnType;
 };
 
 interface WalletButtonProps {
