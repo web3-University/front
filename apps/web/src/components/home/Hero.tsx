@@ -10,6 +10,12 @@ const stats: StatItem[] = [
   { value: "Ƀ 1.2M", label: "交易量" },
   { value: "15,000+", label: "NFT证书" },
 ];
+const goToMartet = () => {
+  window.location.href = "/market";
+};
+const createTeacherAccount = () => {
+  window.location.href = "/course-create";
+};
 // 主页顶部大横幅组件
 export default function Hero() {
   return (
@@ -33,10 +39,14 @@ export default function Hero() {
 
         {/* CTA 居中 */}
         <div className="mx-auto mt-10 flex max-w-lg flex-col gap-4 sm:flex-row sm:justify-center">
-          <Button variant="primary" size="lg">
+          <Button variant="primary" size="lg" onClick={() => goToMartet()}>
             开始学习
           </Button>
-          <Button variant="secondary" size="lg">
+          <Button
+            variant="secondary"
+            size="lg"
+            onClick={() => createTeacherAccount()}
+          >
             成为教师
           </Button>
         </div>

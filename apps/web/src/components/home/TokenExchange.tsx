@@ -84,7 +84,7 @@ export default function TokenExchange() {
             兑换中心
           </h2>
           <p className="mt-3 text-base text-[#6A6D94]">
-            在测试网络中使用 ETH 快速兑换 YD 代币，后续可对接真实合约。
+            快速兑换 YD 代币，购买课程，开始你的 Web3 学习之旅！
           </p>
         </header>
 
