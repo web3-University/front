@@ -15,19 +15,124 @@ interface WalletConfigOptions {
   infuraApiKey?: string;
 }
 
+/**
+ * 签名登录状态枚举
+ */
+declare enum SignInStatus {
+  IDLE = "idle", // 空闲状态
+  REQUESTING_NONCE = "requesting", // 请求 nonce 中
+  WAITING_SIGNATURE = "waiting", // 等待用户签名
+  VERIFYING = "verifying", // 验证签名中
+  SUCCESS = "success", // 成功
+  ERROR = "error",
+}
+/**
+ * 认证配置选项
+ */
+interface AuthConfig {
+  /** 域名(默认为当前域名) */
+  domain?: string;
+  /** 后端 API 基础路径 */
+  apiBaseUrl?: string;
+  /** Token 存储的 localStorage key */
+  tokenStorageKey?: string;
+  /** 是否在连接钱包后自动签名 */
+  autoSignOnConnect?: boolean;
+  /** 签名成功回调 */
+  onSuccess?: (token: string) => void;
+  /** 签名失败回调 */
+  onError?: (error: Error) => void;
+  /** 状态变化回调 */
+  onStatusChange?: (status: SignInStatus) => void;
+}
+/**
+ * 认证上下文值
+ */
+interface AuthContextValue {
+  /** 当前签名状态 */
+  status: SignInStatus;
+  /** 是否已认证 */
+  isAuthenticated: boolean;
+  /** 是否正在认证中 */
+  isAuthenticating: boolean;
+  /** 错误信息 */
+  error: string | null;
+  /** 当前认证的地址 */
+  address: string | undefined;
+  /** 触发签名登录 */
+  signIn: () => Promise<string | null>;
+  /** 退出登录 */
+  signOut: () => void;
+  /** 重新加载认证状态 */
+  reload: () => void;
+}
+/**
+ * Nonce 响应
+ */
+interface NonceResponse {
+  nonce: string;
+  message?: string;
+  expiresAt: number;
+}
+/**
+ * 签名验证响应
+ */
+interface VerifyResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: {};
+  tokenType: string;
+  expiresIn: number;
+}
+
 interface WalletProviderProps extends WalletConfigOptions {
   children: React.ReactNode;
   theme?: "light" | "dark" | "auto";
   queryClient?: QueryClient;
   initialState?: State | undefined;
+  enableAuth?: boolean;
+  authConfig?: AuthConfig;
 }
 declare function WalletProvider({
   children,
   theme,
   queryClient,
   initialState,
+  enableAuth,
+  authConfig,
   ...configOptions
 }: WalletProviderProps): React.ReactElement;
+
+interface AuthProviderProps extends AuthConfig {
+  children: React.ReactNode;
+}
+/**
+ * AuthProvider - 全局认证状态管理
+ *
+ * 功能:
+ * 1. 监听钱包连接状态
+ * 2. 自动触发签名流程(如果配置了 autoSignOnConnect)
+ * 3. 管理认证 Modal 显示
+ * 4. 提供认证上下文给所有子组件
+ *
+ * @example
+ * ```tsx
+ * <WalletProvider>
+ *   <AuthProvider autoSignOnConnect>
+ *     <App />
+ *   </AuthProvider>
+ * </WalletProvider>
+ * ```
+ */
+declare function AuthProvider({
+  children,
+  autoSignOnConnect,
+  ...authConfig
+}: AuthProviderProps): React.ReactElement;
+/**
+ * useAuth Hook - 获取认证上下文
+ */
+declare function useAuth(): AuthContextValue;
 
 interface WalletState {
   isConnected: boolean;
@@ -358,6 +463,50 @@ declare function useCourseContract({
   deleteCourseReceipt: UseWaitForTransactionReceiptReturnType;
 };
 
+/**
+ * 钱包认证 Hook
+ * 提供完整的签名登录流程
+ */
+declare function useWalletAuth(config?: AuthConfig): {
+  status: SignInStatus;
+  isAuthenticated: boolean;
+  isAuthenticating: boolean;
+  error: string | null;
+  address: any;
+  signIn: () => Promise<string | null>;
+  signOut: () => void;
+  reload: () => void;
+};
+
+declare function useWalletSign(): {
+  address: any;
+  isPending: Compute<any>;
+  isSuccess: Compute<any>;
+  isError: Compute<any>;
+  signMessage: (message: string) => Promise<{
+    message: string;
+    signature: any;
+    address: any;
+  }>;
+  signSIWEMessage: (
+    domain: string,
+    nonce: string,
+    chainId?: number,
+  ) => Promise<{
+    message: string;
+    signature: any;
+    address: any;
+  }>;
+  generateSIWEMessage: (
+    domain: string,
+    address: string,
+    nonce: string,
+    chainId?: number,
+    issuedAt?: string,
+    expirationTime?: string,
+  ) => string;
+};
+
 interface WalletButtonProps {
   label?: string;
   showBalance?: boolean;
@@ -367,27 +516,50 @@ interface WalletButtonProps {
 }
 declare const WalletButton: React.FC<WalletButtonProps>;
 
+interface AuthModalProps {
+  status: SignInStatus;
+  error?: string | null;
+  onClose?: () => void;
+}
+declare function AuthModal({
+  status,
+  error,
+  onClose,
+}: AuthModalProps): React.ReactElement | null;
+
 export {
+  AuthModal,
+  AuthProvider,
+  SignInStatus,
   WalletButton,
   WalletProvider,
+  useAuth,
   useCourseContract,
   useERC20,
   useNetworkSwitch,
   useSimpleYDToken,
+  useWalletAuth,
   useWalletConnection,
   useWalletInfo,
+  useWalletSign,
 };
 export type {
+  AuthConfig,
+  AuthContextValue,
+  AuthModalProps,
+  AuthProviderProps,
   ContractConfig,
   ERC20TokenInfo,
   ERC721TokenInfo,
   GasEstimate,
   NFTMetadata,
   NetworkSwitchOptions,
+  NonceResponse,
   TokenBalance,
   TransactionHistory,
   TransactionRequest,
   TransactionStatus,
+  VerifyResponse,
   WalletButtonProps,
   WalletError,
   WalletProviderProps,

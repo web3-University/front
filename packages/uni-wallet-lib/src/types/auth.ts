@@ -58,13 +58,16 @@ export interface AuthContextValue {
 export interface NonceResponse {
   nonce: string;
   message?: string;
+  expiresAt: number;
 }
 
 /**
  * 签名验证响应
  */
 export interface VerifyResponse {
-  token: string;
-  address: string;
-  expiresAt?: string;
+  accessToken: string;
+  refreshToken: string;
+  user: {};
+  tokenType: string;
+  expiresIn: number;
 }

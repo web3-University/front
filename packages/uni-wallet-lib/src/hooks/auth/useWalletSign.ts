@@ -1,5 +1,5 @@
 import { useSignMessage } from "wagmi";
-import { useWalletConnection } from "./useWalletConnection";
+import { useWalletConnection } from "../wallet/useWalletConnection";
 
 export interface SignMessageOptions {
   message: string;
@@ -21,20 +21,22 @@ export function useWalletSign() {
     chainId: number = 1,
     issuedAt?: string,
     expirationTime?: string,
-  ) => {
+  ): string => {
     const issuedAtValue = issuedAt || new Date().toISOString();
-    const signAddress = address;
     const expirationTimeValue =
-      expirationTime || new Date(Date.now() + 5 * 60 * 1000).toString();
-    return `
-    ${domain} wants you to sign in with your Ethereum account: ${signAddress}
-    URI: https://${domain}
-    Version: 1
-    Chain ID: ${chainId}
-    Nonce: ${nonce}
-    Issued At: ${issuedAtValue}
-    Expiration Time: ${expirationTimeValue}
-    `;
+      expirationTime || new Date(Date.now() + 5 * 60 * 1000).toISOString();
+
+    return `${domain} wants you to sign in with your Ethereum account:
+${address}
+
+I accept the Terms of Service.
+
+URI: https://${domain}
+Version: 1
+Chain ID: ${chainId}
+Nonce: ${nonce}
+Issued At: ${issuedAtValue}
+Expiration Time: ${expirationTimeValue}`;
   };
 
   /**
@@ -72,7 +74,6 @@ export function useWalletSign() {
       nonce,
       chainId,
     );
-
     const signature = await signMessageAsync({ message });
 
     return {
@@ -89,5 +90,6 @@ export function useWalletSign() {
     isError,
     signMessage,
     signSIWEMessage,
+    generateSIWEMessage,
   };
 }
