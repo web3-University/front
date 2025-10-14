@@ -6,25 +6,25 @@ const QuickActions = () => {
   const { saveDraft, previewCourse, publishCourse } = useCourseContext();
 
   return (
-    <div className="bg-gray-800 rounded-lg p-4 mb-4">
-      <h3 className="text-white text-sm font-medium mb-3">快捷操作</h3>
+    <div className="bg-white border border-gray-200 rounded-lg p-4 shadow space-y-2">
+      <h3 className="text-sm font-semibold text-gray-700 mb-2">快捷操作</h3>
       <button
         onClick={saveDraft}
-        className="w-full flex items-center justify-center gap-2 bg-blue-50 hover:bg-blue-100 text-blue-600 text-sm py-2 rounded mb-2 transition-colors"
+        className="w-full text-sm bg-gray-100 hover:bg-gray-200 text-gray-800 py-2 rounded-md transition"
       >
         {/* <FaSave className="w-4 h-4" /> */}
         <span>保存草稿</span>
       </button>
       <button
         onClick={previewCourse}
-        className="w-full flex items-center justify-center gap-2 bg-purple-50 hover:bg-purple-100 text-purple-600 text-sm py-2 rounded mb-2 transition-colors"
+        className="w-full text-sm bg-purple-100 hover:bg-purple-200 text-purple-700 py-2 rounded-md transition"
       >
         {/* <FaEye className="w-4 h-4" /> */}
         <span>预览课程</span>
       </button>
       <button
         onClick={publishCourse}
-        className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white text-sm py-2 rounded transition-colors"
+        className="w-full text-sm bg-gradient-to-r from-emerald-400 to-blue-400 hover:opacity-90 text-white py-2 rounded-md transition"
       >
         {/* <FaCheck className="w-4 h-4" /> */}
         <span>发布课程</span>

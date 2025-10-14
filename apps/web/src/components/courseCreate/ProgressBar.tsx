@@ -56,19 +56,21 @@ export default function ProgressBar() {
   const progress = calculateOverallProgress();
 
   return (
-    <div className="bg-gray-800 rounded p-4 mb-4">
-      <h3 className="text-white text-sm font-medium mb-1">课程完成度</h3>
-      <div className="text-right text-gray-400 text-xs mt-1">{progress}%</div>
-      <div className="w-full bg-gray-700 rounded-full h-2">
+    <div className="bg-white border border-gray-200 rounded-lg p-4 shadow mb-4">
+      <h3 className="text-sm font-medium text-gray-700 mb-2">课程完成度</h3>
+      <div className="text-right text-xs text-gray-500 mb-1">{progress}%</div>
+      <div className="w-full bg-gray-100 rounded-full h-2">
         <div
           className={`h-2 rounded-full transition-all duration-300 ${
-            progress >= 60 ? "bg-green-600" : "bg-indigo-600"
+            progress >= 60 ? "bg-emerald-400" : "bg-purple-400"
           }`}
           style={{ width: `${progress}%` }}
         ></div>
       </div>
       <p
-        className={`text-xs mt-1 ${progress >= 60 ? "text-green-400" : "text-gray-400"}`}
+        className={`text-xs mt-2 ${
+          progress >= 60 ? "text-emerald-600" : "text-gray-500"
+        }`}
       >
         {progress >= 60 ? "已满足发布条件！" : "至少需要60%完成度才能发布课程"}
       </p>

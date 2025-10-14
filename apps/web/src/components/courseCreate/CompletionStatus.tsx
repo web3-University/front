@@ -53,46 +53,46 @@ const CompletionStatus = () => {
   const pricingStatus = isPricingComplete() ? "已设置" : "未设置";
 
   return (
-    <div className="rounded-lg p-4 border border-indigo-700">
-      <div className="flex items-center mb-4">
-        <h3 className="text-white text-base font-medium">📊 完成情况</h3>
-      </div>
-      <div className="space-y-2">
-        <div className="flex justify-between">
-          <p className="text-gray-300 text-sm">基本信息:</p>
-          <p
-            className={`text-sm font-medium ${
+    <div className="bg-white border border-gray-200 rounded-lg p-4 shadow">
+      <h3 className="text-sm font-semibold text-gray-700 mb-3">📊 完成情况</h3>
+      <ul className="space-y-2 text-sm text-gray-700">
+        <li className="flex justify-between items-center">
+          <span>基本信息：</span>
+          <span
+            className={`font-medium ${
               basicInfoStatus === "已完成"
-                ? "text-green-400"
-                : "text-yellow-400"
+                ? "text-emerald-500"
+                : "text-yellow-500"
             }`}
           >
             {basicInfoStatus}
-          </p>
-        </div>
-        <div className="flex justify-between">
-          <p className="text-gray-300 text-sm">课程内容:</p>
-          <p
-            className={`text-sm font-medium ${
+          </span>
+        </li>
+        <li className="flex justify-between items-center">
+          <span>课程内容：</span>
+          <span
+            className={`font-medium ${
               contentCompleted === contentTotal
-                ? "text-green-400"
-                : "text-yellow-400"
+                ? "text-emerald-500"
+                : "text-yellow-500"
             }`}
           >
             {contentCompleted}/{contentTotal}
-          </p>
-        </div>
-        <div className="flex justify-between">
-          <p className="text-gray-300 text-sm">定价设置:</p>
-          <p
-            className={`text-sm font-medium ${
-              pricingStatus === "已设置" ? "text-green-400" : "text-yellow-400"
+          </span>
+        </li>
+        <li className="flex justify-between items-center">
+          <span>定价设置：</span>
+          <span
+            className={`font-medium ${
+              pricingStatus === "已设置"
+                ? "text-emerald-500"
+                : "text-yellow-500"
             }`}
           >
             {pricingStatus}
-          </p>
-        </div>
-      </div>
+          </span>
+        </li>
+      </ul>
     </div>
   );
 };
