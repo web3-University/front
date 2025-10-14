@@ -3,7 +3,6 @@ import { useWalletConnection } from "../hooks/wallet/useWalletConnection";
 import { useWalletAuth } from "../hooks/auth/useWalletAuth";
 import { AuthModal } from "../components/AuthModal/AuthModal";
 import type { AuthConfig, AuthContextValue } from "../types/auth";
-import { SignInStatus } from "../types/auth";
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
@@ -40,6 +39,7 @@ export function AuthProvider({
     signIn,
     signOut,
     reload,
+    reset,
     status,
     isAuthenticated,
     isAuthenticating,
@@ -49,15 +49,10 @@ export function AuthProvider({
 
   // 监听钱包连接状态,自动签名
   useEffect(() => {
-    if (
-      autoSignOnConnect &&
-      isConnected &&
-      !isAuthenticated &&
-      status === SignInStatus.IDLE
-    ) {
+    if (autoSignOnConnect && isConnected && !isAuthenticated) {
       signIn();
     }
-  }, [autoSignOnConnect, isConnected, isAuthenticated, status, signIn]);
+  }, [autoSignOnConnect, isConnected, isAuthenticated]);
 
   // 监听地址变化,自动重载认证状态
   useEffect(() => {
@@ -75,6 +70,7 @@ export function AuthProvider({
       signIn,
       signOut,
       reload,
+      reset,
     }),
     [
       status,
@@ -85,6 +81,7 @@ export function AuthProvider({
       signIn,
       signOut,
       reload,
+      reset,
     ],
   );
 
@@ -92,16 +89,7 @@ export function AuthProvider({
     <AuthContext.Provider value={contextValue}>
       {children}
       {/* OpenSea 风格的签名 Modal */}
-      <AuthModal
-        status={status}
-        error={error}
-        onClose={() => {
-          // 只在错误状态下允许关闭
-          if (status === SignInStatus.ERROR) {
-            // Modal 会自动在 3 秒后消失
-          }
-        }}
-      />
+      <AuthModal status={status} error={error} onClose={reset} />
     </AuthContext.Provider>
   );
 }

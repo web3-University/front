@@ -50,7 +50,15 @@ export function WalletProvider({
     return customDarkTheme;
   }, [theme]);
 
-  const content = (
+  // 根据 enableAuth 决定是否包裹 AuthProvider
+  const content =
+    enableAuth && authConfig ? (
+      <AuthProvider {...authConfig}>{children}</AuthProvider>
+    ) : (
+      children
+    );
+
+  return (
     <WagmiProvider
       config={wagmiConfig}
       reconnectOnMount={true}
@@ -62,32 +70,9 @@ export function WalletProvider({
           modalSize="compact"
           showRecentTransactions={true}
         >
-          {children}
+          {content}
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );
-
-  // 如果启用认证,包裹 AuthProvider
-  if (enableAuth) {
-    return (
-      <WagmiProvider
-        config={wagmiConfig}
-        reconnectOnMount={true}
-        initialState={initialState}
-      >
-        <QueryClientProvider client={queryClient}>
-          <RainbowKitProvider
-            theme={rainbowKitTheme}
-            modalSize="compact"
-            showRecentTransactions={true}
-          >
-            <AuthProvider {...authConfig}>{children}</AuthProvider>
-          </RainbowKitProvider>
-        </QueryClientProvider>
-      </WagmiProvider>
-    );
-  }
-
-  return content;
 }

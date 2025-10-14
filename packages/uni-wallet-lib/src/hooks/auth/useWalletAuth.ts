@@ -47,17 +47,7 @@ export function useWalletAuth(config: AuthConfig = {}) {
   const requestNonce = async (
     walletAddress: string,
   ): Promise<NonceResponse> => {
-    setTimeout(() => {}, 3000);
-    return {
-      nonce: "2b5f8d3a9c1234567890abcdef",
-      message: "example.com wants you to sign in with your Ethereum account...",
-      expiresAt: 1696147200,
-    };
-
-    /**
-     * 暂时先不使用接口调用，setTimeout模拟请求
-     */
-    const response = await fetch(`${apiBaseUrl}/nonce`, {
+    const response = await fetch(`${domain}${apiBaseUrl}/nonce`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ walletAddress: walletAddress }),
@@ -66,8 +56,13 @@ export function useWalletAuth(config: AuthConfig = {}) {
     if (!response.ok) {
       throw new Error("Failed to request nonce from server");
     }
+    const json = await response.json();
 
-    return response.json();
+    return {
+      nonce: json.data.nonce,
+      message: json.data.message,
+      expiresAt: json.data.expiresAt,
+    };
   };
 
   /**
@@ -78,19 +73,7 @@ export function useWalletAuth(config: AuthConfig = {}) {
     signature: string,
     message: string,
   ): Promise<VerifyResponse> => {
-    setTimeout(() => {}, 3000);
-    return {
-      accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-      refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-      user: {},
-      tokenType: "Bearer",
-      expiresIn: 900,
-    };
-
-    /**
-     * 暂时先不使用接口调用，setTimeout模拟请求
-     */
-    const response = await fetch(`${apiBaseUrl}/verify`, {
+    const response = await fetch(`${domain}${apiBaseUrl}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ walletAddress, signature, message }),
@@ -99,7 +82,10 @@ export function useWalletAuth(config: AuthConfig = {}) {
       const error = await response.json();
       throw new Error(error.message || "Verification failed");
     }
-    return response.json();
+
+    const json = await response.json();
+
+    return json.data;
   };
 
   /**
@@ -123,14 +109,14 @@ export function useWalletAuth(config: AuthConfig = {}) {
       // 步骤 2: 等待用户签名
       updateStatus(SignInStatus.WAITING_SIGNATURE);
       // 触发 MetaMask 签名弹窗
-      const { signature } = await signSIWEMessage(domain, nonce);
+      const { signature, message } = await signSIWEMessage(domain, nonce);
 
       // 步骤 3: 验证签名
       updateStatus(SignInStatus.VERIFYING);
       const { accessToken, refreshToken } = await verifySignature(
         walletAddress,
         signature,
-        nonce,
+        message.toMessage(),
       );
 
       // 步骤 4: 保存 token
@@ -141,9 +127,6 @@ export function useWalletAuth(config: AuthConfig = {}) {
       // 成功
       updateStatus(SignInStatus.SUCCESS);
       onSuccess?.(accessToken);
-
-      // 延迟重置状态
-      setTimeout(() => updateStatus(SignInStatus.IDLE), 2000);
 
       return accessToken;
     } catch (err) {
@@ -163,13 +146,11 @@ export function useWalletAuth(config: AuthConfig = {}) {
       updateStatus(SignInStatus.ERROR);
       onError?.(err instanceof Error ? err : new Error(displayError));
 
-      // 延迟重置状态
-      setTimeout(() => {
-        updateStatus(SignInStatus.IDLE);
-        setError(null);
-      }, 3000);
-
       return null;
+    } finally {
+      setTimeout(() => {
+        reset(); // 重置状态
+      }, 3000);
     }
   }, [
     walletAddress,
@@ -213,6 +194,14 @@ export function useWalletAuth(config: AuthConfig = {}) {
     }
   }, [walletAddress, tokenStorageKey, signOut]);
 
+  /**
+   * 重置状态（用于关闭 Modal）
+   */
+  const reset = useCallback(() => {
+    updateStatus(SignInStatus.IDLE);
+    setError(null);
+  }, [updateStatus]);
+
   return {
     status,
     isAuthenticated: isAuthenticated(),
@@ -226,5 +215,6 @@ export function useWalletAuth(config: AuthConfig = {}) {
     signIn,
     signOut,
     reload,
+    reset,
   };
 }

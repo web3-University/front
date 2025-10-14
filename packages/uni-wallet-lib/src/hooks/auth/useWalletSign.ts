@@ -1,5 +1,6 @@
 import { useSignMessage } from "wagmi";
 import { useWalletConnection } from "../wallet/useWalletConnection";
+import { SiweMessage } from "siwe";
 
 export interface SignMessageOptions {
   message: string;
@@ -19,24 +20,19 @@ export function useWalletSign() {
     address: string,
     nonce: string,
     chainId: number = 1,
-    issuedAt?: string,
-    expirationTime?: string,
-  ): string => {
-    const issuedAtValue = issuedAt || new Date().toISOString();
-    const expirationTimeValue =
-      expirationTime || new Date(Date.now() + 5 * 60 * 1000).toISOString();
+    statement: string = "Sign in with Ethereum to the app.",
+  ): SiweMessage => {
+    const message = new SiweMessage({
+      domain,
+      address,
+      statement,
+      uri: window ? window.location.origin : undefined,
+      version: "1",
+      chainId,
+      nonce,
+    });
 
-    return `${domain} wants you to sign in with your Ethereum account:
-${address}
-
-I accept the Terms of Service.
-
-URI: https://${domain}
-Version: 1
-Chain ID: ${chainId}
-Nonce: ${nonce}
-Issued At: ${issuedAtValue}
-Expiration Time: ${expirationTimeValue}`;
+    return message;
   };
 
   /**
@@ -74,7 +70,8 @@ Expiration Time: ${expirationTimeValue}`;
       nonce,
       chainId,
     );
-    const signature = await signMessageAsync({ message });
+
+    const signature = await signMessageAsync({ message: message.toMessage() });
 
     return {
       message,

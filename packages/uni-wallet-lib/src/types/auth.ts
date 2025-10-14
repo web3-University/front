@@ -50,6 +50,8 @@ export interface AuthContextValue {
   signOut: () => void;
   /** 重新加载认证状态 */
   reload: () => void;
+  /** 重置状态（关闭 Modal） */
+  reset: () => void;
 }
 
 /**
@@ -67,7 +69,22 @@ export interface NonceResponse {
 export interface VerifyResponse {
   accessToken: string;
   refreshToken: string;
-  user: {};
+  user: User;
   tokenType: string;
   expiresIn: number;
+}
+
+export interface User {
+  createdAt: string;
+  updatedAt: string;
+  userId: number;
+  walletAddress: string;
+  username: string;
+  email: string;
+  avatar: string | null;
+  bio: string | null;
+  specializations: string | null;
+  rating: number;
+  isInstructorRegistered: boolean;
+  isInstructorApproved: boolean;
 }

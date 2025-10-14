@@ -7,6 +7,7 @@ import {
 } from "wagmi";
 import { QueryClient } from "@tanstack/react-query";
 import { Address, Chain, Abi, Hash, TransactionReceipt } from "viem";
+import { SiweMessage } from "siwe";
 
 interface WalletConfigOptions {
   appName: string;
@@ -65,6 +66,8 @@ interface AuthContextValue {
   signOut: () => void;
   /** 重新加载认证状态 */
   reload: () => void;
+  /** 重置状态（关闭 Modal） */
+  reset: () => void;
 }
 /**
  * Nonce 响应
@@ -80,9 +83,23 @@ interface NonceResponse {
 interface VerifyResponse {
   accessToken: string;
   refreshToken: string;
-  user: {};
+  user: User;
   tokenType: string;
   expiresIn: number;
+}
+interface User {
+  createdAt: string;
+  updatedAt: string;
+  userId: number;
+  walletAddress: string;
+  username: string;
+  email: string;
+  avatar: string | null;
+  bio: string | null;
+  specializations: string | null;
+  rating: number;
+  isInstructorRegistered: boolean;
+  isInstructorApproved: boolean;
 }
 
 interface WalletProviderProps extends WalletConfigOptions {
@@ -476,6 +493,7 @@ declare function useWalletAuth(config?: AuthConfig): {
   signIn: () => Promise<string | null>;
   signOut: () => void;
   reload: () => void;
+  reset: () => void;
 };
 
 declare function useWalletSign(): {
@@ -493,7 +511,7 @@ declare function useWalletSign(): {
     nonce: string,
     chainId?: number,
   ) => Promise<{
-    message: string;
+    message: SiweMessage;
     signature: any;
     address: any;
   }>;
@@ -502,9 +520,8 @@ declare function useWalletSign(): {
     address: string,
     nonce: string,
     chainId?: number,
-    issuedAt?: string,
-    expirationTime?: string,
-  ) => string;
+    statement?: string,
+  ) => SiweMessage;
 };
 
 interface WalletButtonProps {
@@ -559,6 +576,7 @@ export type {
   TransactionHistory,
   TransactionRequest,
   TransactionStatus,
+  User,
   VerifyResponse,
   WalletButtonProps,
   WalletError,
