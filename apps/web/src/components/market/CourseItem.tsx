@@ -1,5 +1,4 @@
 import { CourseCard } from "@web3-university/ui";
-import { Star, Wallet } from "lucide-react";
 import CourseButton from "./CourseButton";
 
 interface CourseItemProps {

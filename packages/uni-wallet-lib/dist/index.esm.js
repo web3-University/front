@@ -42,7 +42,7 @@ import {
 import { sepolia as O, mainnet as F } from "wagmi/chains";
 import { SiweMessage as j } from "siwe";
 import "@rainbow-me/rainbowkit/styles.css";
-import { formatEther as z, parseUnits as U, parseEther as L } from "viem";
+import { formatEther as z, parseUnits as L, parseEther as U } from "viem";
 const D = [F, O];
 F.id, O.id, E(), E().colors, E().radii;
 const W = {
@@ -1156,7 +1156,7 @@ function oe({ address: e, spenderAddress: t, enabled: n = !0 }) {
   const { address: a } = m(),
     r = (e) => {
       if (!d) throw new Error("Decimals not loaded");
-      return U(e, d);
+      return L(e, d);
     },
     { data: i } = ne({
       address: e,
@@ -1263,7 +1263,7 @@ function le({ address: e = ce, spenderAddress: t, enabled: n = !0 }) {
     }),
     u = (e) => {
       if (!b) throw new Error("Decimals not loaded");
-      return U(e, b);
+      return L(e, b);
     },
     p = async (e, t) => {
       s(e),
@@ -1314,7 +1314,7 @@ function le({ address: e = ce, spenderAddress: t, enabled: n = !0 }) {
       return await p(t, a), C.send(e, t, a);
     },
     exchangeETHForTokens: async (e) => (
-      await p(ce, L(e)), N.send({ value: L(e), gas: c })
+      await p(ce, U(e)), N.send({ value: U(e), gas: c })
     ),
     stake: async (e, t) => k.send(e, t),
     unstake: async (e) => I.send(e),
@@ -1326,7 +1326,7 @@ function ue({
   tokenDecimals: t = 18,
 }) {
   const n = de(e, ie),
-    a = (e) => U(e, t),
+    a = (e) => L(e, t),
     r = n.write("createCourse"),
     i = n.write("purchaseCourse"),
     s = n.write("updateCoursePrice"),
@@ -1602,8 +1602,8 @@ const me = ({
                           fill: "none",
                           stroke: "currentColor",
                           strokeWidth: "2",
-                          "stroke-linecap": "round",
-                          "stroke-linejoin": "round",
+                          strokeLinecap: "round",
+                          strokeLinejoin: "round",
                           "aria-hidden": "true",
                           children: [
                             e("path", {

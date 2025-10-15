@@ -1304,8 +1304,8 @@ y(
                           fill: "none",
                           stroke: "currentColor",
                           strokeWidth: "2",
-                          "stroke-linecap": "round",
-                          "stroke-linejoin": "round",
+                          strokeLinecap: "round",
+                          strokeLinejoin: "round",
                           "aria-hidden": "true",
                           children: [
                             e.jsx("path", {
