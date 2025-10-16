@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { useWalletConnection } from "../wallet/useWalletConnection";
 import { useWalletSign } from "./useWalletSign";
+import { safeStorage } from "../../utils/safeStorage";
 import type {
   AuthConfig,
   NonceResponse,
@@ -11,6 +12,22 @@ import { SignInStatus } from "../../types/auth";
 /**
  * 钱包认证 Hook
  * 提供完整的签名登录流程
+ *
+ * @description
+ * 集成 SIWE (Sign-In with Ethereum) 标准的钱包认证流程：
+ * 1. 请求 nonce
+ * 2. 用户签名
+ * 3. 验证签名
+ * 4. 获取并存储 JWT token
+ *
+ * @example
+ * ```typescript
+ * const { signIn, signOut, isAuthenticated, status } = useWalletAuth({
+ *   domain: 'http://localhost:3000',
+ *   apiBaseUrl: '/api/v1/auth',
+ *   onSuccess: (token) => console.log('Logged in:', token),
+ * });
+ * ```
  */
 export function useWalletAuth(config: AuthConfig = {}) {
   const {
@@ -120,9 +137,9 @@ export function useWalletAuth(config: AuthConfig = {}) {
       );
 
       // 步骤 4: 保存 token
-      localStorage.setItem(tokenStorageKey, accessToken);
-      localStorage.setItem(refreshTokenStorageKey, refreshToken);
-      localStorage.setItem(`${tokenStorageKey}_address`, walletAddress);
+      safeStorage.setItem(tokenStorageKey, accessToken);
+      safeStorage.setItem(refreshTokenStorageKey, refreshToken);
+      safeStorage.setItem(`${tokenStorageKey}_address`, walletAddress);
 
       // 成功
       updateStatus(SignInStatus.SUCCESS);
@@ -165,30 +182,35 @@ export function useWalletAuth(config: AuthConfig = {}) {
 
   /**
    * 退出登录
+   * 清除所有认证相关的存储数据
    */
   const signOut = useCallback(() => {
-    localStorage.removeItem(tokenStorageKey);
-    localStorage.removeItem(refreshTokenStorageKey);
-    localStorage.removeItem(`${tokenStorageKey}_address`);
+    safeStorage.removeItem(tokenStorageKey);
+    safeStorage.removeItem(refreshTokenStorageKey);
+    safeStorage.removeItem(`${tokenStorageKey}_address`);
     updateStatus(SignInStatus.IDLE);
     setError(null);
-  }, [tokenStorageKey, updateStatus]);
+  }, [tokenStorageKey, refreshTokenStorageKey, updateStatus]);
 
   /**
    * 检查是否已认证
+   * 验证 token 和钱包地址是否匹配
+   *
+   * @returns 是否已通过认证
    */
   const isAuthenticated = useCallback((): boolean => {
-    const token = localStorage.getItem(tokenStorageKey);
-    const storedAddress = localStorage.getItem(`${tokenStorageKey}_address`);
+    const token = safeStorage.getItem(tokenStorageKey);
+    const storedAddress = safeStorage.getItem(`${tokenStorageKey}_address`);
     return !!(token && storedAddress && storedAddress === walletAddress);
   }, [tokenStorageKey, walletAddress]);
 
   /**
    * 重新加载认证状态
+   * 如果钱包地址变化，自动登出
    */
   const reload = useCallback(() => {
     // 如果当前地址与存储的地址不匹配,自动登出
-    const storedAddress = localStorage.getItem(`${tokenStorageKey}_address`);
+    const storedAddress = safeStorage.getItem(`${tokenStorageKey}_address`);
     if (storedAddress && walletAddress && storedAddress !== walletAddress) {
       signOut();
     }

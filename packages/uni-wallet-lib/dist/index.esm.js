@@ -14,8 +14,8 @@ import {
   cookieStorage as p,
   useAccount as m,
   useChainId as y,
-  useChains as f,
-  useConnect as h,
+  useChains as h,
+  useConnect as f,
   useReconnect as g,
   useDisconnect as b,
   useSignMessage as w,
@@ -37,14 +37,14 @@ import {
 } from "@rainbow-me/rainbowkit";
 import {
   QueryClient as B,
-  QueryClientProvider as P,
+  QueryClientProvider as O,
 } from "@tanstack/react-query";
-import { sepolia as O, mainnet as F } from "wagmi/chains";
+import { sepolia as P, mainnet as F } from "wagmi/chains";
 import { SiweMessage as j } from "siwe";
 import "@rainbow-me/rainbowkit/styles.css";
 import { formatEther as z, parseUnits as L, parseEther as U } from "viem";
-const D = [F, O];
-F.id, O.id, E(), E().colors, E().radii;
+const D = [F, P];
+F.id, P.id, E(), E().colors, E().radii;
 const W = {
   ...A(),
   colors: {
@@ -81,8 +81,8 @@ function $() {
       isReconnecting: r,
     } = m(),
     i = y(),
-    s = f(),
-    { connect: o, connectors: d } = h(),
+    s = h(),
+    { connect: o, connectors: d } = f(),
     { reconnect: c } = g(),
     { disconnect: l } = b(),
     u = s.find((e) => e.id === i);
@@ -142,7 +142,70 @@ function q() {
     generateSIWEMessage: i,
   };
 }
-var G = (function (e) {
+const G = () => "undefined" != typeof window && void 0 !== window.localStorage,
+  H = {
+    getItem(e) {
+      if (!G()) return null;
+      try {
+        return localStorage.getItem(e);
+      } catch (e) {
+        return null;
+      }
+    },
+    setItem(e, t) {
+      if (!G()) return !1;
+      try {
+        return localStorage.setItem(e, t), !0;
+      } catch (e) {
+        return !1;
+      }
+    },
+    removeItem(e) {
+      if (!G()) return !1;
+      try {
+        return localStorage.removeItem(e), !0;
+      } catch (e) {
+        return !1;
+      }
+    },
+    clear() {
+      if (!G()) return !1;
+      try {
+        return localStorage.clear(), !0;
+      } catch (e) {
+        return !1;
+      }
+    },
+    getAllKeys() {
+      if (!G()) return [];
+      try {
+        return Object.keys(localStorage);
+      } catch (e) {
+        return [];
+      }
+    },
+    hasItem(e) {
+      return null !== this.getItem(e);
+    },
+    getJSON(e) {
+      const t = this.getItem(e);
+      if (!t) return null;
+      try {
+        return JSON.parse(t);
+      } catch (e) {
+        return null;
+      }
+    },
+    setJSON(e, t) {
+      try {
+        const n = JSON.stringify(t);
+        return this.setItem(e, n);
+      } catch (e) {
+        return !1;
+      }
+    },
+  };
+var Y = (function (e) {
   return (
     (e.IDLE = "idle"),
     (e.REQUESTING_NONCE = "requesting"),
@@ -153,7 +216,7 @@ var G = (function (e) {
     e
   );
 })({});
-function H(e = {}) {
+function V(e = {}) {
   const {
       domain: t = "undefined" != typeof window
         ? window.location.host
@@ -167,8 +230,8 @@ function H(e = {}) {
     c = "REFRESH_TOKEN",
     { signSIWEMessage: l } = q(),
     { address: u, isConnected: p } = $(),
-    [m, y] = a(G.IDLE),
-    [f, h] = a(null),
+    [m, y] = a(Y.IDLE),
+    [h, f] = a(null),
     g = r(
       (e) => {
         y(e), o?.(e);
@@ -178,11 +241,11 @@ function H(e = {}) {
     b = r(async () => {
       if (!u || !p) {
         const e = new Error("Wallet not connected");
-        return h(e.message), s?.(e), null;
+        return f(e.message), s?.(e), null;
       }
-      h(null);
+      f(null);
       try {
-        g(G.REQUESTING_NONCE);
+        g(Y.REQUESTING_NONCE);
         const { nonce: e } = await (async (e) => {
           const a = await fetch(`${t}${n}/nonce`, {
             method: "POST",
@@ -197,9 +260,9 @@ function H(e = {}) {
             expiresAt: r.data.expiresAt,
           };
         })(u);
-        g(G.WAITING_SIGNATURE);
+        g(Y.WAITING_SIGNATURE);
         const { signature: a, message: r } = await l(t, e);
-        g(G.VERIFYING);
+        g(Y.VERIFYING);
         const { accessToken: s, refreshToken: o } = await (async (e, a, r) => {
           const i = await fetch(`${t}${n}/login`, {
             method: "POST",
@@ -217,10 +280,10 @@ function H(e = {}) {
           return (await i.json()).data;
         })(u, a, r.toMessage());
         return (
-          localStorage.setItem(d, s),
-          localStorage.setItem(c, o),
-          localStorage.setItem(`${d}_address`, u),
-          g(G.SUCCESS),
+          H.setItem(d, s),
+          H.setItem(c, o),
+          H.setItem(`${d}_address`, u),
+          g(Y.SUCCESS),
           i?.(s),
           s
         );
@@ -233,7 +296,7 @@ function H(e = {}) {
               ? "用户取消签名"
               : t;
         return (
-          h(n), g(G.ERROR), s?.(e instanceof Error ? e : new Error(n)), null
+          f(n), g(Y.ERROR), s?.(e instanceof Error ? e : new Error(n)), null
         );
       } finally {
         setTimeout(() => {
@@ -242,29 +305,29 @@ function H(e = {}) {
       }
     }, [u, p, t, n, d, g, i, s]),
     w = r(() => {
-      localStorage.removeItem(d),
-        localStorage.removeItem(c),
-        localStorage.removeItem(`${d}_address`),
-        g(G.IDLE),
-        h(null);
-    }, [d, g]),
+      H.removeItem(d),
+        H.removeItem(c),
+        H.removeItem(`${d}_address`),
+        g(Y.IDLE),
+        f(null);
+    }, [d, c, g]),
     v = r(() => {
-      const e = localStorage.getItem(d),
-        t = localStorage.getItem(`${d}_address`);
+      const e = H.getItem(d),
+        t = H.getItem(`${d}_address`);
       return !(!e || !t || t !== u);
     }, [d, u]),
     x = r(() => {
-      const e = localStorage.getItem(`${d}_address`);
+      const e = H.getItem(`${d}_address`);
       e && u && e !== u && w();
     }, [u, d, w]),
     T = r(() => {
-      g(G.IDLE), h(null);
+      g(Y.IDLE), f(null);
     }, [g]);
   return {
     status: m,
     isAuthenticated: v(),
-    isAuthenticating: m !== G.IDLE && m !== G.SUCCESS && m !== G.ERROR,
-    error: f,
+    isAuthenticating: m !== Y.IDLE && m !== Y.SUCCESS && m !== Y.ERROR,
+    error: h,
     address: u,
     signIn: b,
     signOut: w,
@@ -272,7 +335,7 @@ function H(e = {}) {
     reset: T,
   };
 }
-function Y(e, t) {
+function J(e, t) {
   void 0 === t && (t = {});
   var n = t.insertAt;
   if (e && "undefined" != typeof document) {
@@ -287,8 +350,8 @@ function Y(e, t) {
         : r.appendChild(document.createTextNode(e));
   }
 }
-function V({ status: n, error: a, onClose: r }) {
-  return n === G.IDLE
+function K({ status: n, error: a, onClose: r }) {
+  return n === Y.IDLE
     ? null
     : e("div", {
         className: "auth-modal-overlay",
@@ -297,7 +360,7 @@ function V({ status: n, error: a, onClose: r }) {
           className: "auth-modal-content",
           onClick: (e) => e.stopPropagation(),
           children: [
-            n === G.REQUESTING_NONCE &&
+            n === Y.REQUESTING_NONCE &&
               t("div", {
                 className: "auth-modal-body",
                 children: [
@@ -315,7 +378,7 @@ function V({ status: n, error: a, onClose: r }) {
                   }),
                 ],
               }),
-            n === G.WAITING_SIGNATURE &&
+            n === Y.WAITING_SIGNATURE &&
               t("div", {
                 className: "auth-modal-body",
                 children: [
@@ -352,7 +415,7 @@ function V({ status: n, error: a, onClose: r }) {
                   }),
                 ],
               }),
-            n === G.VERIFYING &&
+            n === Y.VERIFYING &&
               t("div", {
                 className: "auth-modal-body",
                 children: [
@@ -370,7 +433,7 @@ function V({ status: n, error: a, onClose: r }) {
                   }),
                 ],
               }),
-            n === G.SUCCESS &&
+            n === Y.SUCCESS &&
               t("div", {
                 className: "auth-modal-body",
                 children: [
@@ -396,7 +459,7 @@ function V({ status: n, error: a, onClose: r }) {
                   }),
                 ],
               }),
-            n === G.ERROR &&
+            n === Y.ERROR &&
               t("div", {
                 className: "auth-modal-body",
                 children: [
@@ -435,11 +498,11 @@ function V({ status: n, error: a, onClose: r }) {
         }),
       });
 }
-Y(
+J(
   ".auth-modal-overlay{align-items:center;animation:fadeIn .2s ease-out;backdrop-filter:blur(4px);background:rgba(0,0,0,.5);bottom:0;display:flex;justify-content:center;left:0;position:fixed;right:0;top:0;z-index:9999}.auth-modal-content{animation:slideUp .3s ease-out;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-width:400px;padding:32px;width:90%}.auth-modal-body{align-items:center;display:flex;flex-direction:column;text-align:center}.auth-modal-icon{animation:pulse 2s ease-in-out infinite;color:#3b82f6;margin-bottom:16px}.auth-modal-icon--success{animation:scaleIn .3s ease-out;color:#10b981}.auth-modal-icon--error{animation:shake .5s ease-out;color:#ef4444}.auth-modal-title{color:#111;font-size:24px;font-weight:600;margin:0 0 8px}.auth-modal-description{color:#6b7280;font-size:14px;margin:0 0 24px}.auth-modal-spinner{margin-top:16px}.spinner{animation:spin 1s linear infinite;border:3px solid #e5e7eb;border-radius:50%;border-top-color:#3b82f6;height:40px;width:40px}.auth-modal-button{background:#3b82f6;border:none;border-radius:8px;color:#fff;cursor:pointer;font-size:16px;font-weight:500;padding:12px 24px;transition:background .2s}.auth-modal-button:hover{background:#2563eb}.auth-modal-button:active{transform:scale(.98)}@keyframes fadeIn{0%{opacity:0}to{opacity:1}}@keyframes slideUp{0%{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}@keyframes spin{to{transform:rotate(1turn)}}@keyframes pulse{0%,to{opacity:1}50%{opacity:.5}}@keyframes scaleIn{0%{transform:scale(0)}to{transform:scale(1)}}@keyframes shake{0%,to{transform:translateX(0)}10%,30%,50%,70%,90%{transform:translateX(-5px)}20%,40%,60%,80%{transform:translateX(5px)}}@media (prefers-color-scheme:dark){.auth-modal-content{background:#1f2937}.auth-modal-title{color:#f9fafb}.auth-modal-description{color:#9ca3af}.spinner{border-color:#3b82f6 #374151 #374151}}",
 );
-const K = o(null);
-function X({ children: n, autoSignOnConnect: a = !1, ...r }) {
+const X = o(null);
+function Q({ children: n, autoSignOnConnect: a = !1, ...r }) {
   const { isConnected: o } = $(),
     {
       signIn: d,
@@ -449,46 +512,46 @@ function X({ children: n, autoSignOnConnect: a = !1, ...r }) {
       status: p,
       isAuthenticated: m,
       isAuthenticating: y,
-      error: f,
-      address: h,
-    } = H(r);
+      error: h,
+      address: f,
+    } = V(r);
   i(() => {
     a && o && !m && d();
   }, [a, o, m]),
     i(() => {
       l();
-    }, [h, l]);
+    }, [f, l]);
   const g = s(
     () => ({
       status: p,
       isAuthenticated: m,
       isAuthenticating: y,
-      error: f,
-      address: h,
+      error: h,
+      address: f,
       signIn: d,
       signOut: c,
       reload: l,
       reset: u,
     }),
-    [p, m, y, f, h, d, c, l, u],
+    [p, m, y, h, f, d, c, l, u],
   );
-  return t(K.Provider, {
+  return t(X.Provider, {
     value: g,
-    children: [n, e(V, { status: p, error: f, onClose: u })],
+    children: [n, e(K, { status: p, error: h, onClose: u })],
   });
 }
-function J() {
-  const e = d(K);
+function Z() {
+  const e = d(X);
   if (!e) throw new Error("useAuth must be used within AuthProvider");
   return e;
 }
-const Q = new B({
+const ee = new B({
   defaultOptions: { queries: { refetchOnWindowFocus: !1, retry: !1 } },
 });
-function Z({
+function te({
   children: t,
   theme: a = "auto",
-  queryClient: r = Q,
+  queryClient: r = ee,
   initialState: i,
   enableAuth: s = !1,
   authConfig: o,
@@ -528,12 +591,12 @@ function Z({
       [d.appName, d.projectId, d.alchemyApiKey, d.infuraApiKey],
     ),
     m = n.useMemo(() => W, [a]),
-    y = s && o ? e(X, { ...o, children: t }) : t;
+    y = s && o ? e(Q, { ...o, children: t }) : t;
   return e(v, {
     config: c,
     reconnectOnMount: !0,
     initialState: i,
-    children: e(P, {
+    children: e(O, {
       client: r,
       children: e(R, {
         theme: m,
@@ -544,10 +607,10 @@ function Z({
     }),
   });
 }
-function ee() {
+function ne() {
   const { address: e, connector: t, isConnected: n } = m(),
     a = y(),
-    r = f().find((e) => e.id === a),
+    r = h().find((e) => e.id === a),
     { data: i } = x({ address: e }),
     { data: s, isLoading: o } = T({ address: e }),
     d = s
@@ -571,8 +634,8 @@ function ee() {
     isBalanceLoading: o,
   };
 }
-function te() {
-  const e = f(),
+function ae() {
+  const e = h(),
     t = y(),
     n = e.find((e) => e.id === t),
     { switchChain: a, isPending: r, error: i, isSuccess: s, reset: o } = C();
@@ -594,7 +657,7 @@ function te() {
     canSwitchNetwork: !!a,
   };
 }
-function ne({
+function re({
   address: e,
   abi: t,
   functionName: n,
@@ -614,7 +677,7 @@ function ne({
   });
   return { data: d, ...c };
 }
-function ae({
+function ie({
   address: e,
   abi: t,
   functionName: n,
@@ -654,7 +717,7 @@ function ae({
     ...l,
   };
 }
-const re = [
+const se = [
     {
       constant: !0,
       inputs: [],
@@ -752,7 +815,7 @@ const re = [
       type: "event",
     },
   ],
-  ie = [
+  oe = [
     {
       inputs: [
         { internalType: "address", name: "_ydToken", type: "address" },
@@ -985,7 +1048,7 @@ const re = [
       type: "function",
     },
   ],
-  se = [
+  de = [
     { inputs: [], stateMutability: "nonpayable", type: "constructor" },
     {
       anonymous: !1,
@@ -1152,41 +1215,41 @@ const re = [
       type: "function",
     },
   ];
-function oe({ address: e, spenderAddress: t, enabled: n = !0 }) {
+function ce({ address: e, spenderAddress: t, enabled: n = !0 }) {
   const { address: a } = m(),
     r = (e) => {
       if (!d) throw new Error("Decimals not loaded");
       return L(e, d);
     },
-    { data: i } = ne({
+    { data: i } = re({
       address: e,
-      abi: re,
+      abi: se,
       functionName: "totalSupply",
       enabled: n,
     }),
-    { data: s, refetch: o } = ne({
+    { data: s, refetch: o } = re({
       address: e,
-      abi: re,
+      abi: se,
       functionName: "balanceOf",
       args: a ? [a] : void 0,
       enabled: n && !!a,
     }),
-    { data: d } = ne({
+    { data: d } = re({
       address: e,
-      abi: re,
+      abi: se,
       functionName: "decimals",
       enabled: n,
     }),
-    { data: c, refetch: l } = ne({
+    { data: c, refetch: l } = re({
       address: e,
-      abi: re,
+      abi: se,
       functionName: "allowance",
       args: a && t ? [a, t] : void 0,
       enabled: n && !!a && !!t,
     }),
-    u = ae({ address: e, abi: re, functionName: "transfer" }),
-    p = ae({ address: e, abi: re, functionName: "approve" }),
-    y = ae({ address: e, abi: re, functionName: "transferFrom" });
+    u = ie({ address: e, abi: se, functionName: "transfer" }),
+    p = ie({ address: e, abi: se, functionName: "approve" }),
+    y = ie({ address: e, abi: se, functionName: "transferFrom" });
   return {
     totalSupply: i,
     balance: s,
@@ -1213,13 +1276,13 @@ function oe({ address: e, spenderAddress: t, enabled: n = !0 }) {
     },
   };
 }
-function de(e, t) {
+function le(e, t) {
   return {
     read:
       (n, a = !0) =>
       (...r) => {
         const i = r.length > 0 && r.every((e) => void 0 !== e);
-        return ne({
+        return re({
           address: e,
           abi: t,
           functionName: n,
@@ -1228,7 +1291,7 @@ function de(e, t) {
         });
       },
     write: (n) => {
-      const a = ae({ address: e, abi: t, functionName: n });
+      const a = ie({ address: e, abi: t, functionName: n });
       return {
         send: async (...e) => {
           if (!a.writeAsync) throw new Error(`Function ${n} is not writable`);
@@ -1250,8 +1313,8 @@ function de(e, t) {
     },
   };
 }
-const ce = "0xA812265c869F2BCB755980677812F253459A0cc7";
-function le({ address: e = ce, spenderAddress: t, enabled: n = !0 }) {
+const ue = "0xA812265c869F2BCB755980677812F253459A0cc7";
+function pe({ address: e = ue, spenderAddress: t, enabled: n = !0 }) {
   const { address: r } = m(),
     [i, s] = a(),
     [o, d] = a(),
@@ -1273,9 +1336,9 @@ function le({ address: e = ce, spenderAddress: t, enabled: n = !0 }) {
         s(void 0),
         d(void 0);
     },
-    y = de(e, se),
-    { data: f } = y.read("totalSupply")(),
-    { data: h, refetch: g } = y.read("balanceOf", n && !!r)(),
+    y = le(e, de),
+    { data: h } = y.read("totalSupply")(),
+    { data: f, refetch: g } = y.read("balanceOf", n && !!r)(),
     { data: b } = y.read("decimals")(),
     { data: w, refetch: v } = y.read("allowance")(r, t),
     x = y.write("transfer"),
@@ -1286,8 +1349,8 @@ function le({ address: e = ce, spenderAddress: t, enabled: n = !0 }) {
     I = y.write("unstake"),
     S = y.write("claimReward");
   return {
-    totalSupply: f,
-    balance: h,
+    totalSupply: h,
+    balance: f,
     allowance: w,
     transferReceipt: x.receipt,
     approveReceipt: T.receipt,
@@ -1307,25 +1370,25 @@ function le({ address: e = ce, spenderAddress: t, enabled: n = !0 }) {
     },
     approve: async (e, t) => {
       const n = u(t);
-      return await p(ce, void 0), T.send(e, n, { gas: c });
+      return await p(ue, void 0), T.send(e, n, { gas: c });
     },
     transferFrom: async (e, t, n) => {
       const a = u(n);
       return await p(t, a), C.send(e, t, a);
     },
     exchangeETHForTokens: async (e) => (
-      await p(ce, U(e)), N.send({ value: U(e), gas: c })
+      await p(ue, U(e)), N.send({ value: U(e), gas: c })
     ),
     stake: async (e, t) => k.send(e, t),
     unstake: async (e) => I.send(e),
     claimReward: async () => S.send(),
   };
 }
-function ue({
+function me({
   address: e = "0x0a42F4f8Cb23460BDeD2e18475920Bdb6df5641d",
   tokenDecimals: t = 18,
 }) {
-  const n = de(e, ie),
+  const n = le(e, oe),
     a = (e) => L(e, t),
     r = n.write("createCourse"),
     i = n.write("purchaseCourse"),
@@ -1338,8 +1401,8 @@ function ue({
     p = n.write("updatePlatformAddress"),
     m = n.write("updateCourse"),
     y = n.write("publishCourse"),
-    f = n.write("unpublishCourse"),
-    h = n.write("deleteCourse");
+    h = n.write("unpublishCourse"),
+    f = n.write("deleteCourse");
   return {
     hasAccess: (e, t) => n.read("hasAccess")(e, t),
     getCourse: (e) => n.read("getCourse")(e),
@@ -1365,8 +1428,8 @@ function ue({
     updatePlatformAddress: async (e) => await p.send(e),
     updateCourse: async (e, t, n) => await m.send(e, t, n),
     publishCourse: async (e) => await y.send(e),
-    unpublishCourse: async (e) => await f.send(e),
-    deleteCourse: async (e) => await h.send(e),
+    unpublishCourse: async (e) => await h.send(e),
+    deleteCourse: async (e) => await f.send(e),
     createCourseReceipt: r.receipt,
     purchaseCourseReceipt: i.receipt,
     updateCoursePriceReceipt: s.receipt,
@@ -1378,14 +1441,14 @@ function ue({
     updatePlatformAddressReceipt: p.receipt,
     updateCourseReceipt: m.receipt,
     publishCourseReceipt: y.receipt,
-    unpublishCourseReceipt: f.receipt,
-    deleteCourseReceipt: h.receipt,
+    unpublishCourseReceipt: h.receipt,
+    deleteCourseReceipt: f.receipt,
   };
 }
-Y(
+J(
   ".profile__menu-wrapper{position:relative}.profile__menu-trigger{align-items:center;background-color:#fff;border:1px solid #e7e5fb;border-radius:9999px;box-shadow:0 1px 2px 0 rgba(0,0,0,.05);color:#6a6d94;cursor:pointer;display:flex;height:2.5rem;justify-content:center;transition:transform .2s;width:2.5rem}.profile__menu-trigger:hover{transform:translateY(-1px)}.profile__avatar{border-radius:50%}.wallet-dropdown{background-color:#fff;border:1px solid #ecebff;border-radius:1rem;box-shadow:0 24px 60px rgba(154,161,255,.18);color:#2b2558;font-size:.875rem;line-height:1.25rem;padding:1rem;position:absolute;right:0;top:2.8rem;width:18rem}.wallet-header{align-items:flex-start;display:flex;justify-content:space-between}.wallet-label{color:#8b8eb5;font-size:.75rem;letter-spacing:.08em;line-height:1rem;text-transform:uppercase}.wallet-value{font-weight:600;margin-top:.25rem}.wallet-chain-id{background-color:#f4f4ff;border-radius:9999px;color:#5f6094;font-size:.75rem;font-weight:500;line-height:1rem;padding:.25rem .75rem}.wallet-section{margin-top:1rem}.wallet-address-box{align-items:center;background-color:#f8f8ff;border-radius:.75rem;display:flex;justify-content:space-between;margin-top:.25rem;padding:.5rem .75rem}.wallet-address-text{color:#2b2558;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:.875rem;line-height:1.25rem}.copy-button{background:transparent;border:none;border-radius:9999px;color:#6a6d94;cursor:pointer;padding:.25rem;transition:background-color .2s}.copy-button:hover{background-color:#fff}.balance-info-box{background-color:#f9f9ff;border-radius:.75rem;margin-top:1rem;padding:.75rem}.balance-info-label{align-items:center;color:#8b8eb5;display:flex;font-size:.75rem;gap:.5rem;letter-spacing:.08em;line-height:1rem;text-transform:uppercase}.balance-info-amount{font-size:1.125rem;font-weight:600;line-height:1.75rem;margin-top:.5rem}.disconnect-button{align-items:center;background-color:#f3f4f6;border:none;border-radius:.5rem;color:#374151;cursor:pointer;display:flex;font-weight:500;gap:.5rem;justify-content:center;margin-top:1rem;padding:.5rem 1rem;transition:background-color .2s;width:100%}.disconnect-button:hover:not(:disabled){background-color:#e5e7eb}.disconnect-button:disabled{cursor:not-allowed;opacity:.5}.disconnect-button.loading{opacity:.7}",
 );
-const pe = ({ account: n, chain: r, openAccountModal: s }) => {
+const ye = ({ account: n, chain: r, openAccountModal: s }) => {
   const [o, d] = a(!1),
     l = c(null),
     { disconnect: u } = $();
@@ -1541,10 +1604,10 @@ const pe = ({ account: n, chain: r, openAccountModal: s }) => {
     ],
   });
 };
-Y(
+J(
   ".wallet-button{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif}.wallet-button__container{align-items:center;display:flex;gap:8px;height:44px;justify-content:center}.wallet-button__connect{background:linear-gradient(90deg,#eab308,#f97316);border:none;border-radius:12px;color:#fff;cursor:pointer;font-size:14px;font-weight:600;padding:12px 24px;transition:all .2s ease}.wallet-button__connect:hover{box-shadow:0 4px 12px rgba(102,126,234,.4);transform:translateY(-1px)}.wallet-button__wrong-network{background:#ff6b6b;border:none;border-radius:12px;color:#fff;cursor:pointer;font-size:14px;font-weight:600;padding:12px 24px;transition:all .2s ease}.wallet-button__wrong-network:hover{background:#ff5252}.wallet-button__connected{align-items:center;display:flex;gap:16px}.wallet-button__chain{align-items:center;background:linear-gradient(90deg,#ffe7c5,#ffead4);border-radius:9999px;box-shadow:0 1px 2px 0 rgba(0,0,0,.05);box-shadow:0 0 0 1px hsla(0,0%,100%,.6);color:#5a4b23;display:flex;font-size:.875rem;font-weight:500;gap:.5rem;line-height:1.25rem;padding:8px 12px}.wallet-button__chain-icon{align-items:center;border-radius:.5rem;display:flex;gap:.5rem}.wallet-button__icon{align-items:center;background:linear-gradient(90deg,#facc15,#f97316);border-radius:50%;display:flex;height:1.5rem;justify-content:center;width:1.5rem}.wallet-button__account{align-items:center;background-color:rgba(22,163,74,.2);background-color:#fff;border:none;border-radius:.5rem;border-radius:9999px;box-shadow:0 1px 2px 0 rgba(0,0,0,.05);color:#66608d;cursor:pointer;display:flex;font-size:.875rem;gap:.5rem;height:40px;justify-content:space-evenly;line-height:1.25rem;min-width:150px;padding:.25rem .75rem;transform:translateY(-1px);transition:transform .2s}.wallet-button__status-bot{animation:pulse 2s cubic-bezier(.4,0,.6,1) infinite;background-color:#4ade80;border-radius:9999px;height:.5rem;width:.5rem}.wallet-icon{color:#4ade80;height:1rem;width:1rem}.wallet-button__address{color:#4ade80;color:#8b8eb5;font-size:.875rem;font-size:.75rem;font-weight:600;line-height:1rem}.notification-container{position:relative}.notification-button{background-color:#fff;border:1px solid #e7e5fb;border-radius:9999px;box-shadow:0 1px 2px 0 rgba(0,0,0,.05);box-sizing:border-box;color:#6a6d94;display:flex;height:2.5rem;position:relative;width:2.5rem}.notification-badge,.notification-button{align-items:center;justify-content:center}.notification-badge{background-color:#ff5a5f;border-radius:9999px;color:#fff;display:inline-flex;font-size:.625rem;font-weight:600;height:1rem;line-height:1rem;padding:.25 .25rem;position:absolute;right:-.25rem;top:-.25rem;width:1rem}",
 );
-const me = ({
+const he = ({
   label: n = "连接钱包",
   showBalance: a = !0,
   showChainName: r = !0,
@@ -1646,7 +1709,7 @@ const me = ({
                         ],
                       }),
                     }),
-                    e(pe, { account: i, chain: s, openAccountModal: o }),
+                    e(ye, { account: i, chain: s, openAccountModal: o }),
                   ],
                 })
               : e("button", {
@@ -1659,19 +1722,19 @@ const me = ({
     }),
   });
 export {
-  V as AuthModal,
-  X as AuthProvider,
-  G as SignInStatus,
-  me as WalletButton,
-  Z as WalletProvider,
-  J as useAuth,
-  ue as useCourseContract,
-  oe as useERC20,
-  te as useNetworkSwitch,
-  le as useSimpleYDToken,
-  H as useWalletAuth,
+  K as AuthModal,
+  Q as AuthProvider,
+  Y as SignInStatus,
+  he as WalletButton,
+  te as WalletProvider,
+  Z as useAuth,
+  me as useCourseContract,
+  ce as useERC20,
+  ae as useNetworkSwitch,
+  pe as useSimpleYDToken,
+  V as useWalletAuth,
   $ as useWalletConnection,
-  ee as useWalletInfo,
+  ne as useWalletInfo,
   q as useWalletSign,
 };
 //# sourceMappingURL=index.esm.js.map

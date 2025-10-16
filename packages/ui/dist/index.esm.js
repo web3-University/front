@@ -687,19 +687,34 @@ const Wallet = createLucideIcon("wallet", __iconNode);
 // 难度等级映射
 const getDifficultyConfig = (difficulty) => {
     switch (difficulty) {
-        case '1':
-            return { label: '初级', bgColor: 'bg-green-500/90', textColor: 'text-white' };
-        case '2':
-            return { label: '中级', bgColor: 'bg-yellow-500/90', textColor: 'text-white' };
-        case '3':
-            return { label: '高级', bgColor: 'bg-red-500/90', textColor: 'text-white' };
+        case "1":
+            return {
+                label: "初级",
+                bgColor: "bg-green-500/90",
+                textColor: "text-white",
+            };
+        case "2":
+            return {
+                label: "中级",
+                bgColor: "bg-yellow-500/90",
+                textColor: "text-white",
+            };
+        case "3":
+            return {
+                label: "高级",
+                bgColor: "bg-red-500/90",
+                textColor: "text-white",
+            };
         default:
-            return { label: '未知', bgColor: 'bg-gray-400/90', textColor: 'text-white' };
+            return {
+                label: "未知",
+                bgColor: "bg-gray-400/90",
+                textColor: "text-white",
+            };
     }
 };
 const CourseCard = (props) => {
     const { course, onDetail, clickable = true, children } = props;
-    console.log('course🍌', JSON.stringify(course));
     // 添加安全检查
     if (!course) {
         console.error("CourseCard: course prop is required");
