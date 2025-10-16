@@ -58,7 +58,6 @@ type FeaturedCoursesProps = {
 
 export default function FeaturedCourses({ onBuy }: FeaturedCoursesProps) {
   const { courses: apiCourses, loading, error, fetchCourses } = useCourse();
-  console.log("apiCourses🍊", JSON.stringify(apiCourses[0]));
   // 映射后的课程数据
   const [courses, setCourses] = useState<FeaturedCourse[]>([]);
 

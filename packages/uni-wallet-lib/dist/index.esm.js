@@ -29,8 +29,8 @@ import {
   useEstimateGas as _,
 } from "wagmi";
 import {
-  getDefaultConfig as S,
-  lightTheme as E,
+  getDefaultConfig as E,
+  lightTheme as S,
   darkTheme as A,
   RainbowKitProvider as R,
   ConnectButton as M,
@@ -42,10 +42,20 @@ import {
 import { sepolia as P, mainnet as F } from "wagmi/chains";
 import { SiweMessage as j } from "siwe";
 import "@rainbow-me/rainbowkit/styles.css";
-import { formatEther as z, parseUnits as L, parseEther as U } from "viem";
-const D = [F, P];
-F.id, P.id, E(), E().colors, E().radii;
-const W = {
+import { formatEther as U, parseUnits as z, parseEther as L } from "viem";
+const D = {
+    id: 31337,
+    name: "Hardhat",
+    nativeCurrency: { decimals: 18, name: "Ether", symbol: "ETH" },
+    rpcUrls: {
+      default: { http: ["http://127.0.0.1:8545"] },
+      public: { http: ["http://127.0.0.1:8545"] },
+    },
+    testnet: !0,
+  },
+  W = [F, P, D];
+F.id, P.id, S(), S().colors, S().radii;
+const H = {
   ...A(),
   colors: {
     ...A().colors,
@@ -143,7 +153,7 @@ function q() {
   };
 }
 const G = () => "undefined" != typeof window && void 0 !== window.localStorage,
-  H = {
+  Y = {
     getItem(e) {
       if (!G()) return null;
       try {
@@ -205,7 +215,7 @@ const G = () => "undefined" != typeof window && void 0 !== window.localStorage,
       }
     },
   };
-var Y = (function (e) {
+var V = (function (e) {
   return (
     (e.IDLE = "idle"),
     (e.REQUESTING_NONCE = "requesting"),
@@ -216,7 +226,7 @@ var Y = (function (e) {
     e
   );
 })({});
-function V(e = {}) {
+function J(e = {}) {
   const {
       domain: t = "undefined" != typeof window
         ? window.location.host
@@ -230,7 +240,7 @@ function V(e = {}) {
     c = "REFRESH_TOKEN",
     { signSIWEMessage: l } = q(),
     { address: u, isConnected: p } = $(),
-    [m, y] = a(Y.IDLE),
+    [m, y] = a(V.IDLE),
     [h, f] = a(null),
     g = r(
       (e) => {
@@ -245,7 +255,7 @@ function V(e = {}) {
       }
       f(null);
       try {
-        g(Y.REQUESTING_NONCE);
+        g(V.REQUESTING_NONCE);
         const { nonce: e } = await (async (e) => {
           const a = await fetch(`${t}${n}/nonce`, {
             method: "POST",
@@ -260,9 +270,9 @@ function V(e = {}) {
             expiresAt: r.data.expiresAt,
           };
         })(u);
-        g(Y.WAITING_SIGNATURE);
+        g(V.WAITING_SIGNATURE);
         const { signature: a, message: r } = await l(t, e);
-        g(Y.VERIFYING);
+        g(V.VERIFYING);
         const { accessToken: s, refreshToken: o } = await (async (e, a, r) => {
           const i = await fetch(`${t}${n}/login`, {
             method: "POST",
@@ -280,10 +290,10 @@ function V(e = {}) {
           return (await i.json()).data;
         })(u, a, r.toMessage());
         return (
-          H.setItem(d, s),
-          H.setItem(c, o),
-          H.setItem(`${d}_address`, u),
-          g(Y.SUCCESS),
+          Y.setItem(d, s),
+          Y.setItem(c, o),
+          Y.setItem(`${d}_address`, u),
+          g(V.SUCCESS),
           i?.(s),
           s
         );
@@ -296,7 +306,7 @@ function V(e = {}) {
               ? "用户取消签名"
               : t;
         return (
-          f(n), g(Y.ERROR), s?.(e instanceof Error ? e : new Error(n)), null
+          f(n), g(V.ERROR), s?.(e instanceof Error ? e : new Error(n)), null
         );
       } finally {
         setTimeout(() => {
@@ -305,28 +315,28 @@ function V(e = {}) {
       }
     }, [u, p, t, n, d, g, i, s]),
     w = r(() => {
-      H.removeItem(d),
-        H.removeItem(c),
-        H.removeItem(`${d}_address`),
-        g(Y.IDLE),
+      Y.removeItem(d),
+        Y.removeItem(c),
+        Y.removeItem(`${d}_address`),
+        g(V.IDLE),
         f(null);
     }, [d, c, g]),
     v = r(() => {
-      const e = H.getItem(d),
-        t = H.getItem(`${d}_address`);
+      const e = Y.getItem(d),
+        t = Y.getItem(`${d}_address`);
       return !(!e || !t || t !== u);
     }, [d, u]),
     x = r(() => {
-      const e = H.getItem(`${d}_address`);
+      const e = Y.getItem(`${d}_address`);
       e && u && e !== u && w();
     }, [u, d, w]),
     T = r(() => {
-      g(Y.IDLE), f(null);
+      g(V.IDLE), f(null);
     }, [g]);
   return {
     status: m,
     isAuthenticated: v(),
-    isAuthenticating: m !== Y.IDLE && m !== Y.SUCCESS && m !== Y.ERROR,
+    isAuthenticating: m !== V.IDLE && m !== V.SUCCESS && m !== V.ERROR,
     error: h,
     address: u,
     signIn: b,
@@ -335,7 +345,7 @@ function V(e = {}) {
     reset: T,
   };
 }
-function J(e, t) {
+function K(e, t) {
   void 0 === t && (t = {});
   var n = t.insertAt;
   if (e && "undefined" != typeof document) {
@@ -350,8 +360,8 @@ function J(e, t) {
         : r.appendChild(document.createTextNode(e));
   }
 }
-function K({ status: n, error: a, onClose: r }) {
-  return n === Y.IDLE
+function X({ status: n, error: a, onClose: r }) {
+  return n === V.IDLE
     ? null
     : e("div", {
         className: "auth-modal-overlay",
@@ -360,7 +370,7 @@ function K({ status: n, error: a, onClose: r }) {
           className: "auth-modal-content",
           onClick: (e) => e.stopPropagation(),
           children: [
-            n === Y.REQUESTING_NONCE &&
+            n === V.REQUESTING_NONCE &&
               t("div", {
                 className: "auth-modal-body",
                 children: [
@@ -378,7 +388,7 @@ function K({ status: n, error: a, onClose: r }) {
                   }),
                 ],
               }),
-            n === Y.WAITING_SIGNATURE &&
+            n === V.WAITING_SIGNATURE &&
               t("div", {
                 className: "auth-modal-body",
                 children: [
@@ -415,7 +425,7 @@ function K({ status: n, error: a, onClose: r }) {
                   }),
                 ],
               }),
-            n === Y.VERIFYING &&
+            n === V.VERIFYING &&
               t("div", {
                 className: "auth-modal-body",
                 children: [
@@ -433,7 +443,7 @@ function K({ status: n, error: a, onClose: r }) {
                   }),
                 ],
               }),
-            n === Y.SUCCESS &&
+            n === V.SUCCESS &&
               t("div", {
                 className: "auth-modal-body",
                 children: [
@@ -459,7 +469,7 @@ function K({ status: n, error: a, onClose: r }) {
                   }),
                 ],
               }),
-            n === Y.ERROR &&
+            n === V.ERROR &&
               t("div", {
                 className: "auth-modal-body",
                 children: [
@@ -498,11 +508,11 @@ function K({ status: n, error: a, onClose: r }) {
         }),
       });
 }
-J(
+K(
   ".auth-modal-overlay{align-items:center;animation:fadeIn .2s ease-out;backdrop-filter:blur(4px);background:rgba(0,0,0,.5);bottom:0;display:flex;justify-content:center;left:0;position:fixed;right:0;top:0;z-index:9999}.auth-modal-content{animation:slideUp .3s ease-out;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-width:400px;padding:32px;width:90%}.auth-modal-body{align-items:center;display:flex;flex-direction:column;text-align:center}.auth-modal-icon{animation:pulse 2s ease-in-out infinite;color:#3b82f6;margin-bottom:16px}.auth-modal-icon--success{animation:scaleIn .3s ease-out;color:#10b981}.auth-modal-icon--error{animation:shake .5s ease-out;color:#ef4444}.auth-modal-title{color:#111;font-size:24px;font-weight:600;margin:0 0 8px}.auth-modal-description{color:#6b7280;font-size:14px;margin:0 0 24px}.auth-modal-spinner{margin-top:16px}.spinner{animation:spin 1s linear infinite;border:3px solid #e5e7eb;border-radius:50%;border-top-color:#3b82f6;height:40px;width:40px}.auth-modal-button{background:#3b82f6;border:none;border-radius:8px;color:#fff;cursor:pointer;font-size:16px;font-weight:500;padding:12px 24px;transition:background .2s}.auth-modal-button:hover{background:#2563eb}.auth-modal-button:active{transform:scale(.98)}@keyframes fadeIn{0%{opacity:0}to{opacity:1}}@keyframes slideUp{0%{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}@keyframes spin{to{transform:rotate(1turn)}}@keyframes pulse{0%,to{opacity:1}50%{opacity:.5}}@keyframes scaleIn{0%{transform:scale(0)}to{transform:scale(1)}}@keyframes shake{0%,to{transform:translateX(0)}10%,30%,50%,70%,90%{transform:translateX(-5px)}20%,40%,60%,80%{transform:translateX(5px)}}@media (prefers-color-scheme:dark){.auth-modal-content{background:#1f2937}.auth-modal-title{color:#f9fafb}.auth-modal-description{color:#9ca3af}.spinner{border-color:#3b82f6 #374151 #374151}}",
 );
-const X = o(null);
-function Q({ children: n, autoSignOnConnect: a = !1, ...r }) {
+const Q = o(null);
+function Z({ children: n, autoSignOnConnect: a = !1, ...r }) {
   const { isConnected: o } = $(),
     {
       signIn: d,
@@ -514,7 +524,7 @@ function Q({ children: n, autoSignOnConnect: a = !1, ...r }) {
       isAuthenticating: y,
       error: h,
       address: f,
-    } = V(r);
+    } = J(r);
   i(() => {
     a && o && !m && d();
   }, [a, o, m]),
@@ -535,23 +545,23 @@ function Q({ children: n, autoSignOnConnect: a = !1, ...r }) {
     }),
     [p, m, y, h, f, d, c, l, u],
   );
-  return t(X.Provider, {
+  return t(Q.Provider, {
     value: g,
-    children: [n, e(K, { status: p, error: h, onClose: u })],
+    children: [n, e(X, { status: p, error: h, onClose: u })],
   });
 }
-function Z() {
-  const e = d(X);
+function ee() {
+  const e = d(Q);
   if (!e) throw new Error("useAuth must be used within AuthProvider");
   return e;
 }
-const ee = new B({
+const te = new B({
   defaultOptions: { queries: { refetchOnWindowFocus: !1, retry: !1 } },
 });
-function te({
+function ne({
   children: t,
   theme: a = "auto",
-  queryClient: r = ee,
+  queryClient: r = te,
   initialState: i,
   enableAuth: s = !1,
   authConfig: o,
@@ -566,22 +576,24 @@ function te({
               alchemyApiKey: a,
               infuraApiKey: r,
             } = e,
-            i = D.reduce((e, t) => {
+            i = W.reduce((e, t) => {
               let n = "";
               return (
-                a &&
-                  (n = `https://${t.name.toLowerCase().replace(/\s+/g, "-")}.g.alchemy.com/v2/${a}`),
-                r &&
-                  (n = `https://${t.name.toLowerCase().replace(/\s+/g, "-")}.infura.io/v3/${r}`),
+                31337 === t.id
+                  ? (n = "http://127.0.0.1:8545")
+                  : a
+                    ? (n = `https://${t.name.toLowerCase().replace(/\s+/g, "-")}.g.alchemy.com/v2/${a}`)
+                    : r &&
+                      (n = `https://${t.name.toLowerCase().replace(/\s+/g, "-")}.infura.io/v3/${r}`),
                 (e[t.id] = n ? l(n) : l()),
                 e
               );
             }, {});
           return {
-            config: S({
+            config: E({
               appName: t,
               projectId: n,
-              chains: D,
+              chains: W,
               ssr: !0,
               storage: u({ storage: p }),
             }),
@@ -590,8 +602,8 @@ function te({
         })(d),
       [d.appName, d.projectId, d.alchemyApiKey, d.infuraApiKey],
     ),
-    m = n.useMemo(() => W, [a]),
-    y = s && o ? e(Q, { ...o, children: t }) : t;
+    m = n.useMemo(() => H, [a]),
+    y = s && o ? e(Z, { ...o, children: t }) : t;
   return e(v, {
     config: c,
     reconnectOnMount: !0,
@@ -607,7 +619,7 @@ function te({
     }),
   });
 }
-function ne() {
+function ae() {
   const { address: e, connector: t, isConnected: n } = m(),
     a = y(),
     r = h().find((e) => e.id === a),
@@ -616,7 +628,7 @@ function ne() {
     d = s
       ? {
           value: s.value,
-          formatted: z(s.value),
+          formatted: U(s.value),
           symbol: s.symbol,
           decimals: s.decimals,
         }
@@ -634,7 +646,7 @@ function ne() {
     isBalanceLoading: o,
   };
 }
-function ae() {
+function re() {
   const e = h(),
     t = y(),
     n = e.find((e) => e.id === t),
@@ -657,7 +669,7 @@ function ae() {
     canSwitchNetwork: !!a,
   };
 }
-function re({
+function ie({
   address: e,
   abi: t,
   functionName: n,
@@ -677,7 +689,7 @@ function re({
   });
   return { data: d, ...c };
 }
-function ie({
+function se({
   address: e,
   abi: t,
   functionName: n,
@@ -717,7 +729,7 @@ function ie({
     ...l,
   };
 }
-const se = [
+const oe = [
     {
       constant: !0,
       inputs: [],
@@ -815,7 +827,7 @@ const se = [
       type: "event",
     },
   ],
-  oe = [
+  de = [
     {
       inputs: [
         { internalType: "address", name: "_ydToken", type: "address" },
@@ -1048,7 +1060,7 @@ const se = [
       type: "function",
     },
   ],
-  de = [
+  ce = [
     { inputs: [], stateMutability: "nonpayable", type: "constructor" },
     {
       anonymous: !1,
@@ -1215,41 +1227,41 @@ const se = [
       type: "function",
     },
   ];
-function ce({ address: e, spenderAddress: t, enabled: n = !0 }) {
+function le({ address: e, spenderAddress: t, enabled: n = !0 }) {
   const { address: a } = m(),
     r = (e) => {
       if (!d) throw new Error("Decimals not loaded");
-      return L(e, d);
+      return z(e, d);
     },
-    { data: i } = re({
+    { data: i } = ie({
       address: e,
-      abi: se,
+      abi: oe,
       functionName: "totalSupply",
       enabled: n,
     }),
-    { data: s, refetch: o } = re({
+    { data: s, refetch: o } = ie({
       address: e,
-      abi: se,
+      abi: oe,
       functionName: "balanceOf",
       args: a ? [a] : void 0,
       enabled: n && !!a,
     }),
-    { data: d } = re({
+    { data: d } = ie({
       address: e,
-      abi: se,
+      abi: oe,
       functionName: "decimals",
       enabled: n,
     }),
-    { data: c, refetch: l } = re({
+    { data: c, refetch: l } = ie({
       address: e,
-      abi: se,
+      abi: oe,
       functionName: "allowance",
       args: a && t ? [a, t] : void 0,
       enabled: n && !!a && !!t,
     }),
-    u = ie({ address: e, abi: se, functionName: "transfer" }),
-    p = ie({ address: e, abi: se, functionName: "approve" }),
-    y = ie({ address: e, abi: se, functionName: "transferFrom" });
+    u = se({ address: e, abi: oe, functionName: "transfer" }),
+    p = se({ address: e, abi: oe, functionName: "approve" }),
+    y = se({ address: e, abi: oe, functionName: "transferFrom" });
   return {
     totalSupply: i,
     balance: s,
@@ -1276,13 +1288,13 @@ function ce({ address: e, spenderAddress: t, enabled: n = !0 }) {
     },
   };
 }
-function le(e, t) {
+function ue(e, t) {
   return {
     read:
       (n, a = !0) =>
       (...r) => {
         const i = r.length > 0 && r.every((e) => void 0 !== e);
-        return re({
+        return ie({
           address: e,
           abi: t,
           functionName: n,
@@ -1291,7 +1303,7 @@ function le(e, t) {
         });
       },
     write: (n) => {
-      const a = ie({ address: e, abi: t, functionName: n });
+      const a = se({ address: e, abi: t, functionName: n });
       return {
         send: async (...e) => {
           if (!a.writeAsync) throw new Error(`Function ${n} is not writable`);
@@ -1313,8 +1325,8 @@ function le(e, t) {
     },
   };
 }
-const ue = "0xA812265c869F2BCB755980677812F253459A0cc7";
-function pe({ address: e = ue, spenderAddress: t, enabled: n = !0 }) {
+const pe = "0xA812265c869F2BCB755980677812F253459A0cc7";
+function me({ address: e = pe, spenderAddress: t, enabled: n = !0 }) {
   const { address: r } = m(),
     [i, s] = a(),
     [o, d] = a(),
@@ -1326,7 +1338,7 @@ function pe({ address: e = ue, spenderAddress: t, enabled: n = !0 }) {
     }),
     u = (e) => {
       if (!b) throw new Error("Decimals not loaded");
-      return L(e, b);
+      return z(e, b);
     },
     p = async (e, t) => {
       s(e),
@@ -1336,7 +1348,7 @@ function pe({ address: e = ue, spenderAddress: t, enabled: n = !0 }) {
         s(void 0),
         d(void 0);
     },
-    y = le(e, de),
+    y = ue(e, ce),
     { data: h } = y.read("totalSupply")(),
     { data: f, refetch: g } = y.read("balanceOf", n && !!r)(),
     { data: b } = y.read("decimals")(),
@@ -1347,7 +1359,7 @@ function pe({ address: e = ue, spenderAddress: t, enabled: n = !0 }) {
     N = y.write("exchangeETHForTokens"),
     k = y.write("stake"),
     I = y.write("unstake"),
-    S = y.write("claimReward");
+    E = y.write("claimReward");
   return {
     totalSupply: h,
     balance: f,
@@ -1358,7 +1370,7 @@ function pe({ address: e = ue, spenderAddress: t, enabled: n = !0 }) {
     exchangeETHForTokensReceipt: N.receipt,
     stakeReceipt: k.receipt,
     unstakeReceipt: I.receipt,
-    claimRewardReceipt: S.receipt,
+    claimRewardReceipt: E.receipt,
     refetchBalance: g,
     refetchAllowance: v,
     getStakeInfo: (e) => y.read("getStakeInfo")(e),
@@ -1370,26 +1382,26 @@ function pe({ address: e = ue, spenderAddress: t, enabled: n = !0 }) {
     },
     approve: async (e, t) => {
       const n = u(t);
-      return await p(ue, void 0), T.send(e, n, { gas: c });
+      return await p(pe, void 0), T.send(e, n, { gas: c });
     },
     transferFrom: async (e, t, n) => {
       const a = u(n);
       return await p(t, a), C.send(e, t, a);
     },
     exchangeETHForTokens: async (e) => (
-      await p(ue, U(e)), N.send({ value: U(e), gas: c })
+      await p(pe, L(e)), N.send({ value: L(e), gas: c })
     ),
     stake: async (e, t) => k.send(e, t),
     unstake: async (e) => I.send(e),
-    claimReward: async () => S.send(),
+    claimReward: async () => E.send(),
   };
 }
-function me({
+function ye({
   address: e = "0x0a42F4f8Cb23460BDeD2e18475920Bdb6df5641d",
   tokenDecimals: t = 18,
 }) {
-  const n = le(e, oe),
-    a = (e) => L(e, t),
+  const n = ue(e, de),
+    a = (e) => z(e, t),
     r = n.write("createCourse"),
     i = n.write("purchaseCourse"),
     s = n.write("updateCoursePrice"),
@@ -1445,10 +1457,10 @@ function me({
     deleteCourseReceipt: f.receipt,
   };
 }
-J(
+K(
   ".profile__menu-wrapper{position:relative}.profile__menu-trigger{align-items:center;background-color:#fff;border:1px solid #e7e5fb;border-radius:9999px;box-shadow:0 1px 2px 0 rgba(0,0,0,.05);color:#6a6d94;cursor:pointer;display:flex;height:2.5rem;justify-content:center;transition:transform .2s;width:2.5rem}.profile__menu-trigger:hover{transform:translateY(-1px)}.profile__avatar{border-radius:50%}.wallet-dropdown{background-color:#fff;border:1px solid #ecebff;border-radius:1rem;box-shadow:0 24px 60px rgba(154,161,255,.18);color:#2b2558;font-size:.875rem;line-height:1.25rem;padding:1rem;position:absolute;right:0;top:2.8rem;width:18rem}.wallet-header{align-items:flex-start;display:flex;justify-content:space-between}.wallet-label{color:#8b8eb5;font-size:.75rem;letter-spacing:.08em;line-height:1rem;text-transform:uppercase}.wallet-value{font-weight:600;margin-top:.25rem}.wallet-chain-id{background-color:#f4f4ff;border-radius:9999px;color:#5f6094;font-size:.75rem;font-weight:500;line-height:1rem;padding:.25rem .75rem}.wallet-section{margin-top:1rem}.wallet-address-box{align-items:center;background-color:#f8f8ff;border-radius:.75rem;display:flex;justify-content:space-between;margin-top:.25rem;padding:.5rem .75rem}.wallet-address-text{color:#2b2558;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:.875rem;line-height:1.25rem}.copy-button{background:transparent;border:none;border-radius:9999px;color:#6a6d94;cursor:pointer;padding:.25rem;transition:background-color .2s}.copy-button:hover{background-color:#fff}.balance-info-box{background-color:#f9f9ff;border-radius:.75rem;margin-top:1rem;padding:.75rem}.balance-info-label{align-items:center;color:#8b8eb5;display:flex;font-size:.75rem;gap:.5rem;letter-spacing:.08em;line-height:1rem;text-transform:uppercase}.balance-info-amount{font-size:1.125rem;font-weight:600;line-height:1.75rem;margin-top:.5rem}.disconnect-button{align-items:center;background-color:#f3f4f6;border:none;border-radius:.5rem;color:#374151;cursor:pointer;display:flex;font-weight:500;gap:.5rem;justify-content:center;margin-top:1rem;padding:.5rem 1rem;transition:background-color .2s;width:100%}.disconnect-button:hover:not(:disabled){background-color:#e5e7eb}.disconnect-button:disabled{cursor:not-allowed;opacity:.5}.disconnect-button.loading{opacity:.7}",
 );
-const ye = ({ account: n, chain: r, openAccountModal: s }) => {
+const he = ({ account: n, chain: r, openAccountModal: s }) => {
   const [o, d] = a(!1),
     l = c(null),
     { disconnect: u } = $();
@@ -1604,10 +1616,10 @@ const ye = ({ account: n, chain: r, openAccountModal: s }) => {
     ],
   });
 };
-J(
+K(
   ".wallet-button{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif}.wallet-button__container{align-items:center;display:flex;gap:8px;height:44px;justify-content:center}.wallet-button__connect{background:linear-gradient(90deg,#eab308,#f97316);border:none;border-radius:12px;color:#fff;cursor:pointer;font-size:14px;font-weight:600;padding:12px 24px;transition:all .2s ease}.wallet-button__connect:hover{box-shadow:0 4px 12px rgba(102,126,234,.4);transform:translateY(-1px)}.wallet-button__wrong-network{background:#ff6b6b;border:none;border-radius:12px;color:#fff;cursor:pointer;font-size:14px;font-weight:600;padding:12px 24px;transition:all .2s ease}.wallet-button__wrong-network:hover{background:#ff5252}.wallet-button__connected{align-items:center;display:flex;gap:16px}.wallet-button__chain{align-items:center;background:linear-gradient(90deg,#ffe7c5,#ffead4);border-radius:9999px;box-shadow:0 1px 2px 0 rgba(0,0,0,.05);box-shadow:0 0 0 1px hsla(0,0%,100%,.6);color:#5a4b23;display:flex;font-size:.875rem;font-weight:500;gap:.5rem;line-height:1.25rem;padding:8px 12px}.wallet-button__chain-icon{align-items:center;border-radius:.5rem;display:flex;gap:.5rem}.wallet-button__icon{align-items:center;background:linear-gradient(90deg,#facc15,#f97316);border-radius:50%;display:flex;height:1.5rem;justify-content:center;width:1.5rem}.wallet-button__account{align-items:center;background-color:rgba(22,163,74,.2);background-color:#fff;border:none;border-radius:.5rem;border-radius:9999px;box-shadow:0 1px 2px 0 rgba(0,0,0,.05);color:#66608d;cursor:pointer;display:flex;font-size:.875rem;gap:.5rem;height:40px;justify-content:space-evenly;line-height:1.25rem;min-width:150px;padding:.25rem .75rem;transform:translateY(-1px);transition:transform .2s}.wallet-button__status-bot{animation:pulse 2s cubic-bezier(.4,0,.6,1) infinite;background-color:#4ade80;border-radius:9999px;height:.5rem;width:.5rem}.wallet-icon{color:#4ade80;height:1rem;width:1rem}.wallet-button__address{color:#4ade80;color:#8b8eb5;font-size:.875rem;font-size:.75rem;font-weight:600;line-height:1rem}.notification-container{position:relative}.notification-button{background-color:#fff;border:1px solid #e7e5fb;border-radius:9999px;box-shadow:0 1px 2px 0 rgba(0,0,0,.05);box-sizing:border-box;color:#6a6d94;display:flex;height:2.5rem;position:relative;width:2.5rem}.notification-badge,.notification-button{align-items:center;justify-content:center}.notification-badge{background-color:#ff5a5f;border-radius:9999px;color:#fff;display:inline-flex;font-size:.625rem;font-weight:600;height:1rem;line-height:1rem;padding:.25 .25rem;position:absolute;right:-.25rem;top:-.25rem;width:1rem}",
 );
-const he = ({
+const fe = ({
   label: n = "连接钱包",
   showBalance: a = !0,
   showChainName: r = !0,
@@ -1709,7 +1721,7 @@ const he = ({
                         ],
                       }),
                     }),
-                    e(ye, { account: i, chain: s, openAccountModal: o }),
+                    e(he, { account: i, chain: s, openAccountModal: o }),
                   ],
                 })
               : e("button", {
@@ -1722,19 +1734,19 @@ const he = ({
     }),
   });
 export {
-  K as AuthModal,
-  Q as AuthProvider,
-  Y as SignInStatus,
-  he as WalletButton,
-  te as WalletProvider,
-  Z as useAuth,
-  me as useCourseContract,
-  ce as useERC20,
-  ae as useNetworkSwitch,
-  pe as useSimpleYDToken,
-  V as useWalletAuth,
+  X as AuthModal,
+  Z as AuthProvider,
+  V as SignInStatus,
+  fe as WalletButton,
+  ne as WalletProvider,
+  ee as useAuth,
+  ye as useCourseContract,
+  le as useERC20,
+  re as useNetworkSwitch,
+  me as useSimpleYDToken,
+  J as useWalletAuth,
   $ as useWalletConnection,
-  ne as useWalletInfo,
+  ae as useWalletInfo,
   q as useWalletSign,
 };
 //# sourceMappingURL=index.esm.js.map

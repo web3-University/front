@@ -22,13 +22,14 @@ export function createWalletConfig(options: WalletConfigOptions) {
     (acc, chain) => {
       let rpcUrl = "";
 
-      if (alchemyApiKey) {
+      // Hardhat 本地节点使用默认的本地 RPC URL
+      if (chain.id === 31337) {
+        rpcUrl = "http://127.0.0.1:8545";
+      } else if (alchemyApiKey) {
         // 使用链名称构建 Alchemy URL
         const chainName = chain.name.toLowerCase().replace(/\s+/g, "-");
         rpcUrl = `https://${chainName}.g.alchemy.com/v2/${alchemyApiKey}`;
-      }
-
-      if (infuraApiKey) {
+      } else if (infuraApiKey) {
         // 使用链名称构建 Infura URL
         const chainName = chain.name.toLowerCase().replace(/\s+/g, "-");
         rpcUrl = `https://${chainName}.infura.io/v3/${infuraApiKey}`;

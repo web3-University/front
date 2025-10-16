@@ -8,13 +8,23 @@ var e = require("react/jsx-runtime"),
   i = require("siwe");
 require("@rainbow-me/rainbowkit/styles.css");
 var o = require("viem");
-const c = [s.mainnet, s.sepolia];
+const c = {
+    id: 31337,
+    name: "Hardhat",
+    nativeCurrency: { decimals: 18, name: "Ether", symbol: "ETH" },
+    rpcUrls: {
+      default: { http: ["http://127.0.0.1:8545"] },
+      public: { http: ["http://127.0.0.1:8545"] },
+    },
+    testnet: !0,
+  },
+  d = [s.mainnet, s.sepolia, c];
 s.mainnet.id,
   s.sepolia.id,
   a.lightTheme(),
   a.lightTheme().colors,
   a.lightTheme().radii;
-const d = {
+const u = {
   ...a.darkTheme(),
   colors: {
     ...a.darkTheme().colors,
@@ -41,7 +51,7 @@ const d = {
     modalMobile: "16px",
   },
 };
-function u() {
+function l() {
   const {
       address: e,
       connector: t,
@@ -80,8 +90,8 @@ function u() {
     },
   };
 }
-function l() {
-  const { address: e } = u(),
+function p() {
+  const { address: e } = l(),
     {
       signMessageAsync: t,
       isPending: a,
@@ -116,10 +126,10 @@ function l() {
     generateSIWEMessage: o,
   };
 }
-const p = () => "undefined" != typeof window && void 0 !== window.localStorage,
-  m = {
+const m = () => "undefined" != typeof window && void 0 !== window.localStorage,
+  y = {
     getItem(e) {
-      if (!p()) return null;
+      if (!m()) return null;
       try {
         return localStorage.getItem(e);
       } catch (e) {
@@ -127,7 +137,7 @@ const p = () => "undefined" != typeof window && void 0 !== window.localStorage,
       }
     },
     setItem(e, t) {
-      if (!p()) return !1;
+      if (!m()) return !1;
       try {
         return localStorage.setItem(e, t), !0;
       } catch (e) {
@@ -135,7 +145,7 @@ const p = () => "undefined" != typeof window && void 0 !== window.localStorage,
       }
     },
     removeItem(e) {
-      if (!p()) return !1;
+      if (!m()) return !1;
       try {
         return localStorage.removeItem(e), !0;
       } catch (e) {
@@ -143,7 +153,7 @@ const p = () => "undefined" != typeof window && void 0 !== window.localStorage,
       }
     },
     clear() {
-      if (!p()) return !1;
+      if (!m()) return !1;
       try {
         return localStorage.clear(), !0;
       } catch (e) {
@@ -151,7 +161,7 @@ const p = () => "undefined" != typeof window && void 0 !== window.localStorage,
       }
     },
     getAllKeys() {
-      if (!p()) return [];
+      if (!m()) return [];
       try {
         return Object.keys(localStorage);
       } catch (e) {
@@ -179,7 +189,7 @@ const p = () => "undefined" != typeof window && void 0 !== window.localStorage,
       }
     },
   };
-var y = (function (e) {
+var h = (function (e) {
   return (
     (e.IDLE = "idle"),
     (e.REQUESTING_NONCE = "requesting"),
@@ -190,7 +200,7 @@ var y = (function (e) {
     e
   );
 })({});
-function h(e = {}) {
+function f(e = {}) {
   const {
       domain: n = "undefined" != typeof window
         ? window.location.host
@@ -202,9 +212,9 @@ function h(e = {}) {
     } = e,
     o = "AUTH_TOKEN",
     c = "REFRESH_TOKEN",
-    { signSIWEMessage: d } = l(),
-    { address: p, isConnected: h } = u(),
-    [f, g] = t.useState(y.IDLE),
+    { signSIWEMessage: d } = p(),
+    { address: u, isConnected: m } = l(),
+    [f, g] = t.useState(h.IDLE),
     [b, w] = t.useState(null),
     x = t.useCallback(
       (e) => {
@@ -213,13 +223,13 @@ function h(e = {}) {
       [i],
     ),
     v = t.useCallback(async () => {
-      if (!p || !h) {
+      if (!u || !m) {
         const e = new Error("Wallet not connected");
         return w(e.message), s?.(e), null;
       }
       w(null);
       try {
-        x(y.REQUESTING_NONCE);
+        x(h.REQUESTING_NONCE);
         const { nonce: e } = await (async (e) => {
           const t = await fetch(`${n}${a}/nonce`, {
             method: "POST",
@@ -233,11 +243,11 @@ function h(e = {}) {
             message: r.data.message,
             expiresAt: r.data.expiresAt,
           };
-        })(p);
-        x(y.WAITING_SIGNATURE);
+        })(u);
+        x(h.WAITING_SIGNATURE);
         const { signature: t, message: s } = await d(n, e);
-        x(y.VERIFYING);
-        const { accessToken: i, refreshToken: u } = await (async (e, t, r) => {
+        x(h.VERIFYING);
+        const { accessToken: i, refreshToken: l } = await (async (e, t, r) => {
           const s = await fetch(`${n}${a}/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -252,12 +262,12 @@ function h(e = {}) {
             throw new Error(e.message || "Verification failed");
           }
           return (await s.json()).data;
-        })(p, t, s.toMessage());
+        })(u, t, s.toMessage());
         return (
-          m.setItem(o, i),
-          m.setItem(c, u),
-          m.setItem(`${o}_address`, p),
-          x(y.SUCCESS),
+          y.setItem(o, i),
+          y.setItem(c, l),
+          y.setItem(`${o}_address`, u),
+          x(h.SUCCESS),
           r?.(i),
           i
         );
@@ -270,46 +280,46 @@ function h(e = {}) {
               ? "用户取消签名"
               : t;
         return (
-          w(n), x(y.ERROR), s?.(e instanceof Error ? e : new Error(n)), null
+          w(n), x(h.ERROR), s?.(e instanceof Error ? e : new Error(n)), null
         );
       } finally {
         setTimeout(() => {
           j();
         }, 3e3);
       }
-    }, [p, h, n, a, o, x, r, s]),
+    }, [u, m, n, a, o, x, r, s]),
     C = t.useCallback(() => {
-      m.removeItem(o),
-        m.removeItem(c),
-        m.removeItem(`${o}_address`),
-        x(y.IDLE),
+      y.removeItem(o),
+        y.removeItem(c),
+        y.removeItem(`${o}_address`),
+        x(h.IDLE),
         w(null);
     }, [o, c, x]),
     T = t.useCallback(() => {
-      const e = m.getItem(o),
-        t = m.getItem(`${o}_address`);
-      return !(!e || !t || t !== p);
-    }, [o, p]),
+      const e = y.getItem(o),
+        t = y.getItem(`${o}_address`);
+      return !(!e || !t || t !== u);
+    }, [o, u]),
     k = t.useCallback(() => {
-      const e = m.getItem(`${o}_address`);
-      e && p && e !== p && C();
-    }, [p, o, C]),
+      const e = y.getItem(`${o}_address`);
+      e && u && e !== u && C();
+    }, [u, o, C]),
     j = t.useCallback(() => {
-      x(y.IDLE), w(null);
+      x(h.IDLE), w(null);
     }, [x]);
   return {
     status: f,
     isAuthenticated: T(),
-    isAuthenticating: f !== y.IDLE && f !== y.SUCCESS && f !== y.ERROR,
+    isAuthenticating: f !== h.IDLE && f !== h.SUCCESS && f !== h.ERROR,
     error: b,
-    address: p,
+    address: u,
     signIn: v,
     signOut: C,
     reload: k,
     reset: j,
   };
 }
-function f(e, t) {
+function g(e, t) {
   void 0 === t && (t = {});
   var n = t.insertAt;
   if (e && "undefined" != typeof document) {
@@ -324,8 +334,8 @@ function f(e, t) {
         : r.appendChild(document.createTextNode(e));
   }
 }
-function g({ status: t, error: n, onClose: a }) {
-  return t === y.IDLE
+function b({ status: t, error: n, onClose: a }) {
+  return t === h.IDLE
     ? null
     : e.jsx("div", {
         className: "auth-modal-overlay",
@@ -334,7 +344,7 @@ function g({ status: t, error: n, onClose: a }) {
           className: "auth-modal-content",
           onClick: (e) => e.stopPropagation(),
           children: [
-            t === y.REQUESTING_NONCE &&
+            t === h.REQUESTING_NONCE &&
               e.jsxs("div", {
                 className: "auth-modal-body",
                 children: [
@@ -352,7 +362,7 @@ function g({ status: t, error: n, onClose: a }) {
                   }),
                 ],
               }),
-            t === y.WAITING_SIGNATURE &&
+            t === h.WAITING_SIGNATURE &&
               e.jsxs("div", {
                 className: "auth-modal-body",
                 children: [
@@ -389,7 +399,7 @@ function g({ status: t, error: n, onClose: a }) {
                   }),
                 ],
               }),
-            t === y.VERIFYING &&
+            t === h.VERIFYING &&
               e.jsxs("div", {
                 className: "auth-modal-body",
                 children: [
@@ -407,7 +417,7 @@ function g({ status: t, error: n, onClose: a }) {
                   }),
                 ],
               }),
-            t === y.SUCCESS &&
+            t === h.SUCCESS &&
               e.jsxs("div", {
                 className: "auth-modal-body",
                 children: [
@@ -433,7 +443,7 @@ function g({ status: t, error: n, onClose: a }) {
                   }),
                 ],
               }),
-            t === y.ERROR &&
+            t === h.ERROR &&
               e.jsxs("div", {
                 className: "auth-modal-body",
                 children: [
@@ -472,52 +482,52 @@ function g({ status: t, error: n, onClose: a }) {
         }),
       });
 }
-f(
+g(
   ".auth-modal-overlay{align-items:center;animation:fadeIn .2s ease-out;backdrop-filter:blur(4px);background:rgba(0,0,0,.5);bottom:0;display:flex;justify-content:center;left:0;position:fixed;right:0;top:0;z-index:9999}.auth-modal-content{animation:slideUp .3s ease-out;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-width:400px;padding:32px;width:90%}.auth-modal-body{align-items:center;display:flex;flex-direction:column;text-align:center}.auth-modal-icon{animation:pulse 2s ease-in-out infinite;color:#3b82f6;margin-bottom:16px}.auth-modal-icon--success{animation:scaleIn .3s ease-out;color:#10b981}.auth-modal-icon--error{animation:shake .5s ease-out;color:#ef4444}.auth-modal-title{color:#111;font-size:24px;font-weight:600;margin:0 0 8px}.auth-modal-description{color:#6b7280;font-size:14px;margin:0 0 24px}.auth-modal-spinner{margin-top:16px}.spinner{animation:spin 1s linear infinite;border:3px solid #e5e7eb;border-radius:50%;border-top-color:#3b82f6;height:40px;width:40px}.auth-modal-button{background:#3b82f6;border:none;border-radius:8px;color:#fff;cursor:pointer;font-size:16px;font-weight:500;padding:12px 24px;transition:background .2s}.auth-modal-button:hover{background:#2563eb}.auth-modal-button:active{transform:scale(.98)}@keyframes fadeIn{0%{opacity:0}to{opacity:1}}@keyframes slideUp{0%{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}@keyframes spin{to{transform:rotate(1turn)}}@keyframes pulse{0%,to{opacity:1}50%{opacity:.5}}@keyframes scaleIn{0%{transform:scale(0)}to{transform:scale(1)}}@keyframes shake{0%,to{transform:translateX(0)}10%,30%,50%,70%,90%{transform:translateX(-5px)}20%,40%,60%,80%{transform:translateX(5px)}}@media (prefers-color-scheme:dark){.auth-modal-content{background:#1f2937}.auth-modal-title{color:#f9fafb}.auth-modal-description{color:#9ca3af}.spinner{border-color:#3b82f6 #374151 #374151}}",
 );
-const b = t.createContext(null);
-function w({ children: n, autoSignOnConnect: a = !1, ...r }) {
-  const { isConnected: s } = u(),
+const w = t.createContext(null);
+function x({ children: n, autoSignOnConnect: a = !1, ...r }) {
+  const { isConnected: s } = l(),
     {
       signIn: i,
       signOut: o,
       reload: c,
       reset: d,
-      status: l,
+      status: u,
       isAuthenticated: p,
       isAuthenticating: m,
       error: y,
-      address: f,
-    } = h(r);
+      address: h,
+    } = f(r);
   t.useEffect(() => {
     a && s && !p && i();
   }, [a, s, p]),
     t.useEffect(() => {
       c();
-    }, [f, c]);
-  const w = t.useMemo(
+    }, [h, c]);
+  const g = t.useMemo(
     () => ({
-      status: l,
+      status: u,
       isAuthenticated: p,
       isAuthenticating: m,
       error: y,
-      address: f,
+      address: h,
       signIn: i,
       signOut: o,
       reload: c,
       reset: d,
     }),
-    [l, p, m, y, f, i, o, c, d],
+    [u, p, m, y, h, i, o, c, d],
   );
-  return e.jsxs(b.Provider, {
-    value: w,
-    children: [n, e.jsx(g, { status: l, error: y, onClose: d })],
+  return e.jsxs(w.Provider, {
+    value: g,
+    children: [n, e.jsx(b, { status: u, error: y, onClose: d })],
   });
 }
-const x = new r.QueryClient({
+const v = new r.QueryClient({
   defaultOptions: { queries: { refetchOnWindowFocus: !1, retry: !1 } },
 });
-function v({
+function C({
   address: e,
   abi: t,
   functionName: a,
@@ -537,7 +547,7 @@ function v({
   });
   return { data: d, ...u };
 }
-function C({
+function T({
   address: e,
   abi: t,
   functionName: a,
@@ -584,7 +594,7 @@ function C({
     ...l,
   };
 }
-const T = [
+const k = [
     {
       constant: !0,
       inputs: [],
@@ -682,7 +692,7 @@ const T = [
       type: "event",
     },
   ],
-  k = [
+  j = [
     {
       inputs: [
         { internalType: "address", name: "_ydToken", type: "address" },
@@ -915,7 +925,7 @@ const T = [
       type: "function",
     },
   ],
-  j = [
+  N = [
     { inputs: [], stateMutability: "nonpayable", type: "constructor" },
     {
       anonymous: !1,
@@ -1082,13 +1092,13 @@ const T = [
       type: "function",
     },
   ];
-function N(e, t) {
+function I(e, t) {
   return {
     read:
       (n, a = !0) =>
       (...r) => {
         const s = r.length > 0 && r.every((e) => void 0 !== e);
-        return v({
+        return C({
           address: e,
           abi: t,
           functionName: n,
@@ -1097,7 +1107,7 @@ function N(e, t) {
         });
       },
     write: (n) => {
-      const a = C({ address: e, abi: t, functionName: n });
+      const a = T({ address: e, abi: t, functionName: n });
       return {
         send: async (...e) => {
           if (!a.writeAsync) throw new Error(`Function ${n} is not writable`);
@@ -1119,14 +1129,14 @@ function N(e, t) {
     },
   };
 }
-const I = "0xA812265c869F2BCB755980677812F253459A0cc7";
-f(
+const S = "0xA812265c869F2BCB755980677812F253459A0cc7";
+g(
   ".profile__menu-wrapper{position:relative}.profile__menu-trigger{align-items:center;background-color:#fff;border:1px solid #e7e5fb;border-radius:9999px;box-shadow:0 1px 2px 0 rgba(0,0,0,.05);color:#6a6d94;cursor:pointer;display:flex;height:2.5rem;justify-content:center;transition:transform .2s;width:2.5rem}.profile__menu-trigger:hover{transform:translateY(-1px)}.profile__avatar{border-radius:50%}.wallet-dropdown{background-color:#fff;border:1px solid #ecebff;border-radius:1rem;box-shadow:0 24px 60px rgba(154,161,255,.18);color:#2b2558;font-size:.875rem;line-height:1.25rem;padding:1rem;position:absolute;right:0;top:2.8rem;width:18rem}.wallet-header{align-items:flex-start;display:flex;justify-content:space-between}.wallet-label{color:#8b8eb5;font-size:.75rem;letter-spacing:.08em;line-height:1rem;text-transform:uppercase}.wallet-value{font-weight:600;margin-top:.25rem}.wallet-chain-id{background-color:#f4f4ff;border-radius:9999px;color:#5f6094;font-size:.75rem;font-weight:500;line-height:1rem;padding:.25rem .75rem}.wallet-section{margin-top:1rem}.wallet-address-box{align-items:center;background-color:#f8f8ff;border-radius:.75rem;display:flex;justify-content:space-between;margin-top:.25rem;padding:.5rem .75rem}.wallet-address-text{color:#2b2558;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:.875rem;line-height:1.25rem}.copy-button{background:transparent;border:none;border-radius:9999px;color:#6a6d94;cursor:pointer;padding:.25rem;transition:background-color .2s}.copy-button:hover{background-color:#fff}.balance-info-box{background-color:#f9f9ff;border-radius:.75rem;margin-top:1rem;padding:.75rem}.balance-info-label{align-items:center;color:#8b8eb5;display:flex;font-size:.75rem;gap:.5rem;letter-spacing:.08em;line-height:1rem;text-transform:uppercase}.balance-info-amount{font-size:1.125rem;font-weight:600;line-height:1.75rem;margin-top:.5rem}.disconnect-button{align-items:center;background-color:#f3f4f6;border:none;border-radius:.5rem;color:#374151;cursor:pointer;display:flex;font-weight:500;gap:.5rem;justify-content:center;margin-top:1rem;padding:.5rem 1rem;transition:background-color .2s;width:100%}.disconnect-button:hover:not(:disabled){background-color:#e5e7eb}.disconnect-button:disabled{cursor:not-allowed;opacity:.5}.disconnect-button.loading{opacity:.7}",
 );
-const S = ({ account: n, chain: a, openAccountModal: r }) => {
+const E = ({ account: n, chain: a, openAccountModal: r }) => {
   const [s, i] = t.useState(!1),
     o = t.useRef(null),
-    { disconnect: c } = u();
+    { disconnect: c } = l();
   t.useEffect(() => {
     const e = (e) => {
       o.current && !o.current.contains(e.target) && i(!1);
@@ -1300,12 +1310,12 @@ const S = ({ account: n, chain: a, openAccountModal: r }) => {
     ],
   });
 };
-f(
+g(
   ".wallet-button{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif}.wallet-button__container{align-items:center;display:flex;gap:8px;height:44px;justify-content:center}.wallet-button__connect{background:linear-gradient(90deg,#eab308,#f97316);border:none;border-radius:12px;color:#fff;cursor:pointer;font-size:14px;font-weight:600;padding:12px 24px;transition:all .2s ease}.wallet-button__connect:hover{box-shadow:0 4px 12px rgba(102,126,234,.4);transform:translateY(-1px)}.wallet-button__wrong-network{background:#ff6b6b;border:none;border-radius:12px;color:#fff;cursor:pointer;font-size:14px;font-weight:600;padding:12px 24px;transition:all .2s ease}.wallet-button__wrong-network:hover{background:#ff5252}.wallet-button__connected{align-items:center;display:flex;gap:16px}.wallet-button__chain{align-items:center;background:linear-gradient(90deg,#ffe7c5,#ffead4);border-radius:9999px;box-shadow:0 1px 2px 0 rgba(0,0,0,.05);box-shadow:0 0 0 1px hsla(0,0%,100%,.6);color:#5a4b23;display:flex;font-size:.875rem;font-weight:500;gap:.5rem;line-height:1.25rem;padding:8px 12px}.wallet-button__chain-icon{align-items:center;border-radius:.5rem;display:flex;gap:.5rem}.wallet-button__icon{align-items:center;background:linear-gradient(90deg,#facc15,#f97316);border-radius:50%;display:flex;height:1.5rem;justify-content:center;width:1.5rem}.wallet-button__account{align-items:center;background-color:rgba(22,163,74,.2);background-color:#fff;border:none;border-radius:.5rem;border-radius:9999px;box-shadow:0 1px 2px 0 rgba(0,0,0,.05);color:#66608d;cursor:pointer;display:flex;font-size:.875rem;gap:.5rem;height:40px;justify-content:space-evenly;line-height:1.25rem;min-width:150px;padding:.25rem .75rem;transform:translateY(-1px);transition:transform .2s}.wallet-button__status-bot{animation:pulse 2s cubic-bezier(.4,0,.6,1) infinite;background-color:#4ade80;border-radius:9999px;height:.5rem;width:.5rem}.wallet-icon{color:#4ade80;height:1rem;width:1rem}.wallet-button__address{color:#4ade80;color:#8b8eb5;font-size:.875rem;font-size:.75rem;font-weight:600;line-height:1rem}.notification-container{position:relative}.notification-button{background-color:#fff;border:1px solid #e7e5fb;border-radius:9999px;box-shadow:0 1px 2px 0 rgba(0,0,0,.05);box-sizing:border-box;color:#6a6d94;display:flex;height:2.5rem;position:relative;width:2.5rem}.notification-badge,.notification-button{align-items:center;justify-content:center}.notification-badge{background-color:#ff5a5f;border-radius:9999px;color:#fff;display:inline-flex;font-size:.625rem;font-weight:600;height:1rem;line-height:1rem;padding:.25 .25rem;position:absolute;right:-.25rem;top:-.25rem;width:1rem}",
 );
-(exports.AuthModal = g),
-  (exports.AuthProvider = w),
-  (exports.SignInStatus = y),
+(exports.AuthModal = b),
+  (exports.AuthProvider = x),
+  (exports.SignInStatus = h),
   (exports.WalletButton = ({
     label: t = "连接钱包",
     showBalance: n = !0,
@@ -1413,7 +1423,7 @@ f(
                         ],
                       }),
                     }),
-                    e.jsx(S, { account: a, chain: s, openAccountModal: i }),
+                    e.jsx(E, { account: a, chain: s, openAccountModal: i }),
                   ],
                 })
               : e.jsx("button", {
@@ -1429,8 +1439,8 @@ f(
   (exports.WalletProvider = function ({
     children: s,
     theme: i = "auto",
-    queryClient: o = x,
-    initialState: u,
+    queryClient: o = v,
+    initialState: c,
     enableAuth: l = !1,
     authConfig: p,
     ...m
@@ -1444,13 +1454,15 @@ f(
                 alchemyApiKey: s,
                 infuraApiKey: i,
               } = e,
-              o = c.reduce((e, t) => {
+              o = d.reduce((e, t) => {
                 let a = "";
                 return (
-                  s &&
-                    (a = `https://${t.name.toLowerCase().replace(/\s+/g, "-")}.g.alchemy.com/v2/${s}`),
-                  i &&
-                    (a = `https://${t.name.toLowerCase().replace(/\s+/g, "-")}.infura.io/v3/${i}`),
+                  31337 === t.id
+                    ? (a = "http://127.0.0.1:8545")
+                    : s
+                      ? (a = `https://${t.name.toLowerCase().replace(/\s+/g, "-")}.g.alchemy.com/v2/${s}`)
+                      : i &&
+                        (a = `https://${t.name.toLowerCase().replace(/\s+/g, "-")}.infura.io/v3/${i}`),
                   (e[t.id] = a ? n.http(a) : n.http()),
                   e
                 );
@@ -1459,7 +1471,7 @@ f(
               config: a.getDefaultConfig({
                 appName: t,
                 projectId: r,
-                chains: c,
+                chains: d,
                 ssr: !0,
                 storage: n.createStorage({ storage: n.cookieStorage }),
               }),
@@ -1468,12 +1480,12 @@ f(
           })(m),
         [m.appName, m.projectId, m.alchemyApiKey, m.infuraApiKey],
       ),
-      h = t.useMemo(() => d, [i]),
-      f = l && p ? e.jsx(w, { ...p, children: s }) : s;
+      h = t.useMemo(() => u, [i]),
+      f = l && p ? e.jsx(x, { ...p, children: s }) : s;
     return e.jsx(n.WagmiProvider, {
       config: y,
       reconnectOnMount: !0,
-      initialState: u,
+      initialState: c,
       children: e.jsx(r.QueryClientProvider, {
         client: o,
         children: e.jsx(a.RainbowKitProvider, {
@@ -1486,7 +1498,7 @@ f(
     });
   }),
   (exports.useAuth = function () {
-    const e = t.useContext(b);
+    const e = t.useContext(w);
     if (!e) throw new Error("useAuth must be used within AuthProvider");
     return e;
   }),
@@ -1494,7 +1506,7 @@ f(
     address: e = "0x0a42F4f8Cb23460BDeD2e18475920Bdb6df5641d",
     tokenDecimals: t = 18,
   }) {
-    const n = N(e, k),
+    const n = I(e, j),
       a = (e) => o.parseUnits(e, t),
       r = n.write("createCourse"),
       s = n.write("purchaseCourse"),
@@ -1561,35 +1573,35 @@ f(
         if (!u) throw new Error("Decimals not loaded");
         return o.parseUnits(e, u);
       },
-      { data: i } = v({
+      { data: i } = C({
         address: e,
-        abi: T,
+        abi: k,
         functionName: "totalSupply",
         enabled: a,
       }),
-      { data: c, refetch: d } = v({
+      { data: c, refetch: d } = C({
         address: e,
-        abi: T,
+        abi: k,
         functionName: "balanceOf",
         args: r ? [r] : void 0,
         enabled: a && !!r,
       }),
-      { data: u } = v({
+      { data: u } = C({
         address: e,
-        abi: T,
+        abi: k,
         functionName: "decimals",
         enabled: a,
       }),
-      { data: l, refetch: p } = v({
+      { data: l, refetch: p } = C({
         address: e,
-        abi: T,
+        abi: k,
         functionName: "allowance",
         args: r && t ? [r, t] : void 0,
         enabled: a && !!r && !!t,
       }),
-      m = C({ address: e, abi: T, functionName: "transfer" }),
-      y = C({ address: e, abi: T, functionName: "approve" }),
-      h = C({ address: e, abi: T, functionName: "transferFrom" });
+      m = T({ address: e, abi: k, functionName: "transfer" }),
+      y = T({ address: e, abi: k, functionName: "approve" }),
+      h = T({ address: e, abi: k, functionName: "transferFrom" });
     return {
       totalSupply: i,
       balance: c,
@@ -1646,7 +1658,7 @@ f(
     };
   }),
   (exports.useSimpleYDToken = function ({
-    address: e = I,
+    address: e = S,
     spenderAddress: a,
     enabled: r = !0,
   }) {
@@ -1671,7 +1683,7 @@ f(
           c(void 0),
           u(void 0);
       },
-      h = N(e, j),
+      h = I(e, N),
       { data: f } = h.read("totalSupply")(),
       { data: g, refetch: b } = h.read("balanceOf", r && !!s)(),
       { data: w } = h.read("decimals")(),
@@ -1679,9 +1691,9 @@ f(
       C = h.write("transfer"),
       T = h.write("approve"),
       k = h.write("transferFrom"),
-      S = h.write("exchangeETHForTokens"),
-      _ = h.write("stake"),
-      E = h.write("unstake"),
+      j = h.write("exchangeETHForTokens"),
+      E = h.write("stake"),
+      _ = h.write("unstake"),
       A = h.write("claimReward");
     return {
       totalSupply: f,
@@ -1690,9 +1702,9 @@ f(
       transferReceipt: C.receipt,
       approveReceipt: T.receipt,
       transferFromReceipt: k.receipt,
-      exchangeETHForTokensReceipt: S.receipt,
-      stakeReceipt: _.receipt,
-      unstakeReceipt: E.receipt,
+      exchangeETHForTokensReceipt: j.receipt,
+      stakeReceipt: E.receipt,
+      unstakeReceipt: _.receipt,
       claimRewardReceipt: A.receipt,
       refetchBalance: b,
       refetchAllowance: v,
@@ -1705,22 +1717,22 @@ f(
       },
       approve: async (e, t) => {
         const n = m(t);
-        return await y(I, void 0), T.send(e, n, { gas: l });
+        return await y(S, void 0), T.send(e, n, { gas: l });
       },
       transferFrom: async (e, t, n) => {
         const a = m(n);
         return await y(t, a), k.send(e, t, a);
       },
       exchangeETHForTokens: async (e) => (
-        await y(I, o.parseEther(e)), S.send({ value: o.parseEther(e), gas: l })
+        await y(S, o.parseEther(e)), j.send({ value: o.parseEther(e), gas: l })
       ),
-      stake: async (e, t) => _.send(e, t),
-      unstake: async (e) => E.send(e),
+      stake: async (e, t) => E.send(e, t),
+      unstake: async (e) => _.send(e),
       claimReward: async () => A.send(),
     };
   }),
-  (exports.useWalletAuth = h),
-  (exports.useWalletConnection = u),
+  (exports.useWalletAuth = f),
+  (exports.useWalletConnection = l),
   (exports.useWalletInfo = function () {
     const { address: e, connector: t, isConnected: a } = n.useAccount(),
       r = n.useChainId(),
@@ -1748,4 +1760,4 @@ f(
       isBalanceLoading: d,
     };
   }),
-  (exports.useWalletSign = l);
+  (exports.useWalletSign = p);
