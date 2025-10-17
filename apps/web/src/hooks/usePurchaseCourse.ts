@@ -83,7 +83,7 @@ export function usePurchaseCourse(): UsePurchaseCourseReturn {
   const { address: walletAddress, isConnected } = useWalletConnection();
   // 课程合约地址
   const COURSE_CONTRACT_ADDRESS =
-    "0x0a42F4f8Cb23460BDeD2e18475920Bdb6df5641d" as `0x${string}`;
+    "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512" as `0x${string}`;
 
   // YD Token 合约交互
   const {
@@ -166,7 +166,7 @@ export function usePurchaseCourse(): UsePurchaseCourseReturn {
               "保存到数据库失败，但链上交易已成功: " +
                 (err instanceof Error ? err.message : "未知错误"),
             );
-            setStatus(PurchaseStatus.SUCCESS);
+            setStatus(PurchaseStatus.ERROR);
           }
         };
 
