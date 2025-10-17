@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Star, Wallet } from "lucide-react";
+import { ShoppingCart, Sparkles, Star, Wallet } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -58,6 +58,15 @@ export default function FeaturedCourses({
   courses = fallbackCourses,
   onBuy,
 }: FeaturedCoursesProps) {
+  const handleApprove = (course: FeaturedCourse) => {
+    // TODO: 调用合约 approve 接口，授权课程合约可支配 YD 代币
+  };
+
+  const handleBuy = (course: FeaturedCourse) => {
+    // TODO: 调用购买课程合约接口，完成课程兑换逻辑
+    onBuy?.(course);
+  };
+
   return (
     <section className="relative overflow-hidden">
       <div className="mx-auto flex max-w-[1200px] flex-col gap-10 px-6 py-24">
@@ -121,14 +130,27 @@ export default function FeaturedCourses({
                   </div>
                 </div>
 
-                <Button
-                  variant="primary"
-                  fullWidth
-                  className="mt-auto"
-                  onClick={() => onBuy?.(course)}
-                >
-                  立即购买
-                </Button>
+                <div className="mt-auto flex gap-3">
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    leftIcon={<Sparkles className="h-5 w-5 text-white" />}
+                    className="flex-1 rounded-full px-6 text-base font-semibold shadow-[0_24px_48px_rgba(255,152,113,0.32)] transition-all duration-200 hover:-translate-y-[2px] focus-visible:ring-2 focus-visible:ring-[#FFE3C7] focus-visible:ring-offset-2 whitespace-nowrap"
+                    onClick={() => handleApprove(course)}
+                  >
+                    Approve
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    leftIcon={
+                      <ShoppingCart className="h-5 w-5 text-[#7C86B3]" />
+                    }
+                    className="flex-1 h-12 rounded-full border border-[#D7DEFF] bg-white/70 text-sm font-semibold text-[#3B427F] shadow-[0_8px_18px_rgba(193,203,255,0.28)] transition-all duration-200 hover:-translate-y-[2px] hover:border-[#C2CBFF] hover:bg-white focus-visible:ring-2 focus-visible:ring-[#B4C1FF] focus-visible:ring-offset-2 whitespace-nowrap"
+                    onClick={() => handleBuy(course)}
+                  >
+                    Buy
+                  </Button>
+                </div>
               </div>
             </article>
           ))}
