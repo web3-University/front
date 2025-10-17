@@ -1,7 +1,4 @@
 import CourseList from "@/components/market/CourseList";
-import FilterNav from "@/components/market/FilterNav";
-
-// 模拟课程数据
 
 export default function MarketPage() {
   return (
@@ -16,10 +13,7 @@ export default function MarketPage() {
           </p>
         </div>
 
-        {/* 搜索和筛选部分 */}
-        <FilterNav />
-
-        {/* 课程卡片列表*/}
+        {/* 课程卡片列表（包含筛选功能）*/}
         <CourseList />
 
         {/* 加载更多按钮 */}

@@ -6,6 +6,7 @@ import {
   UseReadContractReturnType,
 } from "wagmi";
 import { QueryClient } from "@tanstack/react-query";
+import * as viem from "viem";
 import { Address, Chain, Abi, Hash, TransactionReceipt } from "viem";
 import { SiweMessage } from "siwe";
 
@@ -261,28 +262,28 @@ declare function useWalletConnection(): WalletState & {
 };
 
 declare function useWalletInfo(): {
-  address: GetAccountReturnType<config>;
-  isConnected: GetAccountReturnType<config>;
-  ensName: Compute<any>;
-  chainId: GetChainIdReturnType<config_1>;
+  address: `0x${string}` | undefined;
+  isConnected: boolean;
+  ensName: viem.GetEnsNameReturnType | undefined;
+  chainId: number;
   connector:
     | {
-        id: any;
-        name: any;
-        type: any;
-        icon: any;
+        id: string;
+        name: string;
+        type: string;
+        icon: string | undefined;
       }
     | undefined;
-  chain: any;
+  chain: viem.Chain | undefined;
   balance:
     | {
-        value: any;
+        value: bigint;
         formatted: string;
-        symbol: any;
-        decimals: any;
+        symbol: string;
+        decimals: number;
       }
     | undefined;
-  isBalanceLoading: Compute<any>;
+  isBalanceLoading: boolean;
 };
 
 declare function useNetworkSwitch(): {
@@ -483,13 +484,29 @@ declare function useCourseContract({
 /**
  * 钱包认证 Hook
  * 提供完整的签名登录流程
+ *
+ * @description
+ * 集成 SIWE (Sign-In with Ethereum) 标准的钱包认证流程：
+ * 1. 请求 nonce
+ * 2. 用户签名
+ * 3. 验证签名
+ * 4. 获取并存储 JWT token
+ *
+ * @example
+ * ```typescript
+ * const { signIn, signOut, isAuthenticated, status } = useWalletAuth({
+ *   domain: 'http://localhost:3000',
+ *   apiBaseUrl: '/api/v1/auth',
+ *   onSuccess: (token) => console.log('Logged in:', token),
+ * });
+ * ```
  */
 declare function useWalletAuth(config?: AuthConfig): {
   status: SignInStatus;
   isAuthenticated: boolean;
   isAuthenticating: boolean;
   error: string | null;
-  address: any;
+  address: `0x${string}` | undefined;
   signIn: () => Promise<string | null>;
   signOut: () => void;
   reload: () => void;
@@ -497,14 +514,14 @@ declare function useWalletAuth(config?: AuthConfig): {
 };
 
 declare function useWalletSign(): {
-  address: any;
-  isPending: Compute<any>;
-  isSuccess: Compute<any>;
-  isError: Compute<any>;
+  address: `0x${string}` | undefined;
+  isPending: boolean;
+  isSuccess: boolean;
+  isError: boolean;
   signMessage: (message: string) => Promise<{
     message: string;
-    signature: any;
-    address: any;
+    signature: `0x${string}`;
+    address: `0x${string}`;
   }>;
   signSIWEMessage: (
     domain: string,
@@ -512,8 +529,8 @@ declare function useWalletSign(): {
     chainId?: number,
   ) => Promise<{
     message: SiweMessage;
-    signature: any;
-    address: any;
+    signature: `0x${string}`;
+    address: `0x${string}`;
   }>;
   generateSIWEMessage: (
     domain: string,
