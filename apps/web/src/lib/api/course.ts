@@ -1,5 +1,6 @@
 // src/lib/api/course.ts
 import { http } from "@/lib/http";
+import { getAuthToken } from "@/lib/utils/storage";
 
 // ========== 类型定义 ==========
 
@@ -101,6 +102,7 @@ export const getCourseList = (filters?: CourseFilters) =>
   http<ApiResponse<Course[]>>("/courses/list", {
     method: "POST",
     body: filters || {},
+    token: getAuthToken(),
   });
 
 /**

@@ -484,6 +484,22 @@ declare function useCourseContract({
 /**
  * 钱包认证 Hook
  * 提供完整的签名登录流程
+ *
+ * @description
+ * 集成 SIWE (Sign-In with Ethereum) 标准的钱包认证流程：
+ * 1. 请求 nonce
+ * 2. 用户签名
+ * 3. 验证签名
+ * 4. 获取并存储 JWT token
+ *
+ * @example
+ * ```typescript
+ * const { signIn, signOut, isAuthenticated, status } = useWalletAuth({
+ *   domain: 'http://localhost:3000',
+ *   apiBaseUrl: '/api/v1/auth',
+ *   onSuccess: (token) => console.log('Logged in:', token),
+ * });
+ * ```
  */
 declare function useWalletAuth(config?: AuthConfig): {
   status: SignInStatus;
