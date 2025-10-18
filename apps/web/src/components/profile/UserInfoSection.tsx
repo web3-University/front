@@ -1,18 +1,17 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { useWalletInfo } from "@web3-university/uni-wallet-lib";
-import { useWalletSign } from "@web3-university/uni-wallet-lib";
+import { useWalletInfo, useWalletSign } from "@web3-university/uni-wallet-lib";
 import {
-  User,
-  Mail,
-  Wallet,
-  Camera,
-  Save,
-  Loader2,
-  CheckCircle,
   AlertCircle,
+  Camera,
+  CheckCircle,
+  Loader2,
+  Mail,
+  Save,
+  User,
+  Wallet,
 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { http } from "@/lib/http";
 
 interface UserProfile {
@@ -126,9 +125,18 @@ export default function UserInfoSection() {
     setMessage(null);
 
     try {
-      await http("/users/send-email-code", {
+      console.log("发送验证码请求:", {
+        url: "/api/users/profile/email-code",
+        body: {
+          walletAddress: address,
+          email: profile.email,
+        },
+      });
+
+      await http("/api/users/profile/email-code", {
         method: "POST",
         body: {
+          walletAddress: address,
           email: profile.email,
         },
       });
@@ -138,11 +146,11 @@ export default function UserInfoSection() {
 
       // 3秒后清除成功消息
       setTimeout(() => setMessage(null), 3000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("发送验证码失败:", error);
       setMessage({
         type: "error",
-        text: error.message || "发送验证码失败，请重试",
+        text: error instanceof Error ? error.message : "发送验证码失败，请重试",
       });
     } finally {
       setIsSendingCode(false);
@@ -183,38 +191,51 @@ export default function UserInfoSection() {
     setMessage(null);
 
     try {
-      // 生成签名消息
+      // 生成签名消息用于用户确认
       const timestamp = Date.now();
       const message = `更新个人信息\n时间戳: ${timestamp}\n钱包地址: ${address}\n名称: ${profile.name}\n邮箱: ${profile.email}`;
 
-      // 请求钱包签名
-      const signResult = await signMessage(message);
-      const signature = signResult.signature;
+      // 请求钱包签名（用户确认操作）
+      let signature: string;
+      try {
+        const signResult = await signMessage(message);
+        signature = signResult.signature;
+      } catch (_signError) {
+        // 用户拒绝签名，不继续请求接口
+        console.log("用户拒绝签名");
+        setMessage({ type: "error", text: "已取消操作" });
+        return;
+      }
 
+      // 签名通过后，继续上传头像和保存用户信息
       // 上传头像（如果有新头像）
       let avatarUrl = profile.avatarUrl;
-      if (profile.avatarUrl && profile.avatarUrl.startsWith("data:")) {
+      if (profile.avatarUrl?.startsWith("data:")) {
         // 将 base64 转换为 blob
         const blob = await fetch(profile.avatarUrl).then((r) => r.blob());
         const formData = new FormData();
         formData.append("file", blob, "avatar.jpg");
+        formData.append("fileType", "avatar");
 
-        const uploadResult = await http<{ url: string }>("/upload/avatar", {
-          method: "POST",
-          body: formData,
-        });
+        const uploadResult = await http<{ url: string }>(
+          "/api/storage/upload",
+          {
+            method: "POST",
+            body: formData,
+          },
+        );
         avatarUrl = uploadResult.url;
       }
 
       // 保存用户信息
-      await http("/users/profile", {
+      await http("/api/users/profile", {
         method: "POST",
         body: {
           walletAddress: address,
-          name: profile.name,
+          username: profile.name,
+          avatar: avatarUrl,
           email: profile.email,
-          avatarUrl,
-          emailCode: emailChanged ? emailCode : undefined, // 只有修改邮箱时才需要验证码
+          verificationCode: emailChanged ? emailCode : undefined, // 只有修改邮箱时才需要验证码
           signature,
           message,
           timestamp,
@@ -231,11 +252,11 @@ export default function UserInfoSection() {
 
       // 3秒后清除成功消息
       setTimeout(() => setMessage(null), 3000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("保存失败:", error);
       setMessage({
         type: "error",
-        text: error.message || "保存失败，请重试",
+        text: error instanceof Error ? error.message : "保存失败，请重试",
       });
     } finally {
       setIsSaving(false);
