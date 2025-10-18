@@ -1,5 +1,5 @@
 "use client";
-import { useAuth } from "@web3-university/uni-wallet-lib";
+import { useAuth, useCourseContract } from "@web3-university/uni-wallet-lib";
 import type React from "react";
 import {
   createContext,
@@ -8,7 +8,11 @@ import {
   useContext,
   useState,
 } from "react";
-import { type CreateCourseDto, createCourse } from "@/lib/api/course";
+import {
+  type CreateCourseDto,
+  createCourse,
+  createLesson,
+} from "@/lib/api/course";
 
 // 课程内容项类型
 export interface CourseContentItem {
@@ -71,6 +75,13 @@ interface CourseProviderProps {
 
 export const CourseProvider: React.FC<CourseProviderProps> = ({ children }) => {
   const auth = useAuth();
+  const {
+    // 写入方法（返回 Promise）
+    createCourse: createCourseContract, // 创建课程
+  } = useCourseContract({
+    address: "0x1Af44F76cbF12d18Cb01C92d4076Da41e9B826EF",
+    tokenDecimals: 18, // YD Token 精度
+  });
 
   // 初始状态
   const [formData, setFormData] = useState<CourseFormData>(() => {
@@ -256,6 +267,23 @@ export const CourseProvider: React.FC<CourseProviderProps> = ({ children }) => {
       const response = await createCourse(createCourseData);
 
       console.log("课程创建成功:", response);
+      window.location.href = "/market";
+
+      // const lessonData = {
+      //   title: formData.courseContent[0].title,
+      //   description: 10,
+      //   videoUrl: formData.courseContent[0].videoFile,
+      //   duration: formData.courseContent[0].duration,
+      //   order: 1,
+      //   type: formData.courseContent[0].type,
+      //   isFreePreview: formData.courseContent[0].isFreePreview,
+      //   courseId:1,
+      //   instructorWallet: auth.address,
+      //   content: formData.courseContent[0].textContent,
+      // }
+      // createLesson(lessonData)
+
+      // createCourseContract(formData.basicInfo.title, auth.address, formData.pricingSetting.price.toString(),3)
 
       // 可以添加成功后的处理逻辑，比如跳转到课程详情页
       // 或者显示成功提示
