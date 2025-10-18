@@ -18,7 +18,7 @@ export type ProposalCategory =
   | "定价规则";
 
 export type ProposalTabKey = "active" | "passed" | "rejected";
-
+export type DaoTabKey = "proposal" | "dispute" | "history";
 export interface Proposal {
   id: number;
   title: string;
@@ -65,4 +65,9 @@ export interface ProposalsByStatus {
   active: Proposal[];
   passed: Proposal[];
   rejected: Proposal[];
+}
+export interface DaoByStatus {
+  proposal: Proposal[];
+  dispute: Proposal[];
+  history: Proposal[];
 }
