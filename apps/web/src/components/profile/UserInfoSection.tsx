@@ -1,0 +1,359 @@
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import { useWalletInfo } from "@web3-university/uni-wallet-lib";
+import { useWalletSign } from "@web3-university/uni-wallet-lib";
+import {
+  User,
+  Mail,
+  Wallet,
+  Camera,
+  Save,
+  Loader2,
+  CheckCircle,
+  AlertCircle,
+} from "lucide-react";
+import { http } from "@/lib/http";
+
+interface UserProfile {
+  name: string;
+  email: string;
+  avatarUrl: string;
+  walletAddress: string;
+}
+
+export default function UserInfoSection() {
+  const { address, isConnected } = useWalletInfo();
+  const { signMessage } = useWalletSign();
+
+  const [profile, setProfile] = useState<UserProfile>({
+    name: "",
+    email: "",
+    avatarUrl: "",
+    walletAddress: address || "",
+  });
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 加载用户信息
+  useEffect(() => {
+    if (address) {
+      loadUserProfile();
+    }
+  }, [address]);
+
+  const loadUserProfile = async () => {
+    try {
+      const data = await http<UserProfile>(`/users/profile?address=${address}`);
+      setProfile({ ...data, walletAddress: address || "" });
+    } catch (error) {
+      console.error("加载用户信息失败:", error);
+      // 如果加载失败，使用默认值
+      setProfile({
+        name: "",
+        email: "",
+        avatarUrl: "",
+        walletAddress: address || "",
+      });
+    }
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // 检查文件类型
+    if (!file.type.startsWith("image/")) {
+      setMessage({ type: "error", text: "请选择图片文件" });
+      return;
+    }
+
+    // 检查文件大小（限制为 5MB）
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage({ type: "error", text: "图片大小不能超过 5MB" });
+      return;
+    }
+
+    // 创建预览
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result as string;
+      setProfile((prev) => ({ ...prev, avatarUrl: result }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSave = async () => {
+    if (!isConnected || !address) {
+      setMessage({ type: "error", text: "请先连接钱包" });
+      return;
+    }
+
+    if (!profile.name.trim()) {
+      setMessage({ type: "error", text: "请输入用户名" });
+      return;
+    }
+
+    if (!profile.email.trim()) {
+      setMessage({ type: "error", text: "请输入邮箱" });
+      return;
+    }
+
+    // 验证邮箱格式
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(profile.email)) {
+      setMessage({ type: "error", text: "请输入有效的邮箱地址" });
+      return;
+    }
+
+    setIsSaving(true);
+    setMessage(null);
+
+    try {
+      // 生成签名消息
+      const timestamp = Date.now();
+      const message = `更新个人信息\n时间戳: ${timestamp}\n钱包地址: ${address}\n名称: ${profile.name}\n邮箱: ${profile.email}`;
+
+      // 请求钱包签名
+      const signResult = await signMessage(message);
+      const signature = signResult.signature;
+
+      // 上传头像（如果有新头像）
+      let avatarUrl = profile.avatarUrl;
+      if (profile.avatarUrl && profile.avatarUrl.startsWith("data:")) {
+        // 将 base64 转换为 blob
+        const blob = await fetch(profile.avatarUrl).then((r) => r.blob());
+        const formData = new FormData();
+        formData.append("file", blob, "avatar.jpg");
+
+        const uploadResult = await http<{ url: string }>("/upload/avatar", {
+          method: "POST",
+          body: formData,
+        });
+        avatarUrl = uploadResult.url;
+      }
+
+      // 保存用户信息
+      await http("/users/profile", {
+        method: "POST",
+        body: {
+          walletAddress: address,
+          name: profile.name,
+          email: profile.email,
+          avatarUrl,
+          signature,
+          message,
+          timestamp,
+        },
+      });
+
+      setMessage({ type: "success", text: "保存成功！" });
+      setIsEditing(false);
+
+      // 更新本地头像 URL
+      setProfile((prev) => ({ ...prev, avatarUrl }));
+
+      // 3秒后清除成功消息
+      setTimeout(() => setMessage(null), 3000);
+    } catch (error: any) {
+      console.error("保存失败:", error);
+      setMessage({
+        type: "error",
+        text: error.message || "保存失败，请重试",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (!isConnected) {
+    return (
+      <div className="flex min-h-[400px] flex-col items-center justify-center">
+        <Wallet className="mb-4 h-16 w-16 text-[#6A6D94]" />
+        <p className="text-lg text-[#6A6D94]">请先连接钱包</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* 消息提示 */}
+      {message && (
+        <div
+          className={`flex items-center gap-3 rounded-xl p-4 ${
+            message.type === "success"
+              ? "bg-green-50 text-green-800"
+              : "bg-red-50 text-red-800"
+          }`}
+        >
+          {message.type === "success" ? (
+            <CheckCircle className="h-5 w-5" />
+          ) : (
+            <AlertCircle className="h-5 w-5" />
+          )}
+          <span>{message.text}</span>
+        </div>
+      )}
+
+      {/* 头像和基本信息卡片 */}
+      <div className="rounded-2xl bg-white/60 p-6 backdrop-blur-sm shadow-sm ring-1 ring-white/60">
+        <div className="flex flex-col sm:flex-row items-center gap-6">
+          {/* 头像 */}
+          <div className="relative">
+            <div className="h-32 w-32 overflow-hidden rounded-full bg-gradient-to-br from-[#8A71FF] to-[#FF9D6B] p-1 shadow-lg">
+              {profile.avatarUrl ? (
+                <img
+                  src={profile.avatarUrl}
+                  alt="Avatar"
+                  className="h-full w-full rounded-full object-cover bg-white"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center rounded-full bg-white">
+                  <User className="h-16 w-16 text-[#6A6D94]" />
+                </div>
+              )}
+            </div>
+            {/* 头像编辑按钮（仅在编辑模式显示） */}
+            {isEditing && (
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="absolute bottom-0 right-0 rounded-full bg-[#8A71FF] p-3 text-white shadow-lg transition-all hover:bg-[#7A61EF]"
+              >
+                <Camera className="h-5 w-5" />
+              </button>
+            )}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarChange}
+              className="hidden"
+            />
+          </div>
+
+          {/* 用户信息展示 */}
+          <div className="flex-1 text-center sm:text-left">
+            <h2 className="text-2xl font-bold text-[#2B2558] mb-2">
+              {profile.name || "未设置名称"}
+            </h2>
+            <p className="text-sm text-[#6A6D94] mb-3">
+              {profile.email || "未设置邮箱"}
+            </p>
+            <div className="inline-flex items-center gap-2 rounded-full bg-[#F5F0FF] px-4 py-2">
+              <Wallet className="h-4 w-4 text-[#8A71FF]" />
+              <span className="font-mono text-sm text-[#6A6D94]">
+                {address?.slice(0, 6)}...{address?.slice(-4)}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 表单编辑卡片 */}
+      <div className="rounded-2xl bg-white/60 p-6 backdrop-blur-sm shadow-sm ring-1 ring-white/60">
+        <h3 className="text-lg font-bold text-[#2B2558] mb-6">个人资料</h3>
+
+        <div className="space-y-6">
+          {/* 钱包地址（只读） */}
+          <div>
+            <label className="mb-2 flex items-center gap-2 text-sm font-medium text-[#2B2558]">
+              <Wallet className="h-4 w-4" />
+              钱包地址
+            </label>
+            <div className="rounded-xl bg-[#F5F0FF] px-4 py-3 font-mono text-sm text-[#6A6D94]">
+              {address}
+            </div>
+            <p className="mt-2 text-xs text-[#6A6D94]">
+              钱包地址不可修改，所有信息都绑定到此地址
+            </p>
+          </div>
+
+          {/* 用户名 */}
+          <div>
+            <label className="mb-2 flex items-center gap-2 text-sm font-medium text-[#2B2558]">
+              <User className="h-4 w-4" />
+              用户名
+            </label>
+            <input
+              type="text"
+              value={profile.name}
+              onChange={(e) =>
+                setProfile((prev) => ({ ...prev, name: e.target.value }))
+              }
+              disabled={!isEditing}
+              placeholder="请输入您的用户名"
+              className="w-full rounded-xl border border-[#E0E0E0] bg-white px-4 py-3 text-[#2B2558] transition-all focus:border-[#8A71FF] focus:outline-none focus:ring-2 focus:ring-[#8A71FF]/20 disabled:bg-[#F5F0FF] disabled:text-[#6A6D94]"
+            />
+          </div>
+
+          {/* 邮箱 */}
+          <div>
+            <label className="mb-2 flex items-center gap-2 text-sm font-medium text-[#2B2558]">
+              <Mail className="h-4 w-4" />
+              邮箱
+            </label>
+            <input
+              type="email"
+              value={profile.email}
+              onChange={(e) =>
+                setProfile((prev) => ({ ...prev, email: e.target.value }))
+              }
+              disabled={!isEditing}
+              placeholder="请输入您的邮箱"
+              className="w-full rounded-xl border border-[#E0E0E0] bg-white px-4 py-3 text-[#2B2558] transition-all focus:border-[#8A71FF] focus:outline-none focus:ring-2 focus:ring-[#8A71FF]/20 disabled:bg-[#F5F0FF] disabled:text-[#6A6D94]"
+            />
+          </div>
+        </div>
+
+        {/* 操作按钮 */}
+        <div className="mt-6 flex gap-4">
+          {!isEditing ? (
+            <button
+              onClick={() => setIsEditing(true)}
+              className="rounded-xl bg-gradient-to-r from-[#8A71FF] to-[#9D7FFF] px-6 py-3 font-medium text-white shadow-md transition-all hover:shadow-lg hover:scale-105"
+            >
+              编辑信息
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={handleSave}
+                disabled={isSaving}
+                className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#8A71FF] to-[#9D7FFF] px-6 py-3 font-medium text-white shadow-md transition-all hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    保存中...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-5 w-5" />
+                    保存
+                  </>
+                )}
+              </button>
+              <button
+                onClick={() => {
+                  setIsEditing(false);
+                  loadUserProfile(); // 重新加载原始数据
+                }}
+                disabled={isSaving}
+                className="rounded-xl border border-[#E0E0E0] px-6 py-3 font-medium text-[#6A6D94] transition-all hover:bg-white/50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                取消
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
