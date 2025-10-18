@@ -214,7 +214,55 @@ export function useCourse(
 
     try {
       const response = await getCourseLessons(courseId);
-      setLessons(response.data || []);
+      if (response.data && response.data.length > 0) {
+        setLessons(response.data);
+      } else {
+        // 如果 API 返回空数据，则使用 mock 数据
+        const mockLessons: Lesson[] = [
+          {
+            id: 101,
+            courseId: courseId,
+            title: "第一章：课程介绍",
+            content:
+              "在本章中，我们将概述整个课程的目标、结构以及您将学到的关键技能。",
+            order: 1,
+            duration: 300, // 5 minutes
+            videoUrl:
+              "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+          },
+          {
+            id: 102,
+            courseId: courseId,
+            title: "第二章：环境搭建",
+            content: "学习如何设置您的开发环境，包括安装必要的软件和工具。",
+            order: 2,
+            duration: 600, // 10 minutes
+            videoUrl:
+              "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+          },
+          {
+            id: 103,
+            courseId: courseId,
+            title: "第三章：核心概念",
+            content: "深入探讨本技术的核心概念，为您后续的学习打下坚实的基础。",
+            order: 3,
+            duration: 900, // 15 minutes
+            videoUrl:
+              "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+          },
+          {
+            id: 104,
+            courseId: courseId,
+            title: "第四章：动手实践",
+            content: "通过一个实际的小项目，将前面学到的理论知识付诸实践。",
+            order: 4,
+            duration: 1200, // 20 minutes
+            videoUrl:
+              "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+          },
+        ];
+        setLessons(mockLessons);
+      }
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "获取章节列表失败";

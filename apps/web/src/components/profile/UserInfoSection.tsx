@@ -1,17 +1,23 @@
 "use client";
 
-import { useWalletInfo, useWalletSign } from "@web3-university/uni-wallet-lib";
+import {
+  useSimpleYDToken,
+  useWalletInfo,
+  useWalletSign,
+} from "@web3-university/uni-wallet-lib";
 import {
   AlertCircle,
   Camera,
   CheckCircle,
+  Coins,
   Loader2,
   Mail,
   Save,
   User,
   Wallet,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { formatUnits } from "viem";
 import { http } from "@/lib/http";
 
 interface UserProfile {
@@ -24,6 +30,19 @@ interface UserProfile {
 export default function UserInfoSection() {
   const { address, isConnected } = useWalletInfo();
   const { signMessage } = useWalletSign();
+
+  // YD代币相关
+  const tokenAddress = useMemo(() => {
+    const addr = process.env.NEXT_PUBLIC_YD_TOKEN_ADDRESS;
+    return addr ? (addr as `0x${string}`) : undefined;
+  }, []);
+
+  const { balance: ydBalance } = useSimpleYDToken({ address: tokenAddress });
+
+  const ydBalanceLabel = useMemo(() => {
+    if (!ydBalance) return "0";
+    return Number(formatUnits(ydBalance, 18)).toFixed(2);
+  }, [ydBalance]);
 
   const [profile, setProfile] = useState<UserProfile>({
     name: "",
@@ -336,11 +355,19 @@ export default function UserInfoSection() {
             <p className="text-sm text-[#6A6D94] mb-3">
               {profile.email || "未设置邮箱"}
             </p>
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#F5F0FF] px-4 py-2">
-              <Wallet className="h-4 w-4 text-[#8A71FF]" />
-              <span className="font-mono text-sm text-[#6A6D94]">
-                {address?.slice(0, 6)}...{address?.slice(-4)}
-              </span>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="inline-flex items-center gap-2 rounded-full bg-[#F5F0FF] px-4 py-2">
+                <Wallet className="h-4 w-4 text-[#8A71FF]" />
+                <span className="font-mono text-sm text-[#6A6D94]">
+                  {address?.slice(0, 6)}...{address?.slice(-4)}
+                </span>
+              </div>
+              <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#FFF5E6] to-[#E6F7FF] px-4 py-2">
+                <Coins className="h-4 w-4 text-[#FF9D6B]" />
+                <span className="font-mono text-sm font-semibold text-[#2B2558]">
+                  {ydBalanceLabel} YD
+                </span>
+              </div>
             </div>
           </div>
         </div>
