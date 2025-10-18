@@ -249,7 +249,7 @@ export default function UserInfoSection() {
 
       // 保存用户信息
       await http("/api/users/profile", {
-        method: "POST",
+        method: "PUT",
         body: {
           walletAddress: address,
           username: profile.name,
