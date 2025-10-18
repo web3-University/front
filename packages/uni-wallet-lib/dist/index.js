@@ -1245,8 +1245,8 @@ g(
       j = g.write("approve"),
       N = g.write("transferFrom"),
       M = g.write("exchangeETHForTokens"),
-      R = g.write("stake"),
-      A = g.write("unstake"),
+      A = g.write("stake"),
+      R = g.write("unstake"),
       I = g.write("claimReward");
     return {
       totalSupply: w,
@@ -1256,8 +1256,8 @@ g(
       approveReceipt: j.receipt,
       transferFromReceipt: N.receipt,
       exchangeETHForTokensReceipt: M.receipt,
-      stakeReceipt: R.receipt,
-      unstakeReceipt: A.receipt,
+      stakeReceipt: A.receipt,
+      unstakeReceipt: R.receipt,
       claimRewardReceipt: I.receipt,
       refetchBalance: v,
       refetchAllowance: k,
@@ -1279,8 +1279,8 @@ g(
       exchangeETHForTokens: async (e) => (
         await m(h, s.parseEther(e)), M.send({ value: s.parseEther(e), gas: l })
       ),
-      stake: async (e, t) => R.send(e, t),
-      unstake: async (e) => A.send(e),
+      stake: async (e, t) => A.send(e, t),
+      unstake: async (e) => R.send(e),
       claimReward: async () => I.send(),
     };
   }),
@@ -1310,5 +1310,27 @@ g(
       chain: i,
       balance: d,
       isBalanceLoading: c,
+    };
+  }),
+  (exports.useWalletSign = function () {
+    const {
+      signMessage: e,
+      signMessageAsync: t,
+      data: a,
+      error: r,
+      isPending: i,
+      isSuccess: s,
+      isError: o,
+      reset: u,
+    } = n.useSignMessage();
+    return {
+      signMessage: e,
+      signMessageAsync: t,
+      signature: a,
+      error: r,
+      isPending: i,
+      isSuccess: s,
+      isError: o,
+      reset: u,
     };
   });

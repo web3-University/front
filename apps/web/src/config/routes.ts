@@ -11,4 +11,5 @@ export const MAIN_ROUTES: NavRoute[] = [
   { label: "课程市场", href: "/market" },
   { label: "学习中心", href: "/learn" },
   { label: "DAO治理", href: "/dao", requiresAuth: true },
+  { label: "个人中心", href: "/profile", requiresAuth: true },
 ];

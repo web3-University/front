@@ -12,33 +12,34 @@ import {
   useReconnect as m,
   useDisconnect as f,
   useEnsName as b,
-  useBalance as h,
-  useSwitchChain as g,
-  useReadContract as w,
-  useWriteContract as v,
-  useWaitForTransactionReceipt as x,
-  useEstimateGas as T,
+  useBalance as g,
+  useSwitchChain as h,
+  useSignMessage as w,
+  useReadContract as v,
+  useWriteContract as x,
+  useWaitForTransactionReceipt as T,
+  useEstimateGas as C,
 } from "wagmi";
 import {
-  getDefaultConfig as C,
-  lightTheme as k,
-  darkTheme as _,
+  getDefaultConfig as k,
+  lightTheme as _,
+  darkTheme as M,
   RainbowKitProvider as N,
-  ConnectButton as M,
+  ConnectButton as A,
 } from "@rainbow-me/rainbowkit";
 import {
-  QueryClient as A,
-  QueryClientProvider as R,
+  QueryClient as R,
+  QueryClientProvider as I,
 } from "@tanstack/react-query";
-import { sepolia as I, mainnet as B } from "wagmi/chains";
+import { sepolia as B, mainnet as S } from "wagmi/chains";
 import "@rainbow-me/rainbowkit/styles.css";
-import { formatEther as S, parseUnits as E, parseEther as P } from "viem";
-const F = [B, I];
-B.id, I.id, k(), k().colors, k().radii;
-const z = {
-    ..._(),
+import { formatEther as E, parseUnits as P, parseEther as F } from "viem";
+const z = [S, B];
+S.id, B.id, _(), _().colors, _().radii;
+const j = {
+    ...M(),
     colors: {
-      ..._().colors,
+      ...M().colors,
       accentColor: "#0070f3",
       accentColorForeground: "white",
       actionButtonBorder: "rgba(255, 255, 255, 0.04)",
@@ -54,7 +55,7 @@ const z = {
       connectButtonTextError: "#ffffff",
     },
     radii: {
-      ..._().radii,
+      ...M().radii,
       actionButton: "8px",
       connectButton: "8px",
       menuButton: "8px",
@@ -62,13 +63,13 @@ const z = {
       modalMobile: "16px",
     },
   },
-  j = new A({
+  O = new R({
     defaultOptions: { queries: { refetchOnWindowFocus: !1, retry: !1 } },
   });
-function O({
+function q({
   children: t,
   theme: a = "auto",
-  queryClient: r = j,
+  queryClient: r = O,
   initialState: i,
   ...u
 }) {
@@ -81,7 +82,7 @@ function O({
               alchemyApiKey: a,
               infuraApiKey: r,
             } = e,
-            i = F.reduce((e, t) => {
+            i = z.reduce((e, t) => {
               let n = "";
               return (
                 a &&
@@ -93,10 +94,10 @@ function O({
               );
             }, {});
           return {
-            config: C({
+            config: k({
               appName: t,
               projectId: n,
-              chains: F,
+              chains: z,
               ssr: !0,
               storage: o({ storage: d }),
             }),
@@ -105,12 +106,12 @@ function O({
         })(u),
       [u.appName, u.projectId, u.alchemyApiKey, u.infuraApiKey],
     ),
-    p = n.useMemo(() => z, [a]);
+    p = n.useMemo(() => j, [a]);
   return e(c, {
     config: l,
     reconnectOnMount: !0,
     initialState: i,
-    children: e(R, {
+    children: e(I, {
       client: r,
       children: e(N, {
         theme: p,
@@ -121,7 +122,7 @@ function O({
     }),
   });
 }
-function q() {
+function D() {
   const {
       address: e,
       connector: t,
@@ -134,14 +135,14 @@ function q() {
     { connect: o, connectors: d } = y(),
     { reconnect: c } = m(),
     { disconnect: b } = f(),
-    h = s.find((e) => e.id === i);
+    g = s.find((e) => e.id === i);
   return {
     isConnected: n,
     isConnecting: a,
     isReconnecting: r,
     address: e,
     connector: t ? { id: t.id, name: t.name, type: t.type } : void 0,
-    chain: h,
+    chain: g,
     chains: s,
     connect: (e) => {
       if (e) {
@@ -160,16 +161,16 @@ function q() {
     },
   };
 }
-function D() {
+function H() {
   const { address: e, connector: t, isConnected: n } = u(),
     a = l(),
     r = p().find((e) => e.id === a),
     { data: i } = b({ address: e }),
-    { data: s, isLoading: o } = h({ address: e }),
+    { data: s, isLoading: o } = g({ address: e }),
     d = s
       ? {
           value: s.value,
-          formatted: S(s.value),
+          formatted: E(s.value),
           symbol: s.symbol,
           decimals: s.decimals,
         }
@@ -187,11 +188,11 @@ function D() {
     isBalanceLoading: o,
   };
 }
-function H() {
+function L() {
   const e = p(),
     t = l(),
     n = e.find((e) => e.id === t),
-    { switchChain: a, isPending: r, error: i, isSuccess: s, reset: o } = g();
+    { switchChain: a, isPending: r, error: i, isSuccess: s, reset: o } = h();
   return {
     currentChain: n,
     switchToNetwork: (e) => {
@@ -210,7 +211,29 @@ function H() {
     canSwitchNetwork: !!a,
   };
 }
-function L({
+function U() {
+  const {
+    signMessage: e,
+    signMessageAsync: t,
+    data: n,
+    error: a,
+    isPending: r,
+    isSuccess: i,
+    isError: s,
+    reset: o,
+  } = w();
+  return {
+    signMessage: e,
+    signMessageAsync: t,
+    signature: n,
+    error: a,
+    isPending: r,
+    isSuccess: i,
+    isError: s,
+    reset: o,
+  };
+}
+function W({
   address: e,
   abi: t,
   functionName: n,
@@ -220,7 +243,7 @@ function L({
   cacheTime: s = 0,
   staleTime: o = 0,
 }) {
-  const { data: d, ...c } = w({
+  const { data: d, ...c } = v({
     address: e,
     abi: t,
     functionName: n,
@@ -230,7 +253,7 @@ function L({
   });
   return { data: d, ...c };
 }
-function U({
+function $({
   address: e,
   abi: t,
   functionName: n,
@@ -240,7 +263,7 @@ function U({
   enabled: s = !0,
   gasLimit: o,
 }) {
-  const { writeContract: d, writeContractAsync: c, ...u } = v();
+  const { writeContract: d, writeContractAsync: c, ...u } = x();
   return {
     write: (c) => {
       s &&
@@ -266,11 +289,11 @@ function U({
           gas: d?.gas || o,
         });
     },
-    receipt: x({ hash: u.data, query: { enabled: !!u.data } }),
+    receipt: T({ hash: u.data, query: { enabled: !!u.data } }),
     ...u,
   };
 }
-const W = [
+const K = [
     {
       constant: !0,
       inputs: [],
@@ -368,7 +391,7 @@ const W = [
       type: "event",
     },
   ],
-  $ = [
+  Y = [
     {
       inputs: [
         { internalType: "address", name: "_ydToken", type: "address" },
@@ -601,7 +624,7 @@ const W = [
       type: "function",
     },
   ],
-  K = [
+  V = [
     { inputs: [], stateMutability: "nonpayable", type: "constructor" },
     {
       anonymous: !1,
@@ -768,41 +791,41 @@ const W = [
       type: "function",
     },
   ];
-function Y({ address: e, spenderAddress: t, enabled: n = !0 }) {
+function G({ address: e, spenderAddress: t, enabled: n = !0 }) {
   const { address: a } = u(),
     r = (e) => {
       if (!d) throw new Error("Decimals not loaded");
-      return E(e, d);
+      return P(e, d);
     },
-    { data: i } = L({
+    { data: i } = W({
       address: e,
-      abi: W,
+      abi: K,
       functionName: "totalSupply",
       enabled: n,
     }),
-    { data: s, refetch: o } = L({
+    { data: s, refetch: o } = W({
       address: e,
-      abi: W,
+      abi: K,
       functionName: "balanceOf",
       args: a ? [a] : void 0,
       enabled: n && !!a,
     }),
-    { data: d } = L({
+    { data: d } = W({
       address: e,
-      abi: W,
+      abi: K,
       functionName: "decimals",
       enabled: n,
     }),
-    { data: c, refetch: l } = L({
+    { data: c, refetch: l } = W({
       address: e,
-      abi: W,
+      abi: K,
       functionName: "allowance",
       args: a && t ? [a, t] : void 0,
       enabled: n && !!a && !!t,
     }),
-    p = U({ address: e, abi: W, functionName: "transfer" }),
-    y = U({ address: e, abi: W, functionName: "approve" }),
-    m = U({ address: e, abi: W, functionName: "transferFrom" });
+    p = $({ address: e, abi: K, functionName: "transfer" }),
+    y = $({ address: e, abi: K, functionName: "approve" }),
+    m = $({ address: e, abi: K, functionName: "transferFrom" });
   return {
     totalSupply: i,
     balance: s,
@@ -829,13 +852,13 @@ function Y({ address: e, spenderAddress: t, enabled: n = !0 }) {
     },
   };
 }
-function V(e, t) {
+function J(e, t) {
   return {
     read:
       (n, a = !0) =>
       (...r) => {
         const i = r.length > 0 && r.every((e) => void 0 !== e);
-        return L({
+        return W({
           address: e,
           abi: t,
           functionName: n,
@@ -844,7 +867,7 @@ function V(e, t) {
         });
       },
     write: (n) => {
-      const a = U({ address: e, abi: t, functionName: n });
+      const a = $({ address: e, abi: t, functionName: n });
       return {
         send: async (...e) => {
           if (!a.writeAsync) throw new Error(`Function ${n} is not writable`);
@@ -866,20 +889,20 @@ function V(e, t) {
     },
   };
 }
-const G = "0xA812265c869F2BCB755980677812F253459A0cc7";
-function J({ address: e = G, spenderAddress: t, enabled: n = !0 }) {
+const X = "0xA812265c869F2BCB755980677812F253459A0cc7";
+function Q({ address: e = X, spenderAddress: t, enabled: n = !0 }) {
   const { address: r } = u(),
     [i, s] = a(),
     [o, d] = a(),
-    { data: c, refetch: l } = T({
+    { data: c, refetch: l } = C({
       account: r,
       to: i,
       value: o,
       query: { enabled: !1 },
     }),
     p = (e) => {
-      if (!g) throw new Error("Decimals not loaded");
-      return E(e, g);
+      if (!h) throw new Error("Decimals not loaded");
+      return P(e, h);
     },
     y = async (e, t) => {
       s(e),
@@ -889,30 +912,30 @@ function J({ address: e = G, spenderAddress: t, enabled: n = !0 }) {
         s(void 0),
         d(void 0);
     },
-    m = V(e, K),
+    m = J(e, V),
     { data: f } = m.read("totalSupply")(),
-    { data: b, refetch: h } = m.read("balanceOf", n && !!r)(),
-    { data: g } = m.read("decimals")(),
+    { data: b, refetch: g } = m.read("balanceOf", n && !!r)(),
+    { data: h } = m.read("decimals")(),
     { data: w, refetch: v } = m.read("allowance")(r, t),
     x = m.write("transfer"),
-    C = m.write("approve"),
+    T = m.write("approve"),
     k = m.write("transferFrom"),
     _ = m.write("exchangeETHForTokens"),
-    N = m.write("stake"),
-    M = m.write("unstake"),
+    M = m.write("stake"),
+    N = m.write("unstake"),
     A = m.write("claimReward");
   return {
     totalSupply: f,
     balance: b,
     allowance: w,
     transferReceipt: x.receipt,
-    approveReceipt: C.receipt,
+    approveReceipt: T.receipt,
     transferFromReceipt: k.receipt,
     exchangeETHForTokensReceipt: _.receipt,
-    stakeReceipt: N.receipt,
-    unstakeReceipt: M.receipt,
+    stakeReceipt: M.receipt,
+    unstakeReceipt: N.receipt,
     claimRewardReceipt: A.receipt,
-    refetchBalance: h,
+    refetchBalance: g,
     refetchAllowance: v,
     getStakeInfo: (e) => m.read("getStakeInfo")(e),
     calculatePendingReward: (e) => m.read("calculatePendingReward")(e),
@@ -923,26 +946,26 @@ function J({ address: e = G, spenderAddress: t, enabled: n = !0 }) {
     },
     approve: async (e, t) => {
       const n = p(t);
-      return await y(G, void 0), C.send(e, n, { gas: c });
+      return await y(X, void 0), T.send(e, n, { gas: c });
     },
     transferFrom: async (e, t, n) => {
       const a = p(n);
       return await y(t, a), k.send(e, t, a);
     },
     exchangeETHForTokens: async (e) => (
-      await y(G, P(e)), _.send({ value: P(e), gas: c })
+      await y(X, F(e)), _.send({ value: F(e), gas: c })
     ),
-    stake: async (e, t) => N.send(e, t),
-    unstake: async (e) => M.send(e),
+    stake: async (e, t) => M.send(e, t),
+    unstake: async (e) => N.send(e),
     claimReward: async () => A.send(),
   };
 }
-function X({
+function Z({
   address: e = "0x0a42F4f8Cb23460BDeD2e18475920Bdb6df5641d",
   tokenDecimals: t = 18,
 }) {
-  const n = V(e, $),
-    a = (e) => E(e, t),
+  const n = J(e, Y),
+    a = (e) => P(e, t),
     r = n.write("createCourse"),
     i = n.write("purchaseCourse"),
     s = n.write("updateCoursePrice"),
@@ -998,7 +1021,7 @@ function X({
     deleteCourseReceipt: b.receipt,
   };
 }
-function Q(e, t) {
+function ee(e, t) {
   void 0 === t && (t = {});
   var n = t.insertAt;
   if (e && "undefined" != typeof document) {
@@ -1013,13 +1036,13 @@ function Q(e, t) {
         : r.appendChild(document.createTextNode(e));
   }
 }
-Q(
+ee(
   ".profile__menu-wrapper{position:relative}.profile__menu-trigger{align-items:center;background-color:#fff;border:1px solid #e7e5fb;border-radius:9999px;box-shadow:0 1px 2px 0 rgba(0,0,0,.05);color:#6a6d94;cursor:pointer;display:flex;height:2.5rem;justify-content:center;transition:transform .2s;width:2.5rem}.profile__menu-trigger:hover{transform:translateY(-1px)}.profile__avatar{border-radius:50%}.wallet-dropdown{background-color:#fff;border:1px solid #ecebff;border-radius:1rem;box-shadow:0 24px 60px rgba(154,161,255,.18);color:#2b2558;font-size:.875rem;line-height:1.25rem;padding:1rem;position:absolute;right:0;top:2.8rem;width:18rem}.wallet-header{align-items:flex-start;display:flex;justify-content:space-between}.wallet-label{color:#8b8eb5;font-size:.75rem;letter-spacing:.08em;line-height:1rem;text-transform:uppercase}.wallet-value{font-weight:600;margin-top:.25rem}.wallet-chain-id{background-color:#f4f4ff;border-radius:9999px;color:#5f6094;font-size:.75rem;font-weight:500;line-height:1rem;padding:.25rem .75rem}.wallet-section{margin-top:1rem}.wallet-address-box{align-items:center;background-color:#f8f8ff;border-radius:.75rem;display:flex;justify-content:space-between;margin-top:.25rem;padding:.5rem .75rem}.wallet-address-text{color:#2b2558;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:.875rem;line-height:1.25rem}.copy-button{background:transparent;border:none;border-radius:9999px;color:#6a6d94;cursor:pointer;padding:.25rem;transition:background-color .2s}.copy-button:hover{background-color:#fff}.balance-info-box{background-color:#f9f9ff;border-radius:.75rem;margin-top:1rem;padding:.75rem}.balance-info-label{align-items:center;color:#8b8eb5;display:flex;font-size:.75rem;gap:.5rem;letter-spacing:.08em;line-height:1rem;text-transform:uppercase}.balance-info-amount{font-size:1.125rem;font-weight:600;line-height:1.75rem;margin-top:.5rem}.disconnect-button{align-items:center;background-color:#f3f4f6;border:none;border-radius:.5rem;color:#374151;cursor:pointer;display:flex;font-weight:500;gap:.5rem;justify-content:center;margin-top:1rem;padding:.5rem 1rem;transition:background-color .2s;width:100%}.disconnect-button:hover:not(:disabled){background-color:#e5e7eb}.disconnect-button:disabled{cursor:not-allowed;opacity:.5}.disconnect-button.loading{opacity:.7}",
 );
-const Z = ({ account: n, chain: s, openAccountModal: o }) => {
+const te = ({ account: n, chain: s, openAccountModal: o }) => {
   const [d, c] = a(!1),
     u = r(null),
-    { disconnect: l } = q();
+    { disconnect: l } = D();
   i(() => {
     const e = (e) => {
       u.current && !u.current.contains(e.target) && c(!1);
@@ -1172,10 +1195,10 @@ const Z = ({ account: n, chain: s, openAccountModal: o }) => {
     ],
   });
 };
-Q(
+ee(
   ".wallet-button{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif}.wallet-button__container{align-items:center;display:flex;gap:8px;height:44px;justify-content:center}.wallet-button__connect{background:linear-gradient(90deg,#eab308,#f97316);border:none;border-radius:12px;color:#fff;cursor:pointer;font-size:14px;font-weight:600;padding:12px 24px;transition:all .2s ease}.wallet-button__connect:hover{box-shadow:0 4px 12px rgba(102,126,234,.4);transform:translateY(-1px)}.wallet-button__wrong-network{background:#ff6b6b;border:none;border-radius:12px;color:#fff;cursor:pointer;font-size:14px;font-weight:600;padding:12px 24px;transition:all .2s ease}.wallet-button__wrong-network:hover{background:#ff5252}.wallet-button__connected{align-items:center;display:flex;gap:16px}.wallet-button__chain{align-items:center;background:linear-gradient(90deg,#ffe7c5,#ffead4);border-radius:9999px;box-shadow:0 1px 2px 0 rgba(0,0,0,.05);box-shadow:0 0 0 1px hsla(0,0%,100%,.6);color:#5a4b23;display:flex;font-size:.875rem;font-weight:500;gap:.5rem;line-height:1.25rem;padding:8px 12px}.wallet-button__chain-icon{align-items:center;border-radius:.5rem;display:flex;gap:.5rem}.wallet-button__icon{align-items:center;background:linear-gradient(90deg,#facc15,#f97316);border-radius:50%;display:flex;height:1.5rem;justify-content:center;width:1.5rem}.wallet-button__account{align-items:center;background-color:rgba(22,163,74,.2);background-color:#fff;border:none;border-radius:.5rem;border-radius:9999px;box-shadow:0 1px 2px 0 rgba(0,0,0,.05);color:#66608d;cursor:pointer;display:flex;font-size:.875rem;gap:.5rem;height:40px;justify-content:space-evenly;line-height:1.25rem;min-width:150px;padding:.25rem .75rem;transform:translateY(-1px);transition:transform .2s}.wallet-button__status-bot{animation:pulse 2s cubic-bezier(.4,0,.6,1) infinite;background-color:#4ade80;border-radius:9999px;height:.5rem;width:.5rem}.wallet-icon{color:#4ade80;height:1rem;width:1rem}.wallet-button__address{color:#4ade80;color:#8b8eb5;font-size:.875rem;font-size:.75rem;font-weight:600;line-height:1rem}.notification-container{position:relative}.notification-button{background-color:#fff;border:1px solid #e7e5fb;border-radius:9999px;box-shadow:0 1px 2px 0 rgba(0,0,0,.05);box-sizing:border-box;color:#6a6d94;display:flex;height:2.5rem;position:relative;width:2.5rem}.notification-badge,.notification-button{align-items:center;justify-content:center}.notification-badge{background-color:#ff5a5f;border-radius:9999px;color:#fff;display:inline-flex;font-size:.625rem;font-weight:600;height:1rem;line-height:1rem;padding:.25 .25rem;position:absolute;right:-.25rem;top:-.25rem;width:1rem}",
 );
-const ee = ({
+const ne = ({
   label: n = "连接钱包",
   showBalance: a = !0,
   showChainName: r = !0,
@@ -1184,7 +1207,7 @@ const ee = ({
 }) =>
   e("div", {
     className: `wallet-button wallet-button--${s} ${i}`,
-    children: e(M.Custom, {
+    children: e(A.Custom, {
       children: ({
         account: i,
         chain: s,
@@ -1277,7 +1300,7 @@ const ee = ({
                         ],
                       }),
                     }),
-                    e(Z, { account: i, chain: s, openAccountModal: o }),
+                    e(te, { account: i, chain: s, openAccountModal: o }),
                   ],
                 })
               : e("button", {
@@ -1290,13 +1313,14 @@ const ee = ({
     }),
   });
 export {
-  ee as WalletButton,
-  O as WalletProvider,
-  X as useCourseContract,
-  Y as useERC20,
-  H as useNetworkSwitch,
-  J as useSimpleYDToken,
-  q as useWalletConnection,
-  D as useWalletInfo,
+  ne as WalletButton,
+  q as WalletProvider,
+  Z as useCourseContract,
+  G as useERC20,
+  L as useNetworkSwitch,
+  Q as useSimpleYDToken,
+  D as useWalletConnection,
+  H as useWalletInfo,
+  U as useWalletSign,
 };
 //# sourceMappingURL=index.esm.js.map
