@@ -233,9 +233,18 @@ const BasicInfoTab = () => {
           <div className="relative bg-white border border-gray-200 rounded-md p-4">
             {formData.basicInfo.coverImage && (
               <img
-                src={URL.createObjectURL(formData.basicInfo.coverImage)}
+                src={
+                  formData.basicInfo.coverImage instanceof File ||
+                  formData.basicInfo.coverImage instanceof Blob
+                    ? URL.createObjectURL(formData.basicInfo.coverImage)
+                    : formData.basicInfo.coverImage // 假设是字符串 URL
+                }
                 alt="课程封面预览"
                 className="w-full h-auto max-h-48 object-contain rounded"
+                onError={(e) => {
+                  console.error("图片加载失败", e);
+                  e.currentTarget.src = "/placeholder-image.png"; // 可选：设置占位图
+                }}
               />
             )}
             <button
