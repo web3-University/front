@@ -8,6 +8,7 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react";
 import { formatUnits } from "viem";
 import { purchaseCourse as purchaseCourseAPI } from "@/lib/api/course";
+import { CONTRACTS, TOKEN_DECIMALS } from "@/config/contracts";
 
 /**
  * 购买状态枚举
@@ -81,9 +82,6 @@ export interface UsePurchaseCourseReturn {
 export function usePurchaseCourse(): UsePurchaseCourseReturn {
   // 钱包连接状态
   const { address: walletAddress, isConnected } = useWalletConnection();
-  // 课程合约地址
-  const COURSE_CONTRACT_ADDRESS =
-    "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512" as `0x${string}`;
 
   // YD Token 合约交互
   const {
@@ -93,16 +91,16 @@ export function usePurchaseCourse(): UsePurchaseCourseReturn {
     refetchAllowance,
     balance: tokenBalance,
   } = useSimpleYDToken({
-    address: "0x5fbdb2315678afecb367f032d93f642f64180aa3" as `0x${string}`,
-    spenderAddress: COURSE_CONTRACT_ADDRESS,
+    address: CONTRACTS.YD_TOKEN,
+    spenderAddress: CONTRACTS.COURSE_CONTRACT,
     enabled: true,
   });
 
   // 课程合约交互
   const { purchaseCourse: purchaseCourseContract, purchaseCourseReceipt } =
     useCourseContract({
-      address: COURSE_CONTRACT_ADDRESS,
-      tokenDecimals: 18,
+      address: CONTRACTS.COURSE_CONTRACT,
+      tokenDecimals: TOKEN_DECIMALS,
     });
 
   // 本地状态
@@ -214,7 +212,7 @@ export function usePurchaseCourse(): UsePurchaseCourseReturn {
         // ========== 步骤 3: 检查 Token 余额 ==========
         if (!tokenBalance || tokenBalance < coursePrice) {
           throw new Error(
-            `YD Token 余额不足。需要 ${formatUnits(coursePrice, 18)} YD，当前余额 ${formatUnits(tokenBalance, 18)} YD`,
+            `YD Token 余额不足。需要 ${formatUnits(coursePrice, 18)} YD，当前余额 ${tokenBalance ? formatUnits(tokenBalance, 18) : tokenBalance} YD`,
           );
         }
         // ========== 步骤 4: 检查并授权 Token ==========
@@ -227,7 +225,7 @@ export function usePurchaseCourse(): UsePurchaseCourseReturn {
           const approveAmount = (coursePrice * BigInt(150)) / BigInt(100);
           const approveAmountStr = formatUnits(approveAmount, 18);
           const approveResult = await approve(
-            COURSE_CONTRACT_ADDRESS,
+            CONTRACTS.COURSE_CONTRACT,
             approveAmountStr,
           );
           if (!approveResult) {
@@ -266,7 +264,6 @@ export function usePurchaseCourse(): UsePurchaseCourseReturn {
       refetchAllowance,
       purchaseCourseContract,
       purchaseCourseReceipt,
-      COURSE_CONTRACT_ADDRESS,
     ],
   );
   return {

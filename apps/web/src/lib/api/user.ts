@@ -22,9 +22,10 @@ export interface RegisterUserDto {
   walletAddress: string;
   username: string;
   email: string;
-  avatar: string;
+  avatar?: string;
   bio: string;
   specializations: string[];
+  isInstructorRegistered?: boolean;
 }
 
 export interface ApiResponse<T> {
