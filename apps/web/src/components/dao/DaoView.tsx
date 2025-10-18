@@ -1,7 +1,7 @@
 import Hero from "@/components/dao/Hero";
-import Stats from "@/components/dao/Stats";
 import NewProposal from "@/components/dao/NewProposal";
 import ProposalsList from "@/components/dao/ProposalsList";
+import Stats from "@/components/dao/Stats";
 
 // 首页主体内容，不含全局布局元素
 export default function DaoView() {

@@ -1,6 +1,6 @@
 "use client";
 
-import { Zap, ChevronRight, Star, Users } from "lucide-react";
+import { ChevronRight, Star, Users, Zap } from "lucide-react";
 
 const courses = [
   {

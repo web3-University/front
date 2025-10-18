@@ -1,11 +1,13 @@
 "use client";
 
+import { WalletButton, useAuth } from "@web3-university/uni-wallet-lib";
 import clsx from "clsx";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { WalletButton } from "@web3-university/uni-wallet-lib";
+import { useEffect, useRef } from "react";
 
 import { MAIN_ROUTES } from "@/config/routes";
+import { registerUser } from "@/lib/api/user";
 
 function isRouteActive(href: string, pathname: string, aliases: string[] = []) {
   if (pathname === href) return true;
@@ -16,6 +18,44 @@ function isRouteActive(href: string, pathname: string, aliases: string[] = []) {
 
 export default function Header() {
   const pathname = usePathname();
+  const { isAuthenticated, address } = useAuth();
+  const hasRegistered = useRef(false);
+
+  // 监听钱包连接状态，连接后自动注册用户
+  useEffect(() => {
+    const handleUserRegistration = async () => {
+      if (isAuthenticated && address && !hasRegistered.current) {
+        hasRegistered.current = true;
+
+        try {
+          // 调用用户注册接口
+          const registrationData = {
+            walletAddress: address,
+            username: `user_${address.slice(0, 8)}`, // 使用地址前8位作为默认用户名
+            email: `${address.slice(0, 8)}@web3university.com`, // 生成默认邮箱
+            avatar:
+              "https://ipfs.io/ipfs/QmYx6GsYAKnNzZ9A6NvEKV9nf1VaDzJrqDR23Y8YSkebLU", // 默认头像
+            bio: "Web3 学习者",
+            specializations: ["blockchain", "web3"],
+          };
+
+          await registerUser(registrationData);
+          console.log("用户注册成功");
+        } catch (error) {
+          console.error("用户注册失败:", error);
+          // 注册失败时重置标志，允许重试
+          hasRegistered.current = false;
+        }
+      }
+    };
+
+    handleUserRegistration();
+  }, [isAuthenticated, address]);
+
+  // 当地址变化时重置注册状态
+  useEffect(() => {
+    hasRegistered.current = false;
+  }, [address]);
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 flex justify-center px-4 text-[#2B2558]">

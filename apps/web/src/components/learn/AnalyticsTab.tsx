@@ -2,10 +2,10 @@
 
 import {
   BarChart3,
-  TrendingUp,
-  Calendar,
   Book,
+  Calendar,
   Flame,
+  TrendingUp,
   Users,
 } from "lucide-react";
 

@@ -1,13 +1,13 @@
 "use client";
 
+import { CheckCircle, ChevronRight, Clock, XCircle } from "lucide-react";
 import React from "react";
-import { ChevronRight, Clock, CheckCircle, XCircle } from "lucide-react";
-import { Proposal } from "@/types/dao";
 import {
-  calculateVotePercentages,
-  calculateQuorumProgress,
   CATEGORY_COLORS,
+  calculateQuorumProgress,
+  calculateVotePercentages,
 } from "@/lib/dao";
+import type { Proposal } from "@/types/dao";
 
 interface ProposalCardProps {
   proposal: Proposal;

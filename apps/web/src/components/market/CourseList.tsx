@@ -1,11 +1,11 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { parseUnits } from "viem";
+import { useCourse } from "@/hooks/useCourse";
+import { PurchaseStatus, usePurchaseCourse } from "@/hooks/usePurchaseCourse";
+import type { CourseFilters } from "@/lib/api/course";
 import CourseItem from "./CourseItem";
 import FilterNav from "./FilterNav";
-import { useCourse } from "@/hooks/useCourse";
-import { usePurchaseCourse, PurchaseStatus } from "@/hooks/usePurchaseCourse";
-import { parseUnits } from "viem";
-import type { CourseFilters } from "@/lib/api/course";
 
 export type FeaturedCourse = {
   id: string;

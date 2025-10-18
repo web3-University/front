@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from "react";
+import React, { type ChangeEvent, useState } from "react";
 import { useCourseContext } from "./CourseContext";
 
 // 课程分类数据，每个对象包含value和label
@@ -116,7 +116,7 @@ const BasicInfoTab = () => {
   };
 
   return (
-    <div className="space-y-6 text-gray-800">
+    <div className="bg-white border border-gray-200 rounded-xl p-4 shadow space-y-4 text-black">
       <div>
         <label
           htmlFor="title"

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ProposalsByStatus } from "@/types/dao";
+import type { ProposalsByStatus } from "@/types/dao";
 
 // import { fetchProposals } from '@/lib/api'; // 假设有一个API调用函数
 

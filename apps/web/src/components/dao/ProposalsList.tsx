@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Proposal, ProposalsByStatus, ProposalTabKey } from "@/types/dao";
 import { PROPOSAL_TABS } from "@/lib/dao";
+import type { Proposal, ProposalsByStatus, ProposalTabKey } from "@/types/dao";
 import ProposalCard from "./ProposalCard";
 import ProposalModal from "./ProposalModal";
 

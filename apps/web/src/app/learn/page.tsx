@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import OverviewTab from "@/components/learn/OverviewTab";
-import MyCoursesTab from "@/components/learn/MyCoursesTab";
 import AchievementsTab from "@/components/learn/AchievementsTab";
 import AnalyticsTab from "@/components/learn/AnalyticsTab";
+import MyCoursesTab from "@/components/learn/MyCoursesTab";
+import OverviewTab from "@/components/learn/OverviewTab";
 
 type Tab = "overview" | "courses" | "achievements" | "analytics";
 
