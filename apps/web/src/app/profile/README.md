@@ -235,7 +235,7 @@ def verify_signature(address, message, signature):
 确保设置以下环境变量：
 
 ```env
-NEXT_PUBLIC_API_BASE_URL=https://your-api-domain.com
+NEXT_PUBLIC_API_BASE_URL=http://192.168.6.179:3000
 ```
 
 ## 注意事项
