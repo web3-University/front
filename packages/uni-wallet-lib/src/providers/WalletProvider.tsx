@@ -4,6 +4,8 @@ import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createWalletConfig, type WalletConfigOptions } from "../config/wagmi";
 import { customDarkTheme } from "../config/rainbowkit";
+import { AuthProvider } from "./AuthProvider";
+import type { AuthConfig } from "../types/auth";
 import "@rainbow-me/rainbowkit/styles.css";
 
 export interface WalletProviderProps extends WalletConfigOptions {
@@ -11,6 +13,9 @@ export interface WalletProviderProps extends WalletConfigOptions {
   theme?: "light" | "dark" | "auto";
   queryClient?: QueryClient;
   initialState?: State | undefined;
+  // 认证配置(可选)
+  enableAuth?: boolean;
+  authConfig?: AuthConfig;
 }
 
 const defaultQueryClient = new QueryClient({
@@ -27,6 +32,8 @@ export function WalletProvider({
   theme = "auto",
   queryClient = defaultQueryClient,
   initialState,
+  enableAuth = false,
+  authConfig,
   ...configOptions
 }: WalletProviderProps): React.ReactElement {
   const { config: wagmiConfig } = React.useMemo(
@@ -43,6 +50,14 @@ export function WalletProvider({
     return customDarkTheme;
   }, [theme]);
 
+  // 根据 enableAuth 决定是否包裹 AuthProvider
+  const content =
+    enableAuth && authConfig ? (
+      <AuthProvider {...authConfig}>{children}</AuthProvider>
+    ) : (
+      children
+    );
+
   return (
     <WagmiProvider
       config={wagmiConfig}
@@ -55,7 +70,7 @@ export function WalletProvider({
           modalSize="compact"
           showRecentTransactions={true}
         >
-          {children}
+          {content}
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>

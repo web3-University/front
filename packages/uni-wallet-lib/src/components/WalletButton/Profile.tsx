@@ -32,7 +32,7 @@ export interface ProfileProps {
 export const Profile: React.FC<ProfileProps> = ({
   account,
   chain,
-  openAccountModal: _openAccountModal,
+  openAccountModal,
 }: ProfileProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);

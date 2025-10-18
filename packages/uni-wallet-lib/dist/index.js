@@ -4,142 +4,599 @@ var e = require("react/jsx-runtime"),
   n = require("wagmi"),
   a = require("@rainbow-me/rainbowkit"),
   r = require("@tanstack/react-query"),
-  i = require("wagmi/chains");
+  s = require("wagmi/chains"),
+  i = require("siwe");
 require("@rainbow-me/rainbowkit/styles.css");
-var s = require("viem");
-const o = [i.mainnet, i.sepolia];
-i.mainnet.id,
-  i.sepolia.id,
+var o = require("viem");
+const c = {
+    id: 31337,
+    name: "Hardhat",
+    nativeCurrency: { decimals: 18, name: "Ether", symbol: "ETH" },
+    rpcUrls: {
+      default: { http: ["http://127.0.0.1:8545"] },
+      public: { http: ["http://127.0.0.1:8545"] },
+    },
+    testnet: !0,
+  },
+  d = [s.mainnet, s.sepolia, c];
+s.mainnet.id,
+  s.sepolia.id,
   a.lightTheme(),
   a.lightTheme().colors,
   a.lightTheme().radii;
 const u = {
-    ...a.darkTheme(),
-    colors: {
-      ...a.darkTheme().colors,
-      accentColor: "#0070f3",
-      accentColorForeground: "white",
-      actionButtonBorder: "rgba(255, 255, 255, 0.04)",
-      actionButtonBorderMobile: "rgba(255, 255, 255, 0.06)",
-      actionButtonSecondaryBackground: "rgba(255, 255, 255, 0.06)",
-      closeButton: "rgba(224, 232, 255, 0.8)",
-      closeButtonBackground: "rgba(255, 255, 255, 0.06)",
-      connectButtonBackground: "#0070f3",
-      connectButtonBackgroundError: "#ff494a",
-      connectButtonInnerBackground:
-        "linear-gradient(0deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.06))",
-      connectButtonText: "#ffffff",
-      connectButtonTextError: "#ffffff",
-    },
-    radii: {
-      ...a.darkTheme().radii,
-      actionButton: "8px",
-      connectButton: "8px",
-      menuButton: "8px",
-      modal: "16px",
-      modalMobile: "16px",
-    },
+  ...a.darkTheme(),
+  colors: {
+    ...a.darkTheme().colors,
+    accentColor: "#0070f3",
+    accentColorForeground: "white",
+    actionButtonBorder: "rgba(255, 255, 255, 0.04)",
+    actionButtonBorderMobile: "rgba(255, 255, 255, 0.06)",
+    actionButtonSecondaryBackground: "rgba(255, 255, 255, 0.06)",
+    closeButton: "rgba(224, 232, 255, 0.8)",
+    closeButtonBackground: "rgba(255, 255, 255, 0.06)",
+    connectButtonBackground: "#0070f3",
+    connectButtonBackgroundError: "#ff494a",
+    connectButtonInnerBackground:
+      "linear-gradient(0deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.06))",
+    connectButtonText: "#ffffff",
+    connectButtonTextError: "#ffffff",
   },
-  c = new r.QueryClient({
-    defaultOptions: { queries: { refetchOnWindowFocus: !1, retry: !1 } },
-  });
-function d() {
+  radii: {
+    ...a.darkTheme().radii,
+    actionButton: "8px",
+    connectButton: "8px",
+    menuButton: "8px",
+    modal: "16px",
+    modalMobile: "16px",
+  },
+};
+function l() {
   const {
       address: e,
       connector: t,
       isConnected: a,
       isConnecting: r,
-      isReconnecting: i,
+      isReconnecting: s,
     } = n.useAccount(),
-    s = n.useChainId(),
+    i = n.useChainId(),
     o = n.useChains(),
-    { connect: u, connectors: c } = n.useConnect(),
-    { reconnect: d } = n.useReconnect(),
+    { connect: c, connectors: d } = n.useConnect(),
+    { reconnect: u } = n.useReconnect(),
     { disconnect: l } = n.useDisconnect(),
-    p = o.find((e) => e.id === s);
+    p = o.find((e) => e.id === i);
   return {
     isConnected: a,
     isConnecting: r,
-    isReconnecting: i,
+    isReconnecting: s,
     address: e,
     connector: t ? { id: t.id, name: t.name, type: t.type } : void 0,
     chain: p,
     chains: o,
     connect: (e) => {
       if (e) {
-        const t = c.find((t) => t.id === e);
-        t && u({ connector: t });
+        const t = d.find((t) => t.id === e);
+        t && c({ connector: t });
       } else {
-        const e = c[0];
-        e && u({ connector: e });
+        const e = d[0];
+        e && c({ connector: e });
       }
     },
     reconnect: (e) => {
-      d(e);
+      u(e);
     },
     disconnect: () => {
       l();
     },
   };
 }
-function l({
+const p = () => "undefined" != typeof window && void 0 !== window.localStorage,
+  m = {
+    getItem(e) {
+      if (!p()) return null;
+      try {
+        return localStorage.getItem(e);
+      } catch (e) {
+        return null;
+      }
+    },
+    setItem(e, t) {
+      if (!p()) return !1;
+      try {
+        return localStorage.setItem(e, t), !0;
+      } catch (e) {
+        return !1;
+      }
+    },
+    removeItem(e) {
+      if (!p()) return !1;
+      try {
+        return localStorage.removeItem(e), !0;
+      } catch (e) {
+        return !1;
+      }
+    },
+    clear() {
+      if (!p()) return !1;
+      try {
+        return localStorage.clear(), !0;
+      } catch (e) {
+        return !1;
+      }
+    },
+    getAllKeys() {
+      if (!p()) return [];
+      try {
+        return Object.keys(localStorage);
+      } catch (e) {
+        return [];
+      }
+    },
+    hasItem(e) {
+      return null !== this.getItem(e);
+    },
+    getJSON(e) {
+      const t = this.getItem(e);
+      if (!t) return null;
+      try {
+        return JSON.parse(t);
+      } catch (e) {
+        return null;
+      }
+    },
+    setJSON(e, t) {
+      try {
+        const n = JSON.stringify(t);
+        return this.setItem(e, n);
+      } catch (e) {
+        return !1;
+      }
+    },
+  };
+var y = (function (e) {
+  return (
+    (e.IDLE = "idle"),
+    (e.REQUESTING_NONCE = "requesting"),
+    (e.WAITING_SIGNATURE = "waiting"),
+    (e.VERIFYING = "verifying"),
+    (e.SUCCESS = "success"),
+    (e.ERROR = "error"),
+    e
+  );
+})({});
+function h(e = {}) {
+  const {
+      domain: a = "undefined" != typeof window
+        ? window.location.host
+        : "localhost",
+      apiBaseUrl: r = "/api/v1/auth",
+      onSuccess: s,
+      onError: o,
+      onStatusChange: c,
+    } = e,
+    d = "AUTH_TOKEN",
+    u = "REFRESH_TOKEN",
+    { signSIWEMessage: p } = (function () {
+      const { address: e } = l(),
+        {
+          signMessageAsync: t,
+          isPending: a,
+          isSuccess: r,
+          isError: s,
+        } = n.useSignMessage(),
+        o = (e, t, n, a = 1, r = "Sign in with Ethereum to the app.") =>
+          new i.SiweMessage({
+            domain: e,
+            address: t,
+            statement: r,
+            uri: window ? window.location.origin : void 0,
+            version: "1",
+            chainId: a,
+            nonce: n,
+          });
+      return {
+        address: e,
+        isPending: a,
+        isSuccess: r,
+        isError: s,
+        signMessage: async (n) => {
+          if (!e) throw new Error("❗️ 钱包未连接");
+          return { message: n, signature: await t({ message: n }), address: e };
+        },
+        signSIWEMessage: async (n, a, r) => {
+          if (!e) throw new Error("❗️ 钱包未连接");
+          const s = o(n, e, a, r),
+            i = await t({ message: s.toMessage() });
+          return { message: s, signature: i, address: e };
+        },
+        generateSIWEMessage: o,
+      };
+    })(),
+    { address: h, isConnected: f } = l(),
+    [g, b] = t.useState(y.IDLE),
+    [w, x] = t.useState(null),
+    v = t.useCallback(
+      (e) => {
+        b(e), c?.(e);
+      },
+      [c],
+    ),
+    C = t.useCallback(async () => {
+      if (!h || !f) {
+        const e = new Error("Wallet not connected");
+        return x(e.message), o?.(e), null;
+      }
+      x(null);
+      try {
+        v(y.REQUESTING_NONCE);
+        const { nonce: e } = await (async (e) => {
+          const t = await fetch(`${a}${r}/nonce`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ walletAddress: e }),
+          });
+          if (!t.ok) throw new Error("Failed to request nonce from server");
+          const n = await t.json();
+          return {
+            nonce: n.data.nonce,
+            message: n.data.message,
+            expiresAt: n.data.expiresAt,
+          };
+        })(h);
+        v(y.WAITING_SIGNATURE);
+        const { signature: t, message: n } = await p(a, e);
+        v(y.VERIFYING);
+        const { accessToken: i, refreshToken: o } = await (async (e, t, n) => {
+          const s = await fetch(`${a}${r}/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              walletAddress: e,
+              signature: t,
+              message: n,
+            }),
+          });
+          if (!s.ok) {
+            const e = await s.json();
+            throw new Error(e.message || "Verification failed");
+          }
+          return (await s.json()).data;
+        })(h, t, n.toMessage());
+        return (
+          m.setItem(d, i),
+          m.setItem(u, o),
+          m.setItem(`${d}_address`, h),
+          v(y.SUCCESS),
+          s?.(i),
+          i
+        );
+      } catch (e) {
+        const t = e instanceof Error ? e.message : "Authentication failed",
+          n =
+            t.toLowerCase().includes("rejected") ||
+            t.toLowerCase().includes("denied") ||
+            t.toLowerCase().includes("user rejected")
+              ? "用户取消签名"
+              : t;
+        return (
+          x(n), v(y.ERROR), o?.(e instanceof Error ? e : new Error(n)), null
+        );
+      } finally {
+        setTimeout(() => {
+          N();
+        }, 3e3);
+      }
+    }, [h, f, a, r, d, v, s, o]),
+    T = t.useCallback(() => {
+      m.removeItem(d),
+        m.removeItem(u),
+        m.removeItem(`${d}_address`),
+        v(y.IDLE),
+        x(null);
+    }, [d, u, v]),
+    k = t.useCallback(() => {
+      const e = m.getItem(d),
+        t = m.getItem(`${d}_address`);
+      return !(!e || !t || t !== h);
+    }, [d, h]),
+    j = t.useCallback(() => {
+      const e = m.getItem(`${d}_address`);
+      e && h && e !== h && T();
+    }, [h, d, T]),
+    N = t.useCallback(() => {
+      v(y.IDLE), x(null);
+    }, [v]);
+  return {
+    status: g,
+    isAuthenticated: k(),
+    isAuthenticating: g !== y.IDLE && g !== y.SUCCESS && g !== y.ERROR,
+    error: w,
+    address: h,
+    signIn: C,
+    signOut: T,
+    reload: j,
+    reset: N,
+  };
+}
+function f(e, t) {
+  void 0 === t && (t = {});
+  var n = t.insertAt;
+  if (e && "undefined" != typeof document) {
+    var a = document.head || document.getElementsByTagName("head")[0],
+      r = document.createElement("style");
+    (r.type = "text/css"),
+      "top" === n && a.firstChild
+        ? a.insertBefore(r, a.firstChild)
+        : a.appendChild(r),
+      r.styleSheet
+        ? (r.styleSheet.cssText = e)
+        : r.appendChild(document.createTextNode(e));
+  }
+}
+function g({ status: t, error: n, onClose: a }) {
+  return t === y.IDLE
+    ? null
+    : e.jsx("div", {
+        className: "auth-modal-overlay",
+        onClick: a,
+        children: e.jsxs("div", {
+          className: "auth-modal-content",
+          onClick: (e) => e.stopPropagation(),
+          children: [
+            t === y.REQUESTING_NONCE &&
+              e.jsxs("div", {
+                className: "auth-modal-body",
+                children: [
+                  e.jsx("div", {
+                    className: "auth-modal-spinner",
+                    children: e.jsx("div", { className: "spinner" }),
+                  }),
+                  e.jsx("h3", {
+                    className: "auth-modal-title",
+                    children: "准备中...",
+                  }),
+                  e.jsx("p", {
+                    className: "auth-modal-description",
+                    children: "正在准备签名消息",
+                  }),
+                ],
+              }),
+            t === y.WAITING_SIGNATURE &&
+              e.jsxs("div", {
+                className: "auth-modal-body",
+                children: [
+                  e.jsx("div", {
+                    className: "auth-modal-icon",
+                    children: e.jsxs("svg", {
+                      width: "64",
+                      height: "64",
+                      viewBox: "0 0 24 24",
+                      fill: "none",
+                      stroke: "currentColor",
+                      strokeWidth: "2",
+                      children: [
+                        e.jsx("path", {
+                          d: "M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1",
+                        }),
+                        e.jsx("path", {
+                          d: "M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4",
+                        }),
+                      ],
+                    }),
+                  }),
+                  e.jsx("h3", {
+                    className: "auth-modal-title",
+                    children: "等待签名",
+                  }),
+                  e.jsx("p", {
+                    className: "auth-modal-description",
+                    children: "请在钱包中确认签名请求",
+                  }),
+                  e.jsx("div", {
+                    className: "auth-modal-spinner",
+                    children: e.jsx("div", { className: "spinner" }),
+                  }),
+                ],
+              }),
+            t === y.VERIFYING &&
+              e.jsxs("div", {
+                className: "auth-modal-body",
+                children: [
+                  e.jsx("div", {
+                    className: "auth-modal-spinner",
+                    children: e.jsx("div", { className: "spinner" }),
+                  }),
+                  e.jsx("h3", {
+                    className: "auth-modal-title",
+                    children: "验证中...",
+                  }),
+                  e.jsx("p", {
+                    className: "auth-modal-description",
+                    children: "正在验证您的签名",
+                  }),
+                ],
+              }),
+            t === y.SUCCESS &&
+              e.jsxs("div", {
+                className: "auth-modal-body",
+                children: [
+                  e.jsx("div", {
+                    className: "auth-modal-icon auth-modal-icon--success",
+                    children: e.jsx("svg", {
+                      width: "64",
+                      height: "64",
+                      viewBox: "0 0 24 24",
+                      fill: "none",
+                      stroke: "currentColor",
+                      strokeWidth: "2",
+                      children: e.jsx("path", { d: "M20 6L9 17l-5-5" }),
+                    }),
+                  }),
+                  e.jsx("h3", {
+                    className: "auth-modal-title",
+                    children: "登录成功!",
+                  }),
+                  e.jsx("p", {
+                    className: "auth-modal-description",
+                    children: "欢迎回来",
+                  }),
+                ],
+              }),
+            t === y.ERROR &&
+              e.jsxs("div", {
+                className: "auth-modal-body",
+                children: [
+                  e.jsx("div", {
+                    className: "auth-modal-icon auth-modal-icon--error",
+                    children: e.jsxs("svg", {
+                      width: "64",
+                      height: "64",
+                      viewBox: "0 0 24 24",
+                      fill: "none",
+                      stroke: "currentColor",
+                      strokeWidth: "2",
+                      children: [
+                        e.jsx("circle", { cx: "12", cy: "12", r: "10" }),
+                        e.jsx("line", { x1: "15", y1: "9", x2: "9", y2: "15" }),
+                        e.jsx("line", { x1: "9", y1: "9", x2: "15", y2: "15" }),
+                      ],
+                    }),
+                  }),
+                  e.jsx("h3", {
+                    className: "auth-modal-title",
+                    children: "签名失败",
+                  }),
+                  e.jsx("p", {
+                    className: "auth-modal-description",
+                    children: n || "请重试",
+                  }),
+                  e.jsx("button", {
+                    className: "auth-modal-button",
+                    onClick: a,
+                    children: "关闭",
+                  }),
+                ],
+              }),
+          ],
+        }),
+      });
+}
+f(
+  ".auth-modal-overlay{align-items:center;animation:fadeIn .2s ease-out;backdrop-filter:blur(4px);background:rgba(0,0,0,.5);bottom:0;display:flex;justify-content:center;left:0;position:fixed;right:0;top:0;z-index:9999}.auth-modal-content{animation:slideUp .3s ease-out;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-width:400px;padding:32px;width:90%}.auth-modal-body{align-items:center;display:flex;flex-direction:column;text-align:center}.auth-modal-icon{animation:pulse 2s ease-in-out infinite;color:#3b82f6;margin-bottom:16px}.auth-modal-icon--success{animation:scaleIn .3s ease-out;color:#10b981}.auth-modal-icon--error{animation:shake .5s ease-out;color:#ef4444}.auth-modal-title{color:#111;font-size:24px;font-weight:600;margin:0 0 8px}.auth-modal-description{color:#6b7280;font-size:14px;margin:0 0 24px}.auth-modal-spinner{margin-top:16px}.spinner{animation:spin 1s linear infinite;border:3px solid #e5e7eb;border-radius:50%;border-top-color:#3b82f6;height:40px;width:40px}.auth-modal-button{background:#3b82f6;border:none;border-radius:8px;color:#fff;cursor:pointer;font-size:16px;font-weight:500;padding:12px 24px;transition:background .2s}.auth-modal-button:hover{background:#2563eb}.auth-modal-button:active{transform:scale(.98)}@keyframes fadeIn{0%{opacity:0}to{opacity:1}}@keyframes slideUp{0%{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}@keyframes spin{to{transform:rotate(1turn)}}@keyframes pulse{0%,to{opacity:1}50%{opacity:.5}}@keyframes scaleIn{0%{transform:scale(0)}to{transform:scale(1)}}@keyframes shake{0%,to{transform:translateX(0)}10%,30%,50%,70%,90%{transform:translateX(-5px)}20%,40%,60%,80%{transform:translateX(5px)}}@media (prefers-color-scheme:dark){.auth-modal-content{background:#1f2937}.auth-modal-title{color:#f9fafb}.auth-modal-description{color:#9ca3af}.spinner{border-color:#3b82f6 #374151 #374151}}",
+);
+const b = t.createContext(null);
+function w({ children: n, autoSignOnConnect: a = !1, ...r }) {
+  const { isConnected: s } = l(),
+    {
+      signIn: i,
+      signOut: o,
+      reload: c,
+      reset: d,
+      status: u,
+      isAuthenticated: p,
+      isAuthenticating: m,
+      error: y,
+      address: f,
+    } = h(r);
+  t.useEffect(() => {
+    a && s && !p && i();
+  }, [a, s, p]),
+    t.useEffect(() => {
+      c();
+    }, [f, c]);
+  const w = t.useMemo(
+    () => ({
+      status: u,
+      isAuthenticated: p,
+      isAuthenticating: m,
+      error: y,
+      address: f,
+      signIn: i,
+      signOut: o,
+      reload: c,
+      reset: d,
+    }),
+    [u, p, m, y, f, i, o, c, d],
+  );
+  return e.jsxs(b.Provider, {
+    value: w,
+    children: [n, e.jsx(g, { status: u, error: y, onClose: d })],
+  });
+}
+const x = new r.QueryClient({
+  defaultOptions: { queries: { refetchOnWindowFocus: !1, retry: !1 } },
+});
+function v({ onNetworkChange: e, onAccountChange: a } = {}) {
+  const r = n.useChainId(),
+    { address: s } = n.useAccount();
+  return (
+    t.useEffect(() => {
+      e && r && e(r);
+    }, [r, e]),
+    t.useEffect(() => {
+      a && a(s);
+    }, [s, a]),
+    { currentChainId: r, currentAddress: s }
+  );
+}
+function C({
   address: e,
   abi: t,
   functionName: a,
   args: r,
-  chainId: i,
-  enabled: s = !0,
+  chainId: s,
+  enabled: i = !0,
   cacheTime: o = 0,
-  staleTime: u = 0,
+  staleTime: c = 0,
 }) {
-  const { data: c, ...d } = n.useReadContract({
+  const { data: d, ...u } = n.useReadContract({
     address: e,
     abi: t,
     functionName: a,
     args: r,
-    chainId: i,
-    query: { enabled: s, gcTime: o, staleTime: u },
+    chainId: s,
+    query: { enabled: i, gcTime: o, staleTime: c },
   });
-  return { data: c, ...d };
+  return { data: d, ...u };
 }
-function p({
+function T({
   address: e,
   abi: t,
   functionName: a,
   args: r,
-  value: i,
-  chainId: s,
+  value: s,
+  chainId: i,
   enabled: o = !0,
-  gasLimit: u,
+  gasLimit: c,
 }) {
   const {
-    writeContract: c,
-    writeContractAsync: d,
+    writeContract: d,
+    writeContractAsync: u,
     ...l
   } = n.useWriteContract();
   return {
     write: (n) => {
       o &&
-        c({
+        d({
           address: e,
           abi: t,
           functionName: a,
           args: n?.args || r,
-          value: n?.value || i,
-          chainId: s,
-          gas: n?.gas || u,
+          value: n?.value || s,
+          chainId: i,
+          gas: n?.gas || c,
         });
     },
     writeAsync: async (n) => {
       if (o)
-        return await d({
+        return await u({
           address: e,
           abi: t,
           functionName: a,
           args: n?.args || r,
-          value: n?.value || i,
-          chainId: s,
-          gas: n?.gas || u,
+          value: n?.value || s,
+          chainId: i,
+          gas: n?.gas || c,
         });
     },
     receipt: n.useWaitForTransactionReceipt({
@@ -149,7 +606,7 @@ function p({
     ...l,
   };
 }
-const y = [
+const k = [
     {
       constant: !0,
       inputs: [],
@@ -247,7 +704,7 @@ const y = [
       type: "event",
     },
   ],
-  m = [
+  j = [
     {
       inputs: [
         { internalType: "address", name: "_ydToken", type: "address" },
@@ -480,7 +937,7 @@ const y = [
       type: "function",
     },
   ],
-  f = [
+  N = [
     { inputs: [], stateMutability: "nonpayable", type: "constructor" },
     {
       anonymous: !1,
@@ -647,22 +1104,22 @@ const y = [
       type: "function",
     },
   ];
-function b(e, t) {
+function I(e, t) {
   return {
     read:
       (n, a = !0) =>
       (...r) => {
-        const i = r.length > 0 && r.every((e) => void 0 !== e);
-        return l({
+        const s = r.length > 0 && r.every((e) => void 0 !== e);
+        return C({
           address: e,
           abi: t,
           functionName: n,
-          args: i ? r : void 0,
+          args: s ? r : void 0,
           enabled: a,
         });
       },
     write: (n) => {
-      const a = p({ address: e, abi: t, functionName: n });
+      const a = T({ address: e, abi: t, functionName: n });
       return {
         send: async (...e) => {
           if (!a.writeAsync) throw new Error(`Function ${n} is not writable`);
@@ -684,32 +1141,17 @@ function b(e, t) {
     },
   };
 }
-const h = "0xA812265c869F2BCB755980677812F253459A0cc7";
-function g(e, t) {
-  void 0 === t && (t = {});
-  var n = t.insertAt;
-  if (e && "undefined" != typeof document) {
-    var a = document.head || document.getElementsByTagName("head")[0],
-      r = document.createElement("style");
-    (r.type = "text/css"),
-      "top" === n && a.firstChild
-        ? a.insertBefore(r, a.firstChild)
-        : a.appendChild(r),
-      r.styleSheet
-        ? (r.styleSheet.cssText = e)
-        : r.appendChild(document.createTextNode(e));
-  }
-}
-g(
+const S = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
+f(
   ".profile__menu-wrapper{position:relative}.profile__menu-trigger{align-items:center;background-color:#fff;border:1px solid #e7e5fb;border-radius:9999px;box-shadow:0 1px 2px 0 rgba(0,0,0,.05);color:#6a6d94;cursor:pointer;display:flex;height:2.5rem;justify-content:center;transition:transform .2s;width:2.5rem}.profile__menu-trigger:hover{transform:translateY(-1px)}.profile__avatar{border-radius:50%}.wallet-dropdown{background-color:#fff;border:1px solid #ecebff;border-radius:1rem;box-shadow:0 24px 60px rgba(154,161,255,.18);color:#2b2558;font-size:.875rem;line-height:1.25rem;padding:1rem;position:absolute;right:0;top:2.8rem;width:18rem}.wallet-header{align-items:flex-start;display:flex;justify-content:space-between}.wallet-label{color:#8b8eb5;font-size:.75rem;letter-spacing:.08em;line-height:1rem;text-transform:uppercase}.wallet-value{font-weight:600;margin-top:.25rem}.wallet-chain-id{background-color:#f4f4ff;border-radius:9999px;color:#5f6094;font-size:.75rem;font-weight:500;line-height:1rem;padding:.25rem .75rem}.wallet-section{margin-top:1rem}.wallet-address-box{align-items:center;background-color:#f8f8ff;border-radius:.75rem;display:flex;justify-content:space-between;margin-top:.25rem;padding:.5rem .75rem}.wallet-address-text{color:#2b2558;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:.875rem;line-height:1.25rem}.copy-button{background:transparent;border:none;border-radius:9999px;color:#6a6d94;cursor:pointer;padding:.25rem;transition:background-color .2s}.copy-button:hover{background-color:#fff}.balance-info-box{background-color:#f9f9ff;border-radius:.75rem;margin-top:1rem;padding:.75rem}.balance-info-label{align-items:center;color:#8b8eb5;display:flex;font-size:.75rem;gap:.5rem;letter-spacing:.08em;line-height:1rem;text-transform:uppercase}.balance-info-amount{font-size:1.125rem;font-weight:600;line-height:1.75rem;margin-top:.5rem}.disconnect-button{align-items:center;background-color:#f3f4f6;border:none;border-radius:.5rem;color:#374151;cursor:pointer;display:flex;font-weight:500;gap:.5rem;justify-content:center;margin-top:1rem;padding:.5rem 1rem;transition:background-color .2s;width:100%}.disconnect-button:hover:not(:disabled){background-color:#e5e7eb}.disconnect-button:disabled{cursor:not-allowed;opacity:.5}.disconnect-button.loading{opacity:.7}",
 );
-const w = ({ account: n, chain: a, openAccountModal: r }) => {
-  const [i, s] = t.useState(!1),
+const E = ({ account: n, chain: a, openAccountModal: r }) => {
+  const [s, i] = t.useState(!1),
     o = t.useRef(null),
-    { disconnect: u } = d();
+    { disconnect: c } = l();
   t.useEffect(() => {
     const e = (e) => {
-      o.current && !o.current.contains(e.target) && s(!1);
+      o.current && !o.current.contains(e.target) && i(!1);
     };
     return (
       document.addEventListener("mousedown", e),
@@ -723,7 +1165,7 @@ const w = ({ account: n, chain: a, openAccountModal: r }) => {
     ref: o,
     children: [
       e.jsx("button", {
-        onClick: () => s(!i),
+        onClick: () => i(!s),
         type: "button",
         className: "profile__menu-trigger profile__avatar",
         "aria-label": "Account menu",
@@ -743,7 +1185,7 @@ const w = ({ account: n, chain: a, openAccountModal: r }) => {
           ],
         }),
       }),
-      i &&
+      s &&
         e.jsxs("div", {
           className: "wallet-dropdown",
           id: "walletDropdown",
@@ -854,7 +1296,7 @@ const w = ({ account: n, chain: a, openAccountModal: r }) => {
             e.jsxs("button", {
               className: "disconnect-button",
               onClick: () => {
-                s(!1), u();
+                i(!1), c();
               },
               children: [
                 e.jsxs("svg", {
@@ -880,131 +1322,173 @@ const w = ({ account: n, chain: a, openAccountModal: r }) => {
     ],
   });
 };
-g(
+f(
   ".wallet-button{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif}.wallet-button__container{align-items:center;display:flex;gap:8px;height:44px;justify-content:center}.wallet-button__connect{background:linear-gradient(90deg,#eab308,#f97316);border:none;border-radius:12px;color:#fff;cursor:pointer;font-size:14px;font-weight:600;padding:12px 24px;transition:all .2s ease}.wallet-button__connect:hover{box-shadow:0 4px 12px rgba(102,126,234,.4);transform:translateY(-1px)}.wallet-button__wrong-network{background:#ff6b6b;border:none;border-radius:12px;color:#fff;cursor:pointer;font-size:14px;font-weight:600;padding:12px 24px;transition:all .2s ease}.wallet-button__wrong-network:hover{background:#ff5252}.wallet-button__connected{align-items:center;display:flex;gap:16px}.wallet-button__chain{align-items:center;background:linear-gradient(90deg,#ffe7c5,#ffead4);border-radius:9999px;box-shadow:0 1px 2px 0 rgba(0,0,0,.05);box-shadow:0 0 0 1px hsla(0,0%,100%,.6);color:#5a4b23;display:flex;font-size:.875rem;font-weight:500;gap:.5rem;line-height:1.25rem;padding:8px 12px}.wallet-button__chain-icon{align-items:center;border-radius:.5rem;display:flex;gap:.5rem}.wallet-button__icon{align-items:center;background:linear-gradient(90deg,#facc15,#f97316);border-radius:50%;display:flex;height:1.5rem;justify-content:center;width:1.5rem}.wallet-button__account{align-items:center;background-color:rgba(22,163,74,.2);background-color:#fff;border:none;border-radius:.5rem;border-radius:9999px;box-shadow:0 1px 2px 0 rgba(0,0,0,.05);color:#66608d;cursor:pointer;display:flex;font-size:.875rem;gap:.5rem;height:40px;justify-content:space-evenly;line-height:1.25rem;min-width:150px;padding:.25rem .75rem;transform:translateY(-1px);transition:transform .2s}.wallet-button__status-bot{animation:pulse 2s cubic-bezier(.4,0,.6,1) infinite;background-color:#4ade80;border-radius:9999px;height:.5rem;width:.5rem}.wallet-icon{color:#4ade80;height:1rem;width:1rem}.wallet-button__address{color:#4ade80;color:#8b8eb5;font-size:.875rem;font-size:.75rem;font-weight:600;line-height:1rem}.notification-container{position:relative}.notification-button{background-color:#fff;border:1px solid #e7e5fb;border-radius:9999px;box-shadow:0 1px 2px 0 rgba(0,0,0,.05);box-sizing:border-box;color:#6a6d94;display:flex;height:2.5rem;position:relative;width:2.5rem}.notification-badge,.notification-button{align-items:center;justify-content:center}.notification-badge{background-color:#ff5a5f;border-radius:9999px;color:#fff;display:inline-flex;font-size:.625rem;font-weight:600;height:1rem;line-height:1rem;padding:.25 .25rem;position:absolute;right:-.25rem;top:-.25rem;width:1rem}",
 );
-(exports.WalletButton = ({
-  label: t = "连接钱包",
-  showBalance: n = !0,
-  showChainName: r = !0,
-  className: i = "",
-  size: s = "medium",
-}) =>
-  e.jsx("div", {
-    className: `wallet-button wallet-button--${s} ${i}`,
-    children: e.jsx(a.ConnectButton.Custom, {
-      children: ({
-        account: a,
-        chain: i,
-        openAccountModal: s,
-        openConnectModal: o,
-        authenticationStatus: u,
-        mounted: c,
-      }) => {
-        const d =
-          c && "loading" !== u && a && i && (!u || "authenticated" === u);
-        return e.jsx("div", {
-          className: "wallet-button__container",
-          children: d
-            ? e.jsxs("div", {
-                className: "wallet-button__connected",
-                children: [
-                  r &&
-                    e.jsxs("div", {
-                      className: "wallet-button__chain",
-                      children: [
-                        i.iconUrl &&
-                          e.jsx("div", {
-                            className: "wallet-button__chain-icon",
-                            children: e.jsx("img", {
-                              alt: i.name ?? "Chain icon",
-                              src: i.iconUrl,
-                              className: "wallet-button__icon",
-                            }),
-                          }),
-                        n &&
-                          a.displayBalance &&
-                          e.jsx("span", { children: a.displayBalance }),
-                      ],
-                    }),
-                  e.jsxs("button", {
-                    onClick: s,
-                    type: "button",
-                    className: "wallet-button__account",
-                    children: [
-                      e.jsx("span", { className: "wallet-button__status-bot" }),
-                      e.jsxs("svg", {
-                        xmlns: "http://www.w3.org/2000/svg",
-                        className: "wallet-icon",
-                        width: "24",
-                        height: "24",
-                        viewBox: "0 0 24 24",
-                        fill: "none",
-                        stroke: "currentColor",
-                        strokeWidth: "2",
-                        "stroke-linecap": "round",
-                        "stroke-linejoin": "round",
-                        "aria-hidden": "true",
+(exports.AuthModal = g),
+  (exports.AuthProvider = w),
+  (exports.NetworkSync = function ({
+    debug: t = !1,
+    onNetworkChange: n,
+    onAccountChange: a,
+  }) {
+    const { currentChainId: r, currentAddress: s } = v({
+      onNetworkChange: (e) => {
+        n?.(e);
+      },
+      onAccountChange: (e) => {
+        a?.(e);
+      },
+    });
+    return t
+      ? e.jsxs("div", {
+          style: {
+            position: "fixed",
+            bottom: "10px",
+            right: "10px",
+            padding: "8px 12px",
+            background: "rgba(0, 0, 0, 0.8)",
+            color: "white",
+            borderRadius: "4px",
+            fontSize: "12px",
+            zIndex: 9999,
+          },
+          children: [
+            e.jsxs("div", { children: ["Chain: ", r] }),
+            e.jsxs("div", { children: ["Account: ", s?.slice(0, 6), "..."] }),
+          ],
+        })
+      : null;
+  }),
+  (exports.SignInStatus = y),
+  (exports.WalletButton = ({
+    label: t = "连接钱包",
+    showBalance: n = !0,
+    showChainName: r = !0,
+    className: s = "",
+    size: i = "medium",
+  }) =>
+    e.jsx("div", {
+      className: `wallet-button wallet-button--${i} ${s}`,
+      children: e.jsx(a.ConnectButton.Custom, {
+        children: ({
+          account: a,
+          chain: s,
+          openAccountModal: i,
+          openConnectModal: o,
+          authenticationStatus: c,
+          mounted: d,
+        }) => {
+          const u =
+            d && "loading" !== c && a && s && (!c || "authenticated" === c);
+          return e.jsx("div", {
+            className: "wallet-button__container",
+            children: u
+              ? e.jsxs("div", {
+                  className: "wallet-button__connected",
+                  children: [
+                    r &&
+                      e.jsxs("div", {
+                        className: "wallet-button__chain",
                         children: [
-                          e.jsx("path", {
-                            d: "M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1",
-                          }),
-                          e.jsx("path", {
-                            d: "M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4",
-                          }),
+                          s.iconUrl &&
+                            e.jsx("div", {
+                              className: "wallet-button__chain-icon",
+                              children: e.jsx("img", {
+                                alt: s.name ?? "Chain icon",
+                                src: s.iconUrl,
+                                className: "wallet-button__icon",
+                              }),
+                            }),
+                          n &&
+                            a.displayBalance &&
+                            e.jsx("span", { children: a.displayBalance }),
                         ],
                       }),
-                      e.jsx("span", {
-                        className: "wallet-button__address",
-                        children: a.displayName,
-                      }),
-                    ],
-                  }),
-                  e.jsx("div", {
-                    className: "notification-container",
-                    children: e.jsxs("div", {
-                      className: "notification-button",
+                    e.jsxs("button", {
+                      onClick: i,
+                      type: "button",
+                      className: "wallet-button__account",
                       children: [
+                        e.jsx("span", {
+                          className: "wallet-button__status-bot",
+                        }),
                         e.jsxs("svg", {
-                          width: "20",
-                          height: "20",
+                          xmlns: "http://www.w3.org/2000/svg",
+                          className: "wallet-icon",
+                          width: "24",
+                          height: "24",
                           viewBox: "0 0 24 24",
                           fill: "none",
                           stroke: "currentColor",
                           strokeWidth: "2",
+                          strokeLinecap: "round",
+                          strokeLinejoin: "round",
+                          "aria-hidden": "true",
                           children: [
                             e.jsx("path", {
-                              d: "M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9",
+                              d: "M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1",
                             }),
-                            e.jsx("path", { d: "M13.73 21a2 2 0 0 1-3.46 0" }),
+                            e.jsx("path", {
+                              d: "M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4",
+                            }),
                           ],
                         }),
                         e.jsx("span", {
-                          className: "notification-badge",
-                          children: "99",
+                          className: "wallet-button__address",
+                          children: a.displayName,
                         }),
                       ],
                     }),
-                  }),
-                  e.jsx(w, { account: a, chain: i, openAccountModal: s }),
-                ],
-              })
-            : e.jsx("button", {
-                onClick: o,
-                type: "button",
-                className: "wallet-button__connect",
-                children: t,
-              }),
-        });
-      },
-    }),
-  })),
+                    e.jsx("div", {
+                      className: "notification-container",
+                      children: e.jsxs("div", {
+                        className: "notification-button",
+                        children: [
+                          e.jsxs("svg", {
+                            width: "20",
+                            height: "20",
+                            viewBox: "0 0 24 24",
+                            fill: "none",
+                            stroke: "currentColor",
+                            strokeWidth: "2",
+                            children: [
+                              e.jsx("path", {
+                                d: "M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9",
+                              }),
+                              e.jsx("path", {
+                                d: "M13.73 21a2 2 0 0 1-3.46 0",
+                              }),
+                            ],
+                          }),
+                          e.jsx("span", {
+                            className: "notification-badge",
+                            children: "99",
+                          }),
+                        ],
+                      }),
+                    }),
+                    e.jsx(E, { account: a, chain: s, openAccountModal: i }),
+                  ],
+                })
+              : e.jsx("button", {
+                  onClick: o,
+                  type: "button",
+                  className: "wallet-button__connect",
+                  children: t,
+                }),
+          });
+        },
+      }),
+    })),
   (exports.WalletProvider = function ({
-    children: i,
-    theme: s = "auto",
-    queryClient: d = c,
-    initialState: l,
-    ...p
+    children: s,
+    theme: i = "auto",
+    queryClient: o = x,
+    initialState: c,
+    enableAuth: l = !1,
+    authConfig: p,
+    ...m
   }) {
     const { config: y } = t.useMemo(
         () =>
@@ -1012,16 +1496,18 @@ g(
             const {
                 appName: t = "APP_NAME",
                 projectId: r = "YOUR_PROJECT_ID",
-                alchemyApiKey: i,
-                infuraApiKey: s,
+                alchemyApiKey: s,
+                infuraApiKey: i,
               } = e,
-              u = o.reduce((e, t) => {
+              o = d.reduce((e, t) => {
                 let a = "";
                 return (
-                  i &&
-                    (a = `https://${t.name.toLowerCase().replace(/\s+/g, "-")}.g.alchemy.com/v2/${i}`),
-                  s &&
-                    (a = `https://${t.name.toLowerCase().replace(/\s+/g, "-")}.infura.io/v3/${s}`),
+                  31337 === t.id
+                    ? (a = "http://127.0.0.1:8545")
+                    : s
+                      ? (a = `https://${t.name.toLowerCase().replace(/\s+/g, "-")}.g.alchemy.com/v2/${s}`)
+                      : i &&
+                        (a = `https://${t.name.toLowerCase().replace(/\s+/g, "-")}.infura.io/v3/${i}`),
                   (e[t.id] = a ? n.http(a) : n.http()),
                   e
                 );
@@ -1030,50 +1516,56 @@ g(
               config: a.getDefaultConfig({
                 appName: t,
                 projectId: r,
-                chains: o,
+                chains: d,
                 ssr: !0,
                 storage: n.createStorage({ storage: n.cookieStorage }),
               }),
-              transports: u,
+              transports: o,
             };
-          })(p),
-        [p.appName, p.projectId, p.alchemyApiKey, p.infuraApiKey],
+          })(m),
+        [m.appName, m.projectId, m.alchemyApiKey, m.infuraApiKey],
       ),
-      m = t.useMemo(() => u, [s]);
+      h = t.useMemo(() => u, [i]),
+      f = l && p ? e.jsx(w, { ...p, children: s }) : s;
     return e.jsx(n.WagmiProvider, {
       config: y,
       reconnectOnMount: !0,
-      initialState: l,
+      initialState: c,
       children: e.jsx(r.QueryClientProvider, {
-        client: d,
+        client: o,
         children: e.jsx(a.RainbowKitProvider, {
-          theme: m,
+          theme: h,
           modalSize: "compact",
           showRecentTransactions: !0,
-          children: i,
+          children: f,
         }),
       }),
     });
+  }),
+  (exports.useAuth = function () {
+    const e = t.useContext(b);
+    if (!e) throw new Error("useAuth must be used within AuthProvider");
+    return e;
   }),
   (exports.useCourseContract = function ({
     address: e = "0x0a42F4f8Cb23460BDeD2e18475920Bdb6df5641d",
     tokenDecimals: t = 18,
   }) {
-    const n = b(e, m),
-      a = (e) => s.parseUnits(e, t),
+    const n = I(e, j),
+      a = (e) => o.parseUnits(e, t),
       r = n.write("createCourse"),
-      i = n.write("purchaseCourse"),
-      o = n.write("updateCoursePrice"),
-      u = n.write("updateProgress"),
-      c = n.write("requestRefund"),
-      d = n.write("certifyInstructor"),
+      s = n.write("purchaseCourse"),
+      i = n.write("updateCoursePrice"),
+      c = n.write("updateProgress"),
+      d = n.write("requestRefund"),
+      u = n.write("certifyInstructor"),
       l = n.write("revokeInstructor"),
       p = n.write("batchCertifyInstructors"),
-      y = n.write("updatePlatformAddress"),
-      f = n.write("updateCourse"),
+      m = n.write("updatePlatformAddress"),
+      y = n.write("updateCourse"),
       h = n.write("publishCourse"),
-      g = n.write("unpublishCourse"),
-      w = n.write("deleteCourse");
+      f = n.write("unpublishCourse"),
+      g = n.write("deleteCourse");
     return {
       hasAccess: (e, t) => n.read("hasAccess")(e, t),
       getCourse: (e) => n.read("getCourse")(e),
@@ -1088,32 +1580,32 @@ g(
       getRefundEligibilityDetails: (e, t) =>
         n.read("getRefundEligibilityDetails")(e, t),
       isCertifiedInstructor: (e) => n.read("isCertifiedInstructor")(e),
-      createCourse: async (e, t, n, i) => await r.send(e, t, a(n), i),
-      purchaseCourse: async (e) => await i.send(e),
-      updateCoursePrice: async (e, t) => await o.send(e, a(t)),
-      updateCourseProgress: async (e, t) => await u.send(e, t),
-      requestRefund: async (e) => await c.send(e),
-      certifyInstructor: async (e) => await d.send(e),
+      createCourse: async (e, t, n, s) => await r.send(e, t, a(n), s),
+      purchaseCourse: async (e) => await s.send(e),
+      updateCoursePrice: async (e, t) => await i.send(e, a(t)),
+      updateCourseProgress: async (e, t) => await c.send(e, t),
+      requestRefund: async (e) => await d.send(e),
+      certifyInstructor: async (e) => await u.send(e),
       revokeInstructor: async (e) => await l.send(e),
       batchCertifyInstructors: async (e) => await p.send(e),
-      updatePlatformAddress: async (e) => await y.send(e),
-      updateCourse: async (e, t, n) => await f.send(e, t, n),
+      updatePlatformAddress: async (e) => await m.send(e),
+      updateCourse: async (e, t, n) => await y.send(e, t, n),
       publishCourse: async (e) => await h.send(e),
-      unpublishCourse: async (e) => await g.send(e),
-      deleteCourse: async (e) => await w.send(e),
+      unpublishCourse: async (e) => await f.send(e),
+      deleteCourse: async (e) => await g.send(e),
       createCourseReceipt: r.receipt,
-      purchaseCourseReceipt: i.receipt,
-      updateCoursePriceReceipt: o.receipt,
-      updateCourseProgressReceipt: u.receipt,
-      requestRefundReceipt: c.receipt,
-      certifyInstructorReceipt: d.receipt,
+      purchaseCourseReceipt: s.receipt,
+      updateCoursePriceReceipt: i.receipt,
+      updateCourseProgressReceipt: c.receipt,
+      requestRefundReceipt: d.receipt,
+      certifyInstructorReceipt: u.receipt,
       revokeInstructorReceipt: l.receipt,
       batchCertifyInstructorsReceipt: p.receipt,
-      updatePlatformAddressReceipt: y.receipt,
-      updateCourseReceipt: f.receipt,
+      updatePlatformAddressReceipt: m.receipt,
+      updateCourseReceipt: y.receipt,
       publishCourseReceipt: h.receipt,
-      unpublishCourseReceipt: g.receipt,
-      deleteCourseReceipt: w.receipt,
+      unpublishCourseReceipt: f.receipt,
+      deleteCourseReceipt: g.receipt,
     };
   }),
   (exports.useERC20 = function ({
@@ -1122,62 +1614,62 @@ g(
     enabled: a = !0,
   }) {
     const { address: r } = n.useAccount(),
-      i = (e) => {
-        if (!d) throw new Error("Decimals not loaded");
-        return s.parseUnits(e, d);
+      s = (e) => {
+        if (!u) throw new Error("Decimals not loaded");
+        return o.parseUnits(e, u);
       },
-      { data: o } = l({
+      { data: i } = C({
         address: e,
-        abi: y,
+        abi: k,
         functionName: "totalSupply",
         enabled: a,
       }),
-      { data: u, refetch: c } = l({
+      { data: c, refetch: d } = C({
         address: e,
-        abi: y,
+        abi: k,
         functionName: "balanceOf",
         args: r ? [r] : void 0,
         enabled: a && !!r,
       }),
-      { data: d } = l({
+      { data: u } = C({
         address: e,
-        abi: y,
+        abi: k,
         functionName: "decimals",
         enabled: a,
       }),
-      { data: m, refetch: f } = l({
+      { data: l, refetch: p } = C({
         address: e,
-        abi: y,
+        abi: k,
         functionName: "allowance",
         args: r && t ? [r, t] : void 0,
         enabled: a && !!r && !!t,
       }),
-      b = p({ address: e, abi: y, functionName: "transfer" }),
-      h = p({ address: e, abi: y, functionName: "approve" }),
-      g = p({ address: e, abi: y, functionName: "transferFrom" });
+      m = T({ address: e, abi: k, functionName: "transfer" }),
+      y = T({ address: e, abi: k, functionName: "approve" }),
+      h = T({ address: e, abi: k, functionName: "transferFrom" });
     return {
-      totalSupply: o,
-      balance: u,
-      allowance: m,
-      transferReceipt: b.receipt,
-      approveReceipt: h.receipt,
-      transferFromReceipt: g.receipt,
-      refetchBalance: c,
-      refetchAllowance: f,
+      totalSupply: i,
+      balance: c,
+      allowance: l,
+      transferReceipt: m.receipt,
+      approveReceipt: y.receipt,
+      transferFromReceipt: h.receipt,
+      refetchBalance: d,
+      refetchAllowance: p,
       transfer: async (e, t) => {
-        if (!b.writeAsync) throw new Error("Transfer not available");
-        const n = i(t);
-        return b.writeAsync({ args: [e, n] });
+        if (!m.writeAsync) throw new Error("Transfer not available");
+        const n = s(t);
+        return m.writeAsync({ args: [e, n] });
       },
       approve: async (e, t) => {
-        if (!h.writeAsync) throw new Error("Approve not available");
-        const n = i(t);
-        return h.writeAsync({ args: [e, n] });
+        if (!y.writeAsync) throw new Error("Approve not available");
+        const n = s(t);
+        return y.writeAsync({ args: [e, n] });
       },
       transferFrom: async (e, t, n) => {
-        if (!g.writeAsync) throw new Error("TransferFrom not available");
-        const a = i(n);
-        return g.writeAsync({ args: [e, t, a] });
+        if (!h.writeAsync) throw new Error("TransferFrom not available");
+        const a = s(n);
+        return h.writeAsync({ args: [e, t, a] });
       },
     };
   }),
@@ -1187,10 +1679,10 @@ g(
       a = e.find((e) => e.id === t),
       {
         switchChain: r,
-        isPending: i,
-        error: s,
+        isPending: s,
+        error: i,
         isSuccess: o,
-        reset: u,
+        reset: c,
       } = n.useSwitchChain();
     return {
       currentChain: a,
@@ -1202,135 +1694,115 @@ g(
           throw e;
         }
       },
-      isPending: i,
-      error: s,
+      isPending: s,
+      error: i,
       isSuccess: o,
-      reset: u,
+      reset: c,
       isCurrentChain: (e) => t === e,
       canSwitchNetwork: !!r,
     };
   }),
   (exports.useSimpleYDToken = function ({
-    address: e = h,
+    address: e = S,
     spenderAddress: a,
     enabled: r = !0,
   }) {
-    const { address: i } = n.useAccount(),
-      [o, u] = t.useState(),
-      [c, d] = t.useState(),
+    const { address: s } = n.useAccount(),
+      [i, c] = t.useState(),
+      [d, u] = t.useState(),
       { data: l, refetch: p } = n.useEstimateGas({
-        account: i,
-        to: o,
-        value: c,
+        account: s,
+        to: i,
+        value: d,
         query: { enabled: !1 },
       }),
-      y = (e) => {
-        if (!T) throw new Error("Decimals not loaded");
-        return s.parseUnits(e, T);
+      m = (e) => {
+        if (!w) throw new Error("Decimals not loaded");
+        return o.parseUnits(e, w);
       },
-      m = async (e, t) => {
-        u(e),
-          d(t),
+      y = async (e, t) => {
+        c(e),
+          u(t),
           await new Promise((e) => setTimeout(e, 0)),
           await p(),
-          u(void 0),
-          d(void 0);
+          c(void 0),
+          u(void 0);
       },
-      g = b(e, f),
-      { data: w } = g.read("totalSupply")(),
-      { data: x, refetch: v } = g.read("balanceOf", r && !!i)(),
-      { data: T } = g.read("decimals")(),
-      { data: C, refetch: k } = g.read("allowance")(i, a),
-      _ = g.write("transfer"),
-      j = g.write("approve"),
-      N = g.write("transferFrom"),
-      M = g.write("exchangeETHForTokens"),
-      A = g.write("stake"),
-      R = g.write("unstake"),
-      I = g.write("claimReward");
+      h = I(e, N),
+      { data: f } = h.read("totalSupply")(),
+      { data: g, refetch: b } = h.read("balanceOf", r && !!s)(s),
+      { data: w } = h.read("decimals")(),
+      { data: x, refetch: v } = h.read("allowance")(s, a),
+      C = h.write("transfer"),
+      T = h.write("approve"),
+      k = h.write("transferFrom"),
+      j = h.write("exchangeETHForTokens"),
+      E = h.write("stake"),
+      _ = h.write("unstake"),
+      A = h.write("claimReward");
     return {
-      totalSupply: w,
-      balance: x,
-      allowance: C,
-      transferReceipt: _.receipt,
-      approveReceipt: j.receipt,
-      transferFromReceipt: N.receipt,
-      exchangeETHForTokensReceipt: M.receipt,
-      stakeReceipt: A.receipt,
-      unstakeReceipt: R.receipt,
-      claimRewardReceipt: I.receipt,
-      refetchBalance: v,
-      refetchAllowance: k,
-      getStakeInfo: (e) => g.read("getStakeInfo")(e),
-      calculatePendingReward: (e) => g.read("calculatePendingReward")(e),
-      canUnstake: (e) => g.read("canUnstake")(e),
+      totalSupply: f,
+      balance: g,
+      allowance: x,
+      transferReceipt: C.receipt,
+      approveReceipt: T.receipt,
+      transferFromReceipt: k.receipt,
+      exchangeETHForTokensReceipt: j.receipt,
+      stakeReceipt: E.receipt,
+      unstakeReceipt: _.receipt,
+      claimRewardReceipt: A.receipt,
+      refetchBalance: b,
+      refetchAllowance: v,
+      getStakeInfo: (e) => h.read("getStakeInfo")(e),
+      calculatePendingReward: (e) => h.read("calculatePendingReward")(e),
+      canUnstake: (e) => h.read("canUnstake")(e),
       transfer: async (e, t) => {
-        const n = y(t);
-        return await m(e, n), _.send(e, n, { gas: l });
+        const n = m(t);
+        return await y(e, n), C.send(e, n, { gas: l });
       },
       approve: async (e, t) => {
-        const n = y(t);
-        return await m(h, void 0), j.send(e, n, { gas: l });
+        const n = m(t);
+        return T.send(e, n);
       },
       transferFrom: async (e, t, n) => {
-        const a = y(n);
-        return await m(t, a), N.send(e, t, a);
+        const a = m(n);
+        return await y(t, a), k.send(e, t, a);
       },
       exchangeETHForTokens: async (e) => (
-        await m(h, s.parseEther(e)), M.send({ value: s.parseEther(e), gas: l })
+        await y(S, o.parseEther(e)), j.send({ value: o.parseEther(e), gas: l })
       ),
-      stake: async (e, t) => A.send(e, t),
-      unstake: async (e) => R.send(e),
-      claimReward: async () => I.send(),
+      stake: async (e, t) => E.send(e, t),
+      unstake: async (e) => _.send(e),
+      claimReward: async () => A.send(),
     };
   }),
-  (exports.useWalletConnection = d),
+  (exports.useWalletAuth = h),
+  (exports.useWalletConnection = l),
   (exports.useWalletInfo = function () {
     const { address: e, connector: t, isConnected: a } = n.useAccount(),
       r = n.useChainId(),
-      i = n.useChains().find((e) => e.id === r),
-      { data: o } = n.useEnsName({ address: e }),
-      { data: u, isLoading: c } = n.useBalance({ address: e }),
-      d = u
+      s = n.useChains().find((e) => e.id === r),
+      { data: i } = n.useEnsName({ address: e }),
+      { data: c, isLoading: d } = n.useBalance({ address: e }),
+      u = c
         ? {
-            value: u.value,
-            formatted: s.formatEther(u.value),
-            symbol: u.symbol,
-            decimals: u.decimals,
+            value: c.value,
+            formatted: o.formatEther(c.value),
+            symbol: c.symbol,
+            decimals: c.decimals,
           }
         : void 0;
     return {
       address: e,
       isConnected: a,
-      ensName: o,
+      ensName: i,
       chainId: r,
       connector: t
         ? { id: t.id, name: t.name, type: t.type, icon: t.icon }
         : void 0,
-      chain: i,
-      balance: d,
-      isBalanceLoading: c,
+      chain: s,
+      balance: u,
+      isBalanceLoading: d,
     };
   }),
-  (exports.useWalletSign = function () {
-    const {
-      signMessage: e,
-      signMessageAsync: t,
-      data: a,
-      error: r,
-      isPending: i,
-      isSuccess: s,
-      isError: o,
-      reset: u,
-    } = n.useSignMessage();
-    return {
-      signMessage: e,
-      signMessageAsync: t,
-      signature: a,
-      error: r,
-      isPending: i,
-      isSuccess: s,
-      isError: o,
-      reset: u,
-    };
-  });
+  (exports.useWatchNetwork = v);

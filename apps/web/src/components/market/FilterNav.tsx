@@ -1,8 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import type { CourseFilters } from "@/lib/api/course";
 
-const FilterNav = () => {
+interface FilterNavProps {
+  onFilterChange?: (filters: CourseFilters) => void;
+  totalCount?: number;
+}
+
+const FilterNav = ({ onFilterChange, totalCount = 0 }: FilterNavProps) => {
   // 状态管理
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState("全部分类");
@@ -22,6 +28,51 @@ const FilterNav = () => {
     const calculatedPrice = Math.round((value / 100) * maxPrice);
     setPriceRange([0, calculatedPrice]);
   };
+
+  /**
+   * 构建筛选条件
+   */
+  const buildFilters = useCallback((): CourseFilters => {
+    const filters: CourseFilters = {
+      page: 1,
+      limit: 10,
+    };
+
+    // 搜索关键词
+    if (searchTerm.trim()) {
+      filters.keyword = searchTerm.trim();
+    }
+
+    // 分类筛选
+    if (category !== "全部分类") {
+      filters.categories = [category];
+    }
+
+    // 价格范围
+    if (priceRange[1] < 1000) {
+      filters.priceRange = [priceRange[0].toString(), priceRange[1].toString()];
+    }
+
+    // 排序方式（这里可以根据后端API扩展）
+    // 目前后端可能不支持排序，可以在后续添加
+
+    return filters;
+  }, [searchTerm, category, priceRange]);
+
+  /**
+   * 当筛选条件变化时，触发回调（添加防抖优化）
+   */
+  useEffect(() => {
+    if (!onFilterChange) return;
+
+    // 使用防抖，避免频繁请求后端
+    const debounceTimer = setTimeout(() => {
+      const filters = buildFilters();
+      onFilterChange(filters);
+    }, 500); // 500ms 防抖延迟
+
+    return () => clearTimeout(debounceTimer);
+  }, [searchTerm, category, priceRange, buildFilters, onFilterChange]);
 
   return (
     <div className="flex justify-center w-full mb-8">
@@ -153,7 +204,11 @@ const FilterNav = () => {
           </div>
         </div>
 
-        <div className="text-sm font-medium text-[#6A6D94]">共找到课程</div>
+        <div className="text-sm font-medium text-[#6A6D94]">
+          共找到{" "}
+          <span className="text-[#4B6CFF] font-semibold">{totalCount}</span>{" "}
+          门课程
+        </div>
       </div>
     </div>
   );

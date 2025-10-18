@@ -1,5 +1,5 @@
 {
-  "name": "uni-wallet-lib",
+  "name": "@web3-university/uni-wallet-lib",
   "author": "moGka",
   "version": "0.0.1",
   "description": "A comprehensive Web3 wallet library built on top of wagmi v2 and RainbowKit v2",
@@ -35,7 +35,8 @@
     "wagmi": "^2.17.5",
     "@rainbow-me/rainbowkit": "^2.2.8",
     "viem": "^2.37.9",
-    "@tanstack/react-query": "^5.90.2"
+    "@tanstack/react-query": "^5.90.2",
+    "siwe": "^3.0.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.7",

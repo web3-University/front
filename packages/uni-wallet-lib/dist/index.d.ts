@@ -8,8 +8,7 @@ import {
 import { QueryClient } from "@tanstack/react-query";
 import * as viem from "viem";
 import { Address, Chain, Abi, Hash, TransactionReceipt } from "viem";
-import * as _wagmi_core from "@wagmi/core";
-import * as wagmi_query from "wagmi/query";
+import * as react_jsx_runtime from "react/jsx-runtime";
 
 interface WalletConfigOptions {
   appName: string;
@@ -18,19 +17,140 @@ interface WalletConfigOptions {
   infuraApiKey?: string;
 }
 
+/**
+ * 签名登录状态枚举
+ */
+declare enum SignInStatus {
+  IDLE = "idle", // 空闲状态
+  REQUESTING_NONCE = "requesting", // 请求 nonce 中
+  WAITING_SIGNATURE = "waiting", // 等待用户签名
+  VERIFYING = "verifying", // 验证签名中
+  SUCCESS = "success", // 成功
+  ERROR = "error",
+}
+/**
+ * 认证配置选项
+ */
+interface AuthConfig {
+  /** 域名(默认为当前域名) */
+  domain?: string;
+  /** 后端 API 基础路径 */
+  apiBaseUrl?: string;
+  /** Token 存储的 localStorage key */
+  tokenStorageKey?: string;
+  /** 是否在连接钱包后自动签名 */
+  autoSignOnConnect?: boolean;
+  /** 签名成功回调 */
+  onSuccess?: (token: string) => void;
+  /** 签名失败回调 */
+  onError?: (error: Error) => void;
+  /** 状态变化回调 */
+  onStatusChange?: (status: SignInStatus) => void;
+}
+/**
+ * 认证上下文值
+ */
+interface AuthContextValue {
+  /** 当前签名状态 */
+  status: SignInStatus;
+  /** 是否已认证 */
+  isAuthenticated: boolean;
+  /** 是否正在认证中 */
+  isAuthenticating: boolean;
+  /** 错误信息 */
+  error: string | null;
+  /** 当前认证的地址 */
+  address: string | undefined;
+  /** 触发签名登录 */
+  signIn: () => Promise<string | null>;
+  /** 退出登录 */
+  signOut: () => void;
+  /** 重新加载认证状态 */
+  reload: () => void;
+  /** 重置状态（关闭 Modal） */
+  reset: () => void;
+}
+/**
+ * Nonce 响应
+ */
+interface NonceResponse {
+  nonce: string;
+  message?: string;
+  expiresAt: number;
+}
+/**
+ * 签名验证响应
+ */
+interface VerifyResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: User;
+  tokenType: string;
+  expiresIn: number;
+}
+interface User {
+  createdAt: string;
+  updatedAt: string;
+  userId: number;
+  walletAddress: string;
+  username: string;
+  email: string;
+  avatar: string | null;
+  bio: string | null;
+  specializations: string | null;
+  rating: number;
+  isInstructorRegistered: boolean;
+  isInstructorApproved: boolean;
+}
+
 interface WalletProviderProps extends WalletConfigOptions {
   children: React.ReactNode;
   theme?: "light" | "dark" | "auto";
   queryClient?: QueryClient;
   initialState?: State | undefined;
+  enableAuth?: boolean;
+  authConfig?: AuthConfig;
 }
 declare function WalletProvider({
   children,
   theme,
   queryClient,
   initialState,
+  enableAuth,
+  authConfig,
   ...configOptions
 }: WalletProviderProps): React.ReactElement;
+
+interface AuthProviderProps extends AuthConfig {
+  children: React.ReactNode;
+}
+/**
+ * AuthProvider - 全局认证状态管理
+ *
+ * 功能:
+ * 1. 监听钱包连接状态
+ * 2. 自动触发签名流程(如果配置了 autoSignOnConnect)
+ * 3. 管理认证 Modal 显示
+ * 4. 提供认证上下文给所有子组件
+ *
+ * @example
+ * ```tsx
+ * <WalletProvider>
+ *   <AuthProvider autoSignOnConnect>
+ *     <App />
+ *   </AuthProvider>
+ * </WalletProvider>
+ * ```
+ */
+declare function AuthProvider({
+  children,
+  autoSignOnConnect,
+  ...authConfig
+}: AuthProviderProps): React.ReactElement;
+/**
+ * useAuth Hook - 获取认证上下文
+ */
+declare function useAuth(): AuthContextValue;
 
 interface WalletState {
   isConnected: boolean;
@@ -177,15 +297,34 @@ declare function useNetworkSwitch(): {
   canSwitchNetwork: boolean;
 };
 
-declare function useWalletSign(): {
-  signMessage: wagmi_query.SignMessageMutate<unknown>;
-  signMessageAsync: wagmi_query.SignMessageMutateAsync<unknown>;
-  signature: `0x${string}` | undefined;
-  error: _wagmi_core.SignMessageErrorType | null;
-  isPending: boolean;
-  isSuccess: boolean;
-  isError: boolean;
-  reset: () => void;
+interface NetworkChangeHandler {
+  onNetworkChange?: (chainId: number) => void;
+  onAccountChange?: (address: string | undefined) => void;
+}
+/**
+ * 监听网络和账户变化的 Hook
+ *
+ * 当用户在 MetaMask 等钱包中切换网络或账户时，会自动触发回调
+ *
+ * @example
+ * ```tsx
+ * useWatchNetwork({
+ *   onNetworkChange: (chainId) => {
+ *     console.log('网络切换到:', chainId);
+ *     // 重新获取数据或更新 UI
+ *   },
+ *   onAccountChange: (address) => {
+ *     console.log('账户切换到:', address);
+ *   }
+ * });
+ * ```
+ */
+declare function useWatchNetwork({
+  onNetworkChange,
+  onAccountChange,
+}?: NetworkChangeHandler): {
+  currentChainId: number;
+  currentAddress: `0x${string}` | undefined;
 };
 
 interface UseERC20Props {
@@ -372,6 +511,38 @@ declare function useCourseContract({
   deleteCourseReceipt: UseWaitForTransactionReceiptReturnType;
 };
 
+/**
+ * 钱包认证 Hook
+ * 提供完整的签名登录流程
+ *
+ * @description
+ * 集成 SIWE (Sign-In with Ethereum) 标准的钱包认证流程：
+ * 1. 请求 nonce
+ * 2. 用户签名
+ * 3. 验证签名
+ * 4. 获取并存储 JWT token
+ *
+ * @example
+ * ```typescript
+ * const { signIn, signOut, isAuthenticated, status } = useWalletAuth({
+ *   domain: 'http://localhost:3000',
+ *   apiBaseUrl: '/api/v1/auth',
+ *   onSuccess: (token) => console.log('Logged in:', token),
+ * });
+ * ```
+ */
+declare function useWalletAuth(config?: AuthConfig): {
+  status: SignInStatus;
+  isAuthenticated: boolean;
+  isAuthenticating: boolean;
+  error: string | null;
+  address: `0x${string}` | undefined;
+  signIn: () => Promise<string | null>;
+  signOut: () => void;
+  reload: () => void;
+  reset: () => void;
+};
+
 interface WalletButtonProps {
   label?: string;
   showBalance?: boolean;
@@ -381,28 +552,91 @@ interface WalletButtonProps {
 }
 declare const WalletButton: React.FC<WalletButtonProps>;
 
+interface AuthModalProps {
+  status: SignInStatus;
+  error?: string | null;
+  onClose?: () => void;
+}
+declare function AuthModal({
+  status,
+  error,
+  onClose,
+}: AuthModalProps): React.ReactElement | null;
+
+interface NetworkSyncProps extends NetworkChangeHandler {
+  /**
+   * 是否在控制台显示调试信息
+   * @default false
+   */
+  debug?: boolean;
+}
+/**
+ * 网络同步组件
+ *
+ * 用于监听钱包网络和账户变化，确保应用状态与钱包同步
+ *
+ * @example
+ * ```tsx
+ * // 在根组件中使用
+ * <WalletProvider {...config}>
+ *   <NetworkSync
+ *     debug={true}
+ *     onNetworkChange={(chainId) => {
+ *       // 网络切换时的处理逻辑
+ *       console.log('切换到网络:', chainId);
+ *     }}
+ *     onAccountChange={(address) => {
+ *       // 账户切换时的处理逻辑
+ *       console.log('切换到账户:', address);
+ *     }}
+ *   />
+ *   <App />
+ * </WalletProvider>
+ * ```
+ */
+declare function NetworkSync({
+  debug,
+  onNetworkChange,
+  onAccountChange,
+}: NetworkSyncProps): react_jsx_runtime.JSX.Element | null;
+
 export {
+  AuthModal,
+  AuthProvider,
+  NetworkSync,
+  SignInStatus,
   WalletButton,
   WalletProvider,
+  useAuth,
   useCourseContract,
   useERC20,
   useNetworkSwitch,
   useSimpleYDToken,
+  useWalletAuth,
   useWalletConnection,
   useWalletInfo,
-  useWalletSign,
+  useWatchNetwork,
 };
 export type {
+  AuthConfig,
+  AuthContextValue,
+  AuthModalProps,
+  AuthProviderProps,
   ContractConfig,
   ERC20TokenInfo,
   ERC721TokenInfo,
   GasEstimate,
   NFTMetadata,
+  NetworkChangeHandler,
   NetworkSwitchOptions,
+  NetworkSyncProps,
+  NonceResponse,
   TokenBalance,
   TransactionHistory,
   TransactionRequest,
   TransactionStatus,
+  User,
+  VerifyResponse,
   WalletButtonProps,
   WalletError,
   WalletProviderProps,
