@@ -29,7 +29,7 @@ export default function Stats() {
             <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
               <Users className="w-6 h-6 text-white" />
             </div>
-            <span className="text-sm text-gray-300">代币持有者</span>
+            <span className="text-sm text-gray-300">活跃提案</span>
           </div>
           <p className="text-4xl font-bold text-white">{stats.holders}</p>
         </div>

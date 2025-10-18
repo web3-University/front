@@ -62,3 +62,10 @@ export const updateUserProfile = (data: Partial<RegisterUserDto>) =>
     method: "PUT",
     body: data,
   });
+
+/**
+ * 获取用户已购买的课程
+ * GET /api/users/purchasedCourses
+ */
+export const getPurchasedCourses = (walletAddress: string) =>
+  http<ApiResponse<any[]>>(`/users/purchasedCourses?walletAddress=${walletAddress}`);
