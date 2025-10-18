@@ -1,7 +1,8 @@
 "use client";
 
+import { ArrowRight, Award } from "lucide-react";
 import Link from "next/link";
-import { Award, ArrowRight } from "lucide-react";
+import NFTGallery from "./NFTGallery";
 import UserInfoSection from "./UserInfoSection";
 
 export default function ProfileView() {
@@ -38,6 +39,11 @@ export default function ProfileView() {
 
         {/* 个人信息 */}
         <UserInfoSection />
+
+        {/* NFT收藏展示 */}
+        <div className="mt-12">
+          <NFTGallery />
+        </div>
       </div>
     </div>
   );
