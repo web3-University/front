@@ -1,18 +1,23 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { useWalletInfo } from "@web3-university/uni-wallet-lib";
-import { useWalletSign } from "@web3-university/uni-wallet-lib";
 import {
-  User,
-  Mail,
-  Wallet,
-  Camera,
-  Save,
-  Loader2,
-  CheckCircle,
+  useSimpleYDToken,
+  useWalletInfo,
+  useWalletSign,
+} from "@web3-university/uni-wallet-lib";
+import {
   AlertCircle,
+  Camera,
+  CheckCircle,
+  Coins,
+  Loader2,
+  Mail,
+  Save,
+  User,
+  Wallet,
 } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { formatUnits } from "viem";
 import { http } from "@/lib/http";
 
 interface UserProfile {
@@ -25,6 +30,19 @@ interface UserProfile {
 export default function UserInfoSection() {
   const { address, isConnected } = useWalletInfo();
   const { signMessage } = useWalletSign();
+
+  // YD代币相关
+  const tokenAddress = useMemo(() => {
+    const addr = process.env.NEXT_PUBLIC_YD_TOKEN_ADDRESS;
+    return addr ? (addr as `0x${string}`) : undefined;
+  }, []);
+
+  const { balance: ydBalance } = useSimpleYDToken({ address: tokenAddress });
+
+  const ydBalanceLabel = useMemo(() => {
+    if (!ydBalance) return "0";
+    return Number(formatUnits(ydBalance, 18)).toFixed(2);
+  }, [ydBalance]);
 
   const [profile, setProfile] = useState<UserProfile>({
     name: "",
@@ -41,8 +59,8 @@ export default function UserInfoSection() {
   } | null>(null);
 
   // 验证码相关状态
-  const [emailCode, setEmailCode] = useState("");
-  const [isSendingCode, setIsSendingCode] = useState(false);
+  const [_emailCode, setEmailCode] = useState("");
+  const [_isSendingCode, setIsSendingCode] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const [originalEmail, setOriginalEmail] = useState("");
 
@@ -114,7 +132,7 @@ export default function UserInfoSection() {
     reader.readAsDataURL(file);
   };
 
-  const handleSendCode = async () => {
+  const _handleSendCode = async () => {
     // 验证邮箱格式
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(profile.email)) {
@@ -126,9 +144,18 @@ export default function UserInfoSection() {
     setMessage(null);
 
     try {
-      await http("/users/send-email-code", {
+      console.log("发送验证码请求:", {
+        url: "/api/users/profile/email-code",
+        body: {
+          walletAddress: address,
+          email: profile.email,
+        },
+      });
+
+      await http("/api/users/profile/email-code", {
         method: "POST",
         body: {
+          walletAddress: address,
           email: profile.email,
         },
       });
@@ -138,11 +165,11 @@ export default function UserInfoSection() {
 
       // 3秒后清除成功消息
       setTimeout(() => setMessage(null), 3000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("发送验证码失败:", error);
       setMessage({
         type: "error",
-        text: error.message || "发送验证码失败，请重试",
+        text: error instanceof Error ? error.message : "发送验证码失败，请重试",
       });
     } finally {
       setIsSendingCode(false);
@@ -173,48 +200,64 @@ export default function UserInfoSection() {
     }
 
     // 检查邮箱是否修改，如果修改了需要验证码
-    const emailChanged = profile.email !== originalEmail;
-    if (emailChanged && !emailCode.trim()) {
-      setMessage({ type: "error", text: "邮箱已修改，请输入邮箱验证码" });
-      return;
-    }
+    const _emailChanged = profile.email !== originalEmail;
+    // 暂时禁用邮箱验证码验证
+    // if (emailChanged && !emailCode.trim()) {
+    //   setMessage({ type: "error", text: "邮箱已修改，请输入邮箱验证码" });
+    //   return;
+    // }
 
     setIsSaving(true);
     setMessage(null);
 
     try {
-      // 生成签名消息
+      // 生成签名消息用于用户确认
       const timestamp = Date.now();
       const message = `更新个人信息\n时间戳: ${timestamp}\n钱包地址: ${address}\n名称: ${profile.name}\n邮箱: ${profile.email}`;
 
-      // 请求钱包签名
-      const signResult = await signMessage(message);
-      const signature = signResult.signature;
+      // 请求钱包签名（用户确认操作）
+      let signature: string;
+      try {
+        const signResult = await signMessage(message);
+        signature = signResult.signature;
+      } catch (_signError) {
+        // 用户拒绝签名，不继续请求接口
+        console.log("用户拒绝签名");
+        setMessage({ type: "error", text: "已取消操作" });
+        return;
+      }
 
+      // 签名通过后，继续上传头像和保存用户信息
       // 上传头像（如果有新头像）
       let avatarUrl = profile.avatarUrl;
-      if (profile.avatarUrl && profile.avatarUrl.startsWith("data:")) {
+      if (profile.avatarUrl?.startsWith("data:")) {
         // 将 base64 转换为 blob
         const blob = await fetch(profile.avatarUrl).then((r) => r.blob());
         const formData = new FormData();
         formData.append("file", blob, "avatar.jpg");
+        formData.append("fileType", "avatar");
 
-        const uploadResult = await http<{ url: string }>("/upload/avatar", {
-          method: "POST",
-          body: formData,
-        });
+        const uploadResult = await http<{ url: string }>(
+          "/api/storage/upload",
+          {
+            method: "POST",
+            body: formData,
+          },
+        );
         avatarUrl = uploadResult.url;
       }
 
       // 保存用户信息
-      await http("/users/profile", {
-        method: "POST",
+      await http("/api/users/profile", {
+        method: "PUT",
         body: {
           walletAddress: address,
-          name: profile.name,
+          username: profile.name,
+          avatar: avatarUrl,
           email: profile.email,
-          avatarUrl,
-          emailCode: emailChanged ? emailCode : undefined, // 只有修改邮箱时才需要验证码
+          // 暂时禁用邮箱验证码
+          // verificationCode: emailChanged ? emailCode : undefined, // 只有修改邮箱时才需要验证码
+          verificationCode: undefined, // 暂时不传验证码
           signature,
           message,
           timestamp,
@@ -231,11 +274,11 @@ export default function UserInfoSection() {
 
       // 3秒后清除成功消息
       setTimeout(() => setMessage(null), 3000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("保存失败:", error);
       setMessage({
         type: "error",
-        text: error.message || "保存失败，请重试",
+        text: error instanceof Error ? error.message : "保存失败，请重试",
       });
     } finally {
       setIsSaving(false);
@@ -315,11 +358,19 @@ export default function UserInfoSection() {
             <p className="text-sm text-[#6A6D94] mb-3">
               {profile.email || "未设置邮箱"}
             </p>
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#F5F0FF] px-4 py-2">
-              <Wallet className="h-4 w-4 text-[#8A71FF]" />
-              <span className="font-mono text-sm text-[#6A6D94]">
-                {address?.slice(0, 6)}...{address?.slice(-4)}
-              </span>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="inline-flex items-center gap-2 rounded-full bg-[#F5F0FF] px-4 py-2">
+                <Wallet className="h-4 w-4 text-[#8A71FF]" />
+                <span className="font-mono text-sm text-[#6A6D94]">
+                  {address?.slice(0, 6)}...{address?.slice(-4)}
+                </span>
+              </div>
+              <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#FFF5E6] to-[#E6F7FF] px-4 py-2">
+                <Coins className="h-4 w-4 text-[#FF9D6B]" />
+                <span className="font-mono text-sm font-semibold text-[#2B2558]">
+                  {ydBalanceLabel} YD
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -379,7 +430,8 @@ export default function UserInfoSection() {
                 placeholder="请输入您的邮箱"
                 className="flex-1 rounded-xl border border-[#E0E0E0] bg-white px-4 py-3 text-[#2B2558] transition-all focus:border-[#8A71FF] focus:outline-none focus:ring-2 focus:ring-[#8A71FF]/20 disabled:bg-[#F5F0FF] disabled:text-[#6A6D94]"
               />
-              {isEditing && (
+              {/* 暂时禁用发送验证码功能 */}
+              {/* {isEditing && (
                 <button
                   onClick={handleSendCode}
                   disabled={isSendingCode || countdown > 0 || !profile.email}
@@ -396,11 +448,12 @@ export default function UserInfoSection() {
                     "发送验证码"
                   )}
                 </button>
-              )}
+              )} */}
             </div>
 
+            {/* 暂时禁用验证码输入框 */}
             {/* 验证码输入框 - 仅在编辑模式且邮箱已修改时显示 */}
-            {isEditing && profile.email !== originalEmail && (
+            {/* {isEditing && profile.email !== originalEmail && (
               <div className="mt-3">
                 <input
                   type="text"
@@ -414,7 +467,7 @@ export default function UserInfoSection() {
                   检测到邮箱已修改，请先发送验证码并填写
                 </p>
               </div>
-            )}
+            )} */}
           </div>
         </div>
 

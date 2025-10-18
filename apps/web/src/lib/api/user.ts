@@ -22,9 +22,10 @@ export interface RegisterUserDto {
   walletAddress: string;
   username: string;
   email: string;
-  avatar: string;
+  avatar?: string;
   bio: string;
   specializations: string[];
+  isInstructorRegistered?: boolean;
 }
 
 export interface ApiResponse<T> {
@@ -40,7 +41,7 @@ export interface ApiResponse<T> {
  * POST /api/users/register
  */
 export const registerUser = (data: RegisterUserDto) =>
-  http<ApiResponse<User>>("/api/users/register", {
+  http<ApiResponse<User>>("/users/register", {
     method: "POST",
     body: data,
   });
@@ -61,3 +62,10 @@ export const updateUserProfile = (data: Partial<RegisterUserDto>) =>
     method: "PUT",
     body: data,
   });
+
+/**
+ * 获取用户已购买的课程
+ * GET /api/users/purchasedCourses
+ */
+export const getPurchasedCourses = (walletAddress: string) =>
+  http<ApiResponse<any[]>>(`/users/purchasedCourses?walletAddress=${walletAddress}`);

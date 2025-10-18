@@ -22,7 +22,7 @@ interface StakeInfo {
   lastClaimTime: number; // 上次领取收益时间
 }
 
-const YD_CONTRACT_ADDRESS = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
+const YD_CONTRACT_ADDRESS = "0x6Ebb0dAeEA2f89648aa077C57687fC851d199767";
 
 export function useSimpleYDToken({
   address = YD_CONTRACT_ADDRESS,
