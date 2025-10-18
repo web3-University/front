@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useWalletInfo, useWalletSign } from "@web3-university/uni-wallet-lib";
+import { useWalletInfo } from "@web3-university/uni-wallet-lib";
+import { useWalletSign } from "@web3-university/uni-wallet-lib";
 import {
   User,
   Mail,
@@ -23,7 +24,7 @@ interface UserProfile {
 
 export default function UserInfoSection() {
   const { address, isConnected } = useWalletInfo();
-  const { signMessageAsync } = useWalletSign();
+  const { signMessage } = useWalletSign();
 
   const [profile, setProfile] = useState<UserProfile>({
     name: "",
@@ -121,7 +122,8 @@ export default function UserInfoSection() {
       const message = `更新个人信息\n时间戳: ${timestamp}\n钱包地址: ${address}\n名称: ${profile.name}\n邮箱: ${profile.email}`;
 
       // 请求钱包签名
-      const signature = await signMessageAsync({ message });
+      const signResult = await signMessage(message);
+      const signature = signResult.signature;
 
       // 上传头像（如果有新头像）
       let avatarUrl = profile.avatarUrl;
