@@ -40,6 +40,12 @@ export default function UserInfoSection() {
     text: string;
   } | null>(null);
 
+  // 验证码相关状态
+  const [emailCode, setEmailCode] = useState("");
+  const [isSendingCode, setIsSendingCode] = useState(false);
+  const [countdown, setCountdown] = useState(0);
+  const [originalEmail, setOriginalEmail] = useState("");
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 加载用户信息
@@ -49,19 +55,37 @@ export default function UserInfoSection() {
     }
   }, [address]);
 
+  // 倒计时效果
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [countdown]);
+
   const loadUserProfile = async () => {
     try {
-      const data = await http<UserProfile>(`/users/profile?address=${address}`);
-      setProfile({ ...data, walletAddress: address || "" });
+      // 优先从 localStorage 读取用户数据
+      const localUserData = localStorage.getItem("USER");
+      if (localUserData) {
+        try {
+          const userData = JSON.parse(localUserData);
+          // 如果 localStorage 中有数据，直接使用
+          // 注意：localStorage 中的字段名是 username 和 avatar
+          setProfile({
+            name: userData.username || "",
+            email: userData.email || "",
+            avatarUrl: userData.avatar || "",
+            walletAddress: address || "",
+          });
+          setOriginalEmail(userData.email || "");
+          console.log("从 localStorage 加载用户信息成功", userData);
+        } catch (parseError) {
+          console.error("解析 localStorage 用户数据失败:", parseError);
+        }
+      }
     } catch (error) {
       console.error("加载用户信息失败:", error);
-      // 如果加载失败，使用默认值
-      setProfile({
-        name: "",
-        email: "",
-        avatarUrl: "",
-        walletAddress: address || "",
-      });
     }
   };
 
@@ -90,6 +114,41 @@ export default function UserInfoSection() {
     reader.readAsDataURL(file);
   };
 
+  const handleSendCode = async () => {
+    // 验证邮箱格式
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(profile.email)) {
+      setMessage({ type: "error", text: "请输入有效的邮箱地址" });
+      return;
+    }
+
+    setIsSendingCode(true);
+    setMessage(null);
+
+    try {
+      await http("/users/send-email-code", {
+        method: "POST",
+        body: {
+          email: profile.email,
+        },
+      });
+
+      setMessage({ type: "success", text: "验证码已发送，请查收邮箱" });
+      setCountdown(60); // 60秒倒计时
+
+      // 3秒后清除成功消息
+      setTimeout(() => setMessage(null), 3000);
+    } catch (error: any) {
+      console.error("发送验证码失败:", error);
+      setMessage({
+        type: "error",
+        text: error.message || "发送验证码失败，请重试",
+      });
+    } finally {
+      setIsSendingCode(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!isConnected || !address) {
       setMessage({ type: "error", text: "请先连接钱包" });
@@ -110,6 +169,13 @@ export default function UserInfoSection() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(profile.email)) {
       setMessage({ type: "error", text: "请输入有效的邮箱地址" });
+      return;
+    }
+
+    // 检查邮箱是否修改，如果修改了需要验证码
+    const emailChanged = profile.email !== originalEmail;
+    if (emailChanged && !emailCode.trim()) {
+      setMessage({ type: "error", text: "邮箱已修改，请输入邮箱验证码" });
       return;
     }
 
@@ -148,6 +214,7 @@ export default function UserInfoSection() {
           name: profile.name,
           email: profile.email,
           avatarUrl,
+          emailCode: emailChanged ? emailCode : undefined, // 只有修改邮箱时才需要验证码
           signature,
           message,
           timestamp,
@@ -156,6 +223,8 @@ export default function UserInfoSection() {
 
       setMessage({ type: "success", text: "保存成功！" });
       setIsEditing(false);
+      setEmailCode(""); // 清空验证码
+      setOriginalEmail(profile.email); // 更新原始邮箱
 
       // 更新本地头像 URL
       setProfile((prev) => ({ ...prev, avatarUrl }));
@@ -299,16 +368,53 @@ export default function UserInfoSection() {
               <Mail className="h-4 w-4" />
               邮箱
             </label>
-            <input
-              type="email"
-              value={profile.email}
-              onChange={(e) =>
-                setProfile((prev) => ({ ...prev, email: e.target.value }))
-              }
-              disabled={!isEditing}
-              placeholder="请输入您的邮箱"
-              className="w-full rounded-xl border border-[#E0E0E0] bg-white px-4 py-3 text-[#2B2558] transition-all focus:border-[#8A71FF] focus:outline-none focus:ring-2 focus:ring-[#8A71FF]/20 disabled:bg-[#F5F0FF] disabled:text-[#6A6D94]"
-            />
+            <div className="flex gap-2">
+              <input
+                type="email"
+                value={profile.email}
+                onChange={(e) =>
+                  setProfile((prev) => ({ ...prev, email: e.target.value }))
+                }
+                disabled={!isEditing}
+                placeholder="请输入您的邮箱"
+                className="flex-1 rounded-xl border border-[#E0E0E0] bg-white px-4 py-3 text-[#2B2558] transition-all focus:border-[#8A71FF] focus:outline-none focus:ring-2 focus:ring-[#8A71FF]/20 disabled:bg-[#F5F0FF] disabled:text-[#6A6D94]"
+              />
+              {isEditing && (
+                <button
+                  onClick={handleSendCode}
+                  disabled={isSendingCode || countdown > 0 || !profile.email}
+                  className="rounded-xl bg-gradient-to-r from-[#8A71FF] to-[#9D7FFF] px-6 py-3 font-medium text-white shadow-md transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                >
+                  {isSendingCode ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      发送中...
+                    </span>
+                  ) : countdown > 0 ? (
+                    `${countdown}秒后重试`
+                  ) : (
+                    "发送验证码"
+                  )}
+                </button>
+              )}
+            </div>
+
+            {/* 验证码输入框 - 仅在编辑模式且邮箱已修改时显示 */}
+            {isEditing && profile.email !== originalEmail && (
+              <div className="mt-3">
+                <input
+                  type="text"
+                  value={emailCode}
+                  onChange={(e) => setEmailCode(e.target.value)}
+                  placeholder="请输入邮箱验证码"
+                  maxLength={6}
+                  className="w-full rounded-xl border border-[#E0E0E0] bg-white px-4 py-3 text-[#2B2558] transition-all focus:border-[#8A71FF] focus:outline-none focus:ring-2 focus:ring-[#8A71FF]/20"
+                />
+                <p className="mt-2 text-xs text-[#FF9800]">
+                  检测到邮箱已修改，请先发送验证码并填写
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -343,6 +449,8 @@ export default function UserInfoSection() {
               <button
                 onClick={() => {
                   setIsEditing(false);
+                  setEmailCode(""); // 清空验证码
+                  setCountdown(0); // 重置倒计时
                   loadUserProfile(); // 重新加载原始数据
                 }}
                 disabled={isSaving}

@@ -40,6 +40,8 @@ export function useWalletAuth(config: AuthConfig = {}) {
 
   const tokenStorageKey = "AUTH_TOKEN";
   const refreshTokenStorageKey = "REFRESH_TOKEN";
+  const userStorageKey = "USER";
+  const signatureStorageKey = "WALLET_SIGNATURE";
 
   const { signSIWEMessage } = useWalletSign();
   const { address: walletAddress, isConnected } = useWalletConnection();
@@ -130,16 +132,17 @@ export function useWalletAuth(config: AuthConfig = {}) {
 
       // 步骤 3: 验证签名
       updateStatus(SignInStatus.VERIFYING);
-      const { accessToken, refreshToken } = await verifySignature(
+      const { accessToken, refreshToken, user } = await verifySignature(
         walletAddress,
         signature,
         message.toMessage(),
       );
 
-      // 步骤 4: 保存 token
+      // 步骤 4: 保存 token / user / signature
       safeStorage.setItem(tokenStorageKey, accessToken);
       safeStorage.setItem(refreshTokenStorageKey, refreshToken);
-      safeStorage.setItem(`${tokenStorageKey}_address`, walletAddress);
+      safeStorage.setItem(userStorageKey, JSON.stringify(user));
+      safeStorage.setItem(signatureStorageKey, signature);
 
       // 成功
       updateStatus(SignInStatus.SUCCESS);

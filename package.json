@@ -51,9 +51,7 @@
       "biome format --write"
     ]
   },
-  "dependencies": {
-    "siwe": "^3.0.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@biomejs/biome": "^2.2.4",
     "@jest/globals": "30.0.5",

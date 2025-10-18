@@ -36,7 +36,7 @@ interface CourseFormData {
     description: string;
     category: string;
     difficulty: string;
-    coverImage: File | null;
+    coverImage: File | Blob | string | null;
     tags: string[];
     learningGoals: string[];
     prerequisites: string[]; // 添加prerequisites字段

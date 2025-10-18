@@ -41,7 +41,7 @@ export interface ApiResponse<T> {
  * POST /api/users/register
  */
 export const registerUser = (data: RegisterUserDto) =>
-  http<ApiResponse<User>>("/users/register", {
+  http<ApiResponse<User>>("/api/users/register", {
     method: "POST",
     body: data,
   });
