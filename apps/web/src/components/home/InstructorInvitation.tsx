@@ -80,14 +80,14 @@ export default function InstructorInvitation() {
         </div>
 
         <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-          <Link href="/teacher/apply">
+          <Link href="/teacher">
             <Button variant="primary" size="lg">
               立即成为讲师
             </Button>
           </Link>
-          <Link href="/teacher/revenue">
+          <Link href="/course-create">
             <Button variant="secondary" size="lg">
-              了解收益详情
+              了解开课流程
             </Button>
           </Link>
         </div>
