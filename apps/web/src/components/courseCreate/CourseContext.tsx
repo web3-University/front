@@ -1,11 +1,14 @@
 "use client";
-import React, {
+import { useAuth } from "@web3-university/uni-wallet-lib";
+import type React from "react";
+import {
   createContext,
+  type Dispatch,
+  type SetStateAction,
   useContext,
   useState,
-  Dispatch,
-  SetStateAction,
 } from "react";
+import { type CreateCourseDto, createCourse } from "@/lib/api/course";
 
 // 课程内容项类型
 export interface CourseContentItem {
@@ -36,6 +39,7 @@ interface CourseFormData {
     coverImage: File | null;
     tags: string[];
     learningGoals: string[];
+    prerequisites: string[]; // 添加prerequisites字段
   };
   courseContent: CourseContentItem[];
   pricingSetting: PricingSetting;
@@ -47,10 +51,11 @@ interface CourseContextType {
   setFormData: Dispatch<SetStateAction<CourseFormData>>;
   errors: Record<string, string>;
   setErrors: Dispatch<SetStateAction<Record<string, string>>>;
+  isLoading: boolean;
   validateForm: () => boolean;
   saveDraft: () => void;
   previewCourse: () => void;
-  publishCourse: () => void;
+  publishCourse: () => Promise<void>;
   addChapter: () => void;
   removeChapter: (id: string) => void;
   updateChapter: (id: string, updatedData: Partial<CourseContentItem>) => void;
@@ -65,36 +70,55 @@ interface CourseProviderProps {
 }
 
 export const CourseProvider: React.FC<CourseProviderProps> = ({ children }) => {
+  const auth = useAuth();
+
   // 初始状态
-  const [formData, setFormData] = useState<CourseFormData>({
-    basicInfo: {
-      title: "",
-      description: "",
-      category: "",
-      difficulty: "beginner",
-      coverImage: null,
-      tags: [],
-      learningGoals: ["掌握基础"],
-    },
-    courseContent: [
-      {
-        id: "chapter-1",
-        title: "课程介绍",
-        type: "video",
+  const [formData, setFormData] = useState<CourseFormData>(() => {
+    // 尝试从本地存储恢复草稿
+    if (typeof window !== "undefined") {
+      try {
+        const savedDraft = localStorage.getItem("course_draft");
+        if (savedDraft) {
+          return JSON.parse(savedDraft);
+        }
+      } catch (error) {
+        console.error("恢复草稿失败:", error);
+      }
+    }
+
+    // 默认初始状态
+    return {
+      basicInfo: {
+        title: "",
         description: "",
-        videoFile: null,
-        duration: "",
-        isFreePreview: true,
+        category: "",
+        difficulty: "beginner",
+        coverImage: null,
+        tags: [],
+        learningGoals: ["掌握基础"],
+        prerequisites: [], // 添加prerequisites默认值
       },
-    ],
-    pricingSetting: {
-      price: 0,
-      estimatedDuration: "",
-      pricingStrategy: "basic",
-    },
+      courseContent: [
+        {
+          id: "chapter-1",
+          title: "课程介绍",
+          type: "video",
+          description: "",
+          videoFile: null,
+          duration: "",
+          isFreePreview: true,
+        },
+      ],
+      pricingSetting: {
+        price: 0,
+        estimatedDuration: "",
+        pricingStrategy: "basic",
+      },
+    };
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // 表单校验：所有模块（基本信息、课程内容、定价）
   const validateForm = (): boolean => {
@@ -160,10 +184,24 @@ export const CourseProvider: React.FC<CourseProviderProps> = ({ children }) => {
   };
 
   // 快捷操作：保存草稿
-  const saveDraft = () => {
-    if (validateForm()) {
+  const saveDraft = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
+    try {
       console.log("保存草稿：", formData);
-      // 可添加「保存到本地/后端」逻辑
+      // 可以将草稿保存到本地存储或后端
+      localStorage.setItem("course_draft", JSON.stringify(formData));
+
+      // 显示成功提示
+      setErrors((prev) => ({ ...prev, draft: "" })); // 清除之前的错误
+    } catch (error) {
+      console.error("保存草稿失败:", error);
+      setErrors((prev) => ({
+        ...prev,
+        draft: "保存草稿失败，请重试",
+      }));
     }
   };
 
@@ -176,10 +214,60 @@ export const CourseProvider: React.FC<CourseProviderProps> = ({ children }) => {
   };
 
   // 快捷操作：发布课程
-  const publishCourse = () => {
-    if (validateForm()) {
-      console.log("发布课程：", formData);
-      // 可添加「提交到后端」逻辑
+  const publishCourse = async (): Promise<void> => {
+    if (!validateForm()) {
+      return;
+    }
+
+    if (!auth.address) {
+      setErrors((prev) => ({ ...prev, auth: "请先连接钱包" }));
+      return;
+    }
+
+    setIsLoading(true);
+    setErrors({});
+
+    try {
+      // 将formData转换为API所需的格式
+      const createCourseData: CreateCourseDto = {
+        walletAddress: auth.address,
+        title: formData.basicInfo.title,
+        description: formData.basicInfo.description,
+        cover: "https://via.placeholder.com/400x300", // 提供默认的有效URL
+        categories: [formData.basicInfo.category], // 将单个分类转换为数组
+        difficulty:
+          formData.basicInfo.difficulty === "beginner"
+            ? "1"
+            : formData.basicInfo.difficulty === "intermediate"
+              ? "2"
+              : formData.basicInfo.difficulty === "advanced"
+                ? "3"
+                : "1", // 确保难度值有效
+        price: formData.pricingSetting.price.toString(), // 转换为字符串
+        duration: parseInt(formData.pricingSetting.estimatedDuration) || 0,
+        isFree: formData.pricingSetting.price === 0 ? "1" : "0", // 根据价格判断是否免费
+        tags: formData.basicInfo.tags,
+        learningObjectives: formData.basicInfo.learningGoals,
+        prerequisites: formData.basicInfo.prerequisites, // 使用表单中的prerequisites数据
+      };
+
+      console.log("正在创建课程...", createCourseData);
+
+      const response = await createCourse(createCourseData);
+
+      console.log("课程创建成功:", response);
+
+      // 可以添加成功后的处理逻辑，比如跳转到课程详情页
+      // 或者显示成功提示
+    } catch (error) {
+      console.error("创建课程失败:", error);
+      setErrors((prev) => ({
+        ...prev,
+        publish:
+          error instanceof Error ? error.message : "创建课程失败，请重试",
+      }));
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -236,6 +324,7 @@ export const CourseProvider: React.FC<CourseProviderProps> = ({ children }) => {
         setFormData,
         errors,
         setErrors,
+        isLoading,
         validateForm,
         saveDraft,
         previewCourse,

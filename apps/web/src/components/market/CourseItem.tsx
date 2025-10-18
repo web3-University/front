@@ -1,6 +1,6 @@
 import { CourseCard } from "@web3-university/ui";
-import CourseButton from "./CourseButton";
 import { useEffect } from "react";
+import CourseButton from "./CourseButton";
 
 interface CourseItemProps<> {
   course: any;

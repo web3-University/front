@@ -1,7 +1,7 @@
 "use client";
 
+import { Award, Check, Gift } from "lucide-react";
 import { useState } from "react";
-import { Award, Gift, Check } from "lucide-react";
 
 type AchievementRarity = "common" | "rare" | "epic" | "legendary";
 

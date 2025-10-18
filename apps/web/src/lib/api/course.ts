@@ -6,16 +6,21 @@ import { getAuthToken } from "@/lib/utils/storage";
 
 export interface Course {
   id: number;
+  walletAddress?: string;
   title: string;
   description?: string;
   categories: string[];
-  instructorName: string;
-  rating: number;
-  studentCount: number;
+  instructorName?: string;
+  rating?: number;
+  studentCount?: number;
   duration: number;
   difficulty: string;
   price: number;
   cover?: string;
+  isFree?: boolean;
+  tags?: string[];
+  learningObjectives?: string[];
+  prerequisites?: string[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -42,14 +47,18 @@ export interface CourseFilters {
 }
 
 export interface CreateCourseDto {
+  walletAddress: string;
   title: string;
-  description?: string;
+  description: string;
+  cover: string;
   categories: string[];
-  instructorName: string;
-  price: number;
   difficulty: string;
-  duration?: number;
-  cover?: string;
+  price: string;
+  duration: number;
+  isFree: string;
+  tags: string[];
+  learningObjectives: string[];
+  prerequisites: string[];
 }
 
 export interface CreateLessonDto {

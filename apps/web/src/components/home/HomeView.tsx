@@ -1,7 +1,7 @@
-import Hero from "@/components/home/Hero";
-import PlatformAdvantages from "@/components/home/PlatformAdvantages";
 import FeaturedCourses from "@/components/home/FeaturedCourses";
+import Hero from "@/components/home/Hero";
 import InstructorInvitation from "@/components/home/InstructorInvitation";
+import PlatformAdvantages from "@/components/home/PlatformAdvantages";
 import TokenExchange from "@/components/home/TokenExchange";
 
 // 首页主体内容，不含全局布局元素

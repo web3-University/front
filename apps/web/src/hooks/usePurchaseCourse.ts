@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
 import {
-  useWalletConnection,
   useCourseContract,
   useSimpleYDToken,
+  useWalletConnection,
 } from "@web3-university/uni-wallet-lib";
-import { purchaseCourse as purchaseCourseAPI } from "@/lib/api/course";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { formatUnits } from "viem";
+import { purchaseCourse as purchaseCourseAPI } from "@/lib/api/course";
 
 /**
  * 购买状态枚举

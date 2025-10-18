@@ -1,5 +1,5 @@
-import React, { ChangeEvent } from "react";
-import { useCourseContext, CourseContentItem } from "./CourseContext";
+import React, { type ChangeEvent } from "react";
+import { type CourseContentItem, useCourseContext } from "./CourseContext";
 
 const ContentTab = () => {
   const { formData, updateChapter, addChapter, removeChapter, errors } =

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import CourseItem from "@/components/market/CourseItem";
 import { useCourse } from "@/hooks/useCourse";
 import type { Course } from "@/lib/api/course";

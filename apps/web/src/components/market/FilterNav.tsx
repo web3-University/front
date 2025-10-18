@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { CourseFilters } from "@/lib/api/course";
 
 interface FilterNavProps {

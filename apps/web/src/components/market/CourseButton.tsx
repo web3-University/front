@@ -1,5 +1,12 @@
 "use client";
 
+import {
+  useCourseContract,
+  useSimpleYDToken,
+  useWalletConnection,
+  useWalletInfo,
+} from "@web3-university/uni-wallet-lib";
+import { useMemo, useState } from "react";
 import { Button } from "../ui/button";
 
 interface CourseButtonProps {

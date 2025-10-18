@@ -2,7 +2,7 @@
  * DAO 治理相关工具函数
  */
 
-import { Proposal, VoteStats, QuorumStats } from "@/types/dao";
+import type { Proposal, QuorumStats, VoteStats } from "@/types/dao";
 
 /**
  * 计算提案的投票百分比

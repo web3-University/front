@@ -1,6 +1,6 @@
 "use client";
 
-import { Vote, Users, TrendingUp, Award } from "lucide-react";
+import { Award, TrendingUp, Users, Vote } from "lucide-react";
 
 // 模拟数据
 const stats = {

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
 
 // ⭐ 全局标记，不会被清理
 let isQuicklinkInitialized = false;

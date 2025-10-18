@@ -1,11 +1,11 @@
 "use client";
 
-import { Book, Trophy, Flame, Star } from "lucide-react";
-import StatsGrid from "./StatsGrid";
+import { Book, Flame, Star, Trophy } from "lucide-react";
 import ContinueLearning from "./ContinueLearning";
-import WeeklyGoal from "./WeeklyGoal";
 import RecentAchievements from "./RecentAchievements";
 import RecommendedCourses from "./RecommendedCourses";
+import StatsGrid from "./StatsGrid";
+import WeeklyGoal from "./WeeklyGoal";
 
 export default function OverviewTab() {
   const stats = [

@@ -1,14 +1,13 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
-import { ArrowRight, Coins, Shield, Users } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
 import {
   useSimpleYDToken,
   useWalletInfo,
 } from "@web3-university/uni-wallet-lib";
+import { ArrowRight, Coins, Shield, Users } from "lucide-react";
+import { type ReactNode, useMemo, useState } from "react";
 import { formatUnits } from "viem";
+import { Button } from "@/components/ui/button";
 
 const RATE = 4000; // 1 ETH = 4000 YD（测试环境兑换比例）
 
