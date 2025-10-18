@@ -22,7 +22,7 @@ interface StakeInfo {
   lastClaimTime: number; // 上次领取收益时间
 }
 
-const YD_CONTRACT_ADDRESS = "0xA812265c869F2BCB755980677812F253459A0cc7";
+const YD_CONTRACT_ADDRESS = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
 
 export function useSimpleYDToken({
   address = YD_CONTRACT_ADDRESS,
@@ -133,7 +133,13 @@ export function useSimpleYDToken({
   const { data: balance, refetch: refetchBalance } = factory.read(
     "balanceOf",
     enabled && !!userAddress,
-  )();
+  )(userAddress);
+
+  // 调试信息：打印余额和用户地址
+  console.log("📊 [useSimpleYDToken] 合约地址:", address);
+  console.log("📊 [useSimpleYDToken] 用户地址:", userAddress);
+  console.log("📊 [useSimpleYDToken] 余额数据:", balance);
+  console.log("📊 [useSimpleYDToken] enabled:", enabled);
 
   // 读取代币精度
   const { data: decimals } = factory.read("decimals")();
@@ -192,12 +198,11 @@ export function useSimpleYDToken({
    */
   const approve = async (spender: Address, amount: string) => {
     const parsedAmount = parseAmount(amount);
-
-    await prepareRefetchEstimateGas(YD_CONTRACT_ADDRESS, undefined);
-
-    return approveWriter.send(spender, parsedAmount, {
-      gas: gasEstimate,
-    });
+    // await prepareRefetchEstimateGas(YD_CONTRACT_ADDRESS, undefined);
+    // , {
+    //       gas: gasEstimate,
+    //     }
+    return approveWriter.send(spender, parsedAmount);
   };
 
   // 代理转账函数的写入 Hook
