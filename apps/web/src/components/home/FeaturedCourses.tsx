@@ -9,6 +9,7 @@ import type { Course } from "@/lib/api/course";
 export type FeaturedCourse = {
   id: string;
   title: string;
+  description: string;
   category: string;
   instructor: string;
   rating: number;
@@ -69,7 +70,7 @@ export default function FeaturedCourses({ onBuy }: FeaturedCoursesProps) {
   // 当 API 课程数据变化时，映射到前端格式
   useEffect(() => {
     const mappedCourses: FeaturedCourse[] = apiCourses.map((course) => ({
-      id: course.id?.toString(),
+      id: course.courseId.toString(),
       title: course.title,
       description: course.description,
       category: course.categories?.[0] || "未分类",
@@ -78,7 +79,10 @@ export default function FeaturedCourses({ onBuy }: FeaturedCoursesProps) {
       students: course.studentCount || 0,
       duration: course.duration || 0,
       difficulty: course.difficulty || "1",
-      price: course.price || 0,
+      price:
+        typeof course.price === "string"
+          ? parseFloat(course.price)
+          : course.price || 0,
       coverColor: course.cover || "from-[#4B6CFF] to-[#7EE7FF]",
     }));
     setCourses(mappedCourses);
