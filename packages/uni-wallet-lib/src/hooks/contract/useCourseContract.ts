@@ -7,7 +7,7 @@ import { contractFactory } from "./contractFactory";
 import type { UseContractReadReturn } from "./useContractRead";
 
 const COURSE_CONTRACT_ADDRESS: Address =
-  "0x0a42F4f8Cb23460BDeD2e18475920Bdb6df5641d";
+  "0x1Af44F76cbF12d18Cb01C92d4076Da41e9B826EF";
 
 /**
  * 课程信息结构体

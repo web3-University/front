@@ -19,7 +19,7 @@ export function Providers({ children }: { children: ReactNode }) {
   const authConfig: AuthConfig = {
     // TODO: 配置 auth 相关参数
     /** 配置接口域名 */
-    domain: "http://localhost:3000",
+    domain: "http://192.168.6.179:3000",
     /** 接口base url */
     apiBaseUrl: "/api/v1/auth",
     /** 配置localstorage存储token的key */

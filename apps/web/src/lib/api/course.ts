@@ -7,23 +7,33 @@ import { getAuthToken } from "@/lib/utils/storage";
 export interface Course {
   courseId: any;
   id: number;
+  courseId: number;
   walletAddress?: string;
   title: string;
   description?: string;
   categories: string[];
-  instructorName?: string;
+  instructorId?: number; // 讲师ID
+  instructorName?: string; // 讲师名称
   rating?: number;
   studentCount?: number;
   duration: number;
   difficulty: string;
-  price: number;
+  price: number | string; // 支持字符串格式的价格
   cover?: string;
-  isFree?: boolean;
+  isFree?: boolean | string; // 支持字符串格式："0" | "1"
+  status?: string; // 课程状态
   tags?: string[];
   learningObjectives?: string[];
   prerequisites?: string[];
+  lessons?: Lesson[];
   createdAt?: string;
   updatedAt?: string;
+  // 列表接口额外字段
+  lessonCount?: number;
+  reviewCount?: number;
+  purchaseCount?: number;
+  completionCount?: number;
+  averageRating?: number;
 }
 
 export interface Lesson {

@@ -22,9 +22,10 @@ export interface RegisterUserDto {
   walletAddress: string;
   username: string;
   email: string;
-  avatar: string;
+  avatar?: string;
   bio: string;
   specializations: string[];
+  isInstructorRegistered?: boolean;
 }
 
 export interface ApiResponse<T> {
@@ -40,7 +41,7 @@ export interface ApiResponse<T> {
  * POST /api/users/register
  */
 export const registerUser = (data: RegisterUserDto) =>
-  http<ApiResponse<User>>("/users/register", {
+  http<ApiResponse<User>>("/api/users/register", {
     method: "POST",
     body: data,
   });

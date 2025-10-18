@@ -7,6 +7,8 @@ import {
 } from "@web3-university/uni-wallet-lib";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { formatUnits } from "viem";
+import { COURSE_CONTRACT_ADDRESS } from "@/config";
+import { CONTRACTS, TOKEN_DECIMALS } from "@/config/contracts";
 import { purchaseCourse as purchaseCourseAPI } from "@/lib/api/course";
 
 /**
@@ -81,9 +83,6 @@ export interface UsePurchaseCourseReturn {
 export function usePurchaseCourse(): UsePurchaseCourseReturn {
   // 钱包连接状态
   const { address: walletAddress, isConnected } = useWalletConnection();
-  // 课程合约地址
-  const COURSE_CONTRACT_ADDRESS =
-    "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512" as `0x${string}`;
 
   // YD Token 合约交互
   const {
@@ -100,8 +99,8 @@ export function usePurchaseCourse(): UsePurchaseCourseReturn {
   // 课程合约交互
   const { purchaseCourse: purchaseCourseContract, purchaseCourseReceipt } =
     useCourseContract({
-      address: COURSE_CONTRACT_ADDRESS,
-      tokenDecimals: 18,
+      address: CONTRACTS.COURSE_CONTRACT,
+      tokenDecimals: TOKEN_DECIMALS,
     });
 
   // 本地状态
@@ -218,7 +217,7 @@ export function usePurchaseCourse(): UsePurchaseCourseReturn {
 
         if (!tokenBalance || tokenBalance < coursePrice) {
           throw new Error(
-            `YD Token 余额不足。需要 ${formatUnits(coursePrice, 18)} YD，当前余额 ${formatUnits(tokenBalance, 18)} YD`,
+            `YD Token 余额不足。需要 ${formatUnits(coursePrice, 18)} YD，当前余额 ${tokenBalance ? formatUnits(tokenBalance, 18) : tokenBalance} YD`,
           );
         }
 
@@ -234,7 +233,7 @@ export function usePurchaseCourse(): UsePurchaseCourseReturn {
 
           const approveAmountStr = formatUnits(approveAmount, 18);
           const approveResult = await approve(
-            COURSE_CONTRACT_ADDRESS,
+            CONTRACTS.COURSE_CONTRACT,
             approveAmountStr,
           );
           if (!approveResult) {
@@ -273,7 +272,6 @@ export function usePurchaseCourse(): UsePurchaseCourseReturn {
       refetchAllowance,
       purchaseCourseContract,
       purchaseCourseReceipt,
-      COURSE_CONTRACT_ADDRESS,
     ],
   );
   return {

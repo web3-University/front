@@ -1,4 +1,5 @@
 import { CourseCard } from "@web3-university/ui";
+import { useRouter } from "next/navigation";
 import CourseButton from "./CourseButton";
 
 interface CourseItemProps {
@@ -25,8 +26,12 @@ const CourseItem: React.FC<CourseItemProps> = ({
   onPurchaseSuccess,
   onPurchaseError,
 }) => {
+  const router = useRouter();
+  const handleCourseDetail = (course: any) => {
+    router.push(`/course/${course.id}`);
+  };
   return (
-    <CourseCard course={course}>
+    <CourseCard course={course} onDetail={handleCourseDetail}>
       <CourseButton
         courseId={course.id}
         coursePrice={course.price}

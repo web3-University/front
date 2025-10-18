@@ -133,7 +133,8 @@ export async function http<T>(
   }: HttpOptions = {},
 ): Promise<T> {
   const url = path.startsWith("http") ? path : `${BASE_URL}${path}`;
-  const isJson = body !== undefined;
+  const isFormData = body instanceof FormData;
+  const isJson = body !== undefined && !isFormData;
 
   // 如果没有提供 token，尝试从存储中获取
   let authToken = token;
@@ -144,11 +145,12 @@ export async function http<T>(
   let requestOptions: RequestInit = {
     method,
     headers: {
+      // FormData 不需要手动设置 Content-Type，浏览器会自动设置正确的 boundary
       ...(isJson ? { "Content-Type": "application/json" } : {}),
       Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIweGFhY2VmZDM0YmU4ZDgyMzE1YTNhY2ZjM2NkZjg4OTc4Njc4YjE4YzQiLCJ1c2VySWQiOjQ2LCJ1c2VybmFtZSI6IlVzZXJfMHhhYWNlZmQiLCJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNzYwNzgxMjE3LCJleHAiOjE3NjA3ODIxMTd9.mquZ2441MbKS7UcW7C8ZRjfJ2mZowNh3vlzFyKk4y-U`,
       ...headers,
     },
-    body: isJson ? JSON.stringify(body) : undefined,
+    body: isJson ? JSON.stringify(body) : isFormData ? body : undefined,
     ...nextOptions,
   };
 
