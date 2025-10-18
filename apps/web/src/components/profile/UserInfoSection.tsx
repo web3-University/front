@@ -59,8 +59,8 @@ export default function UserInfoSection() {
   } | null>(null);
 
   // 验证码相关状态
-  const [emailCode, setEmailCode] = useState("");
-  const [isSendingCode, setIsSendingCode] = useState(false);
+  const [_emailCode, setEmailCode] = useState("");
+  const [_isSendingCode, setIsSendingCode] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const [originalEmail, setOriginalEmail] = useState("");
 
@@ -132,7 +132,7 @@ export default function UserInfoSection() {
     reader.readAsDataURL(file);
   };
 
-  const handleSendCode = async () => {
+  const _handleSendCode = async () => {
     // 验证邮箱格式
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(profile.email)) {
@@ -200,11 +200,12 @@ export default function UserInfoSection() {
     }
 
     // 检查邮箱是否修改，如果修改了需要验证码
-    const emailChanged = profile.email !== originalEmail;
-    if (emailChanged && !emailCode.trim()) {
-      setMessage({ type: "error", text: "邮箱已修改，请输入邮箱验证码" });
-      return;
-    }
+    const _emailChanged = profile.email !== originalEmail;
+    // 暂时禁用邮箱验证码验证
+    // if (emailChanged && !emailCode.trim()) {
+    //   setMessage({ type: "error", text: "邮箱已修改，请输入邮箱验证码" });
+    //   return;
+    // }
 
     setIsSaving(true);
     setMessage(null);
@@ -254,7 +255,9 @@ export default function UserInfoSection() {
           username: profile.name,
           avatar: avatarUrl,
           email: profile.email,
-          verificationCode: emailChanged ? emailCode : undefined, // 只有修改邮箱时才需要验证码
+          // 暂时禁用邮箱验证码
+          // verificationCode: emailChanged ? emailCode : undefined, // 只有修改邮箱时才需要验证码
+          verificationCode: undefined, // 暂时不传验证码
           signature,
           message,
           timestamp,
@@ -427,7 +430,8 @@ export default function UserInfoSection() {
                 placeholder="请输入您的邮箱"
                 className="flex-1 rounded-xl border border-[#E0E0E0] bg-white px-4 py-3 text-[#2B2558] transition-all focus:border-[#8A71FF] focus:outline-none focus:ring-2 focus:ring-[#8A71FF]/20 disabled:bg-[#F5F0FF] disabled:text-[#6A6D94]"
               />
-              {isEditing && (
+              {/* 暂时禁用发送验证码功能 */}
+              {/* {isEditing && (
                 <button
                   onClick={handleSendCode}
                   disabled={isSendingCode || countdown > 0 || !profile.email}
@@ -444,11 +448,12 @@ export default function UserInfoSection() {
                     "发送验证码"
                   )}
                 </button>
-              )}
+              )} */}
             </div>
 
+            {/* 暂时禁用验证码输入框 */}
             {/* 验证码输入框 - 仅在编辑模式且邮箱已修改时显示 */}
-            {isEditing && profile.email !== originalEmail && (
+            {/* {isEditing && profile.email !== originalEmail && (
               <div className="mt-3">
                 <input
                   type="text"
@@ -462,7 +467,7 @@ export default function UserInfoSection() {
                   检测到邮箱已修改，请先发送验证码并填写
                 </p>
               </div>
-            )}
+            )} */}
           </div>
         </div>
 
