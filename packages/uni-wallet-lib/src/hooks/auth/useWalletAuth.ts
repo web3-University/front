@@ -1,13 +1,13 @@
-import { useState, useCallback } from "react";
-import { useWalletConnection } from "../wallet/useWalletConnection";
-import { useWalletSign } from "./useWalletSign";
-import { safeStorage } from "../../utils/safeStorage";
+import { useCallback, useState } from "react";
 import type {
   AuthConfig,
   NonceResponse,
   VerifyResponse,
 } from "../../types/auth";
 import { SignInStatus } from "../../types/auth";
+import { safeStorage } from "../../utils/safeStorage";
+import { useWalletConnection } from "../wallet/useWalletConnection";
+import { useWalletSign } from "./useWalletSign";
 
 /**
  * 钱包认证 Hook

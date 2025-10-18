@@ -9,6 +9,7 @@ import type { Course } from "@/lib/api/course";
 export type FeaturedCourse = {
   id: string;
   title: string;
+  description: string; // 添加description字段
   category: string;
   instructor: string;
   rating: number;
@@ -68,19 +69,21 @@ export default function FeaturedCourses({ onBuy }: FeaturedCoursesProps) {
 
   // 当 API 课程数据变化时，映射到前端格式
   useEffect(() => {
-    const mappedCourses: FeaturedCourse[] = apiCourses.map((course) => ({
-      id: course.id?.toString(),
-      title: course.title,
-      description: course.description,
-      category: course.categories?.[0] || "未分类",
-      instructor: course.instructorName || "未知讲师",
-      rating: course.rating || 0,
-      students: course.studentCount || 0,
-      duration: course.duration || 0,
-      difficulty: course.difficulty || "1",
-      price: course.price || 0,
-      coverColor: course.cover || "from-[#4B6CFF] to-[#7EE7FF]",
-    }));
+    const mappedCourses: FeaturedCourse[] = apiCourses
+      .map((course, index) => ({
+        id: course.id?.toString() || `course-${index}`, // 确保每个课程都有有效的id
+        title: course.title,
+        description: course.description || "暂无描述", // 提供默认值
+        category: course.categories?.[0] || "未分类",
+        instructor: course.instructorName || "未知讲师",
+        rating: course.rating || 0,
+        students: course.studentCount || 0,
+        duration: course.duration || 0,
+        difficulty: course.difficulty || "1",
+        price: course.price || 0,
+        coverColor: course.cover || "from-[#4B6CFF] to-[#7EE7FF]",
+      }))
+      .filter((course) => course.id && course.title); // 过滤掉无效的课程数据
     setCourses(mappedCourses);
   }, [apiCourses]);
 

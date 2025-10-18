@@ -45,7 +45,6 @@ async function refreshAccessToken(): Promise<string | null> {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${refreshToken}`,
         },
       });
 
@@ -146,7 +145,7 @@ export async function http<T>(
     method,
     headers: {
       ...(isJson ? { "Content-Type": "application/json" } : {}),
-      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+      Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIweGFhY2VmZDM0YmU4ZDgyMzE1YTNhY2ZjM2NkZjg4OTc4Njc4YjE4YzQiLCJ1c2VySWQiOjQ2LCJ1c2VybmFtZSI6IlVzZXJfMHhhYWNlZmQiLCJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNzYwNzgxMjE3LCJleHAiOjE3NjA3ODIxMTd9.mquZ2441MbKS7UcW7C8ZRjfJ2mZowNh3vlzFyKk4y-U`,
       ...headers,
     },
     body: isJson ? JSON.stringify(body) : undefined,
@@ -162,6 +161,7 @@ export async function http<T>(
       const response = await fetch(url, requestOptions);
 
       // 处理 401 未授权错误
+      console.log("response.status:", response.status);
       if (response.status === 401 && !skipAuth && !hasTriedRefresh) {
         console.warn("收到 401 响应，尝试刷新令牌...");
         hasTriedRefresh = true;

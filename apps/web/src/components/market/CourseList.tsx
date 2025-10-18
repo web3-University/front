@@ -10,6 +10,7 @@ import FilterNav from "./FilterNav";
 export type FeaturedCourse = {
   id: string;
   title: string;
+  description: string;
   category: string;
   instructor: string;
   rating: number;
@@ -19,39 +20,6 @@ export type FeaturedCourse = {
   price: number;
   coverColor: string;
 };
-
-// const _fallbackCourses: FeaturedCourse[] = [
-//   {
-//     id: 'intro-chain',
-//     title: '区块链开发入门',
-//     category: '编程',
-//     instructor: '李教授',
-//     rating: 4.9,
-//     students: 1250,
-//     price: 299,
-//     coverColor: 'from-[#4B6CFF] to-[#7EE7FF]'
-//   },
-//   {
-//     id: 'web3-frontend',
-//     title: 'Web3 前端开发实战',
-//     category: '前端',
-//     instructor: '张老师',
-//     rating: 4.8,
-//     students: 890,
-//     price: 399,
-//     coverColor: 'from-[#FF9F7B] to-[#FFD56F]'
-//   },
-//   {
-//     id: 'smart-contract-security',
-//     title: '智能合约安全审计',
-//     category: '安全',
-//     instructor: '王专家',
-//     rating: 4.9,
-//     students: 567,
-//     price: 599,
-//     coverColor: 'from-[#7E64FF] to-[#B79BFF]'
-//   }
-// ]
 
 const CourseList = () => {
   // 使用 useCourse hook 管理课程数据
@@ -94,19 +62,23 @@ const CourseList = () => {
 
   // 当 API 课程数据变化时，映射到前端格式
   useEffect(() => {
-    const mappedCourses: FeaturedCourse[] = apiCourses.map((course) => ({
-      id: course.id?.toString() || course.courseId?.toString() || "",
-      title: course.title,
-      description: course.description,
-      category: course.categories?.[0] || "未分类",
-      instructor: course.instructorName || "未知讲师",
-      rating: course.rating || 0,
-      students: course.studentCount || 0,
-      duration: course.duration || 0,
-      difficulty: course.difficulty || "1",
-      price: course.price || 0,
-      coverColor: course.cover || "from-[#4B6CFF] to-[#7EE7FF]",
-    }));
+    const mappedCourses: FeaturedCourse[] = apiCourses.map((course) => {
+      // 确保price字段有有效值
+      console.log("course:", course);
+      return {
+        id: course.courseId?.toString() || "",
+        title: course.title || "未知课程",
+        description: course.description || "暂无描述",
+        category: course.categories?.[0] || "未分类",
+        instructor: course.instructorName || "未知讲师",
+        rating: course.rating || 0,
+        students: course.studentCount || 0,
+        duration: course.duration || 0,
+        difficulty: course.difficulty || "1",
+        price: Number(course.price),
+        coverColor: course.cover || "from-[#4B6CFF] to-[#7EE7FF]",
+      };
+    });
     setCourses(mappedCourses);
   }, [apiCourses]);
 
@@ -134,8 +106,13 @@ const CourseList = () => {
       console.log("准备购买课程:", course.id, course);
 
       try {
+        // 检查课程价格是否存在
+        if (course.price === undefined || course.price === null) {
+          throw new Error("课程价格信息缺失");
+        }
+
         // 将课程 ID 转换为 bigint
-        const courseId = BigInt(course.id || 1);
+        const courseId = BigInt(course.id || "1");
         // 将价格转换为 bigint（18位精度）
         const coursePrice = parseUnits(course.price.toString(), 18);
 
@@ -234,8 +211,14 @@ const CourseList = () => {
           <CourseItem
             key={course.id}
             course={course}
-            onPurchase={handlePurchase}
-            isPurchasing={isPurchasing && course.id === purchasingCourseId}
+            onPurchaseSuccess={(transactionHash) => {
+              console.log("购买成功:", transactionHash);
+              // 可以在这里添加成功后的处理逻辑，比如刷新课程列表
+            }}
+            onPurchaseError={(error) => {
+              console.error("购买失败:", error);
+              // 可以在这里添加错误处理逻辑，比如显示错误提示
+            }}
           />
         ))}
       </div>

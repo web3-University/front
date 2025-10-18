@@ -1,12 +1,12 @@
-import { parseUnits, parseEther } from "viem";
-import type { Address } from "viem";
-import { contractFactory } from "./contractFactory";
-import type { WriteReturnType } from "./contractFactory";
-import { SIMPLE_YD_TOKEN_ABI } from "../../contract";
-import type { UseContractReadReturn } from "./useContractRead";
-import { useAccount, useEstimateGas } from "wagmi";
-import type { UseWaitForTransactionReceiptReturnType as ReceiptReturnType } from "wagmi";
 import { useState } from "react";
+import type { Address } from "viem";
+import { parseEther, parseUnits } from "viem";
+import type { UseWaitForTransactionReceiptReturnType as ReceiptReturnType } from "wagmi";
+import { useAccount, useEstimateGas } from "wagmi";
+import { SIMPLE_YD_TOKEN_ABI } from "../../contract";
+import type { WriteReturnType } from "./contractFactory";
+import { contractFactory } from "./contractFactory";
+import type { UseContractReadReturn } from "./useContractRead";
 
 interface UseSimpleYDTokenProps {
   address?: Address; // YD币合约地址 默认：0xA812265c869F2BCB755980677812F253459A0cc7
@@ -22,7 +22,8 @@ interface StakeInfo {
   lastClaimTime: number; // 上次领取收益时间
 }
 
-const YD_CONTRACT_ADDRESS = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
+// const YD_CONTRACT_ADDRESS = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
+const YD_CONTRACT_ADDRESS = "0x6Ebb0dAeEA2f89648aa077C57687fC851d199767";
 
 export function useSimpleYDToken({
   address = YD_CONTRACT_ADDRESS,
@@ -134,12 +135,6 @@ export function useSimpleYDToken({
     "balanceOf",
     enabled && !!userAddress,
   )(userAddress);
-
-  // 调试信息：打印余额和用户地址
-  console.log("📊 [useSimpleYDToken] 合约地址:", address);
-  console.log("📊 [useSimpleYDToken] 用户地址:", userAddress);
-  console.log("📊 [useSimpleYDToken] 余额数据:", balance);
-  console.log("📊 [useSimpleYDToken] enabled:", enabled);
 
   // 读取代币精度
   const { data: decimals } = factory.read("decimals")();
