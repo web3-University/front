@@ -263,7 +263,7 @@ const BasicInfoTab = () => {
               选择课程分类
             </option>
             {courseCategories.map((c) => (
-              <option key={c.value} value={c.value}>
+              <option key={c.label} value={c.label}>
                 {c.label}
               </option>
             ))}
