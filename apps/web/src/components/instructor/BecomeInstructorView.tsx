@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import type { LucideIcon } from "lucide-react";
@@ -83,6 +84,7 @@ type InstructorFormData = {
 
 export default function BecomeInstructorView() {
   const { isAuthenticated, address } = useAuth();
+  const router = useRouter();
   const [formData, setFormData] = useState<InstructorFormData>({
     name: "",
     email: "",
@@ -166,6 +168,7 @@ export default function BecomeInstructorView() {
           status: "success",
           message: "注册成功！讲师中心已创建，您可以开始发布课程。",
         });
+        router.push("/course-create");
       } catch (error) {
         console.error("instructor registration failed", error);
         setSubmitState({
@@ -182,6 +185,7 @@ export default function BecomeInstructorView() {
       isAuthenticated,
       isFormComplete,
       isSubmitting,
+      router,
       registerUser,
     ],
   );
