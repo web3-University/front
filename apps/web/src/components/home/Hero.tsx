@@ -14,7 +14,7 @@ const goToMartet = () => {
   window.location.href = "/market";
 };
 const createTeacherAccount = () => {
-  window.location.href = "/course-create";
+  window.location.href = "/teacher";
 };
 // 主页顶部大横幅组件
 export default function Hero() {

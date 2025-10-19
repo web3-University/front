@@ -21,13 +21,12 @@ export interface User {
 export interface RegisterUserDto {
   walletAddress: string;
   username: string;
-  email: string;
+  email?: string;
   avatar?: string;
-  bio: string;
-  specializations: string[];
+  bio?: string;
+  specializations?: string[];
   isInstructorRegistered?: boolean;
 }
-
 export interface ApiResponse<T> {
   data: T;
   message?: string;
@@ -62,3 +61,12 @@ export const updateUserProfile = (data: Partial<RegisterUserDto>) =>
     method: "PUT",
     body: data,
   });
+
+/**
+ * 判断用户是否已注册
+ * GET /api/users/isRegistered
+ */
+export const checkUserRegistered = (walletAddress: string) =>
+  http<ApiResponse<boolean>>(
+    `/users/isRegistered?walletAddress=${walletAddress}`,
+  );
