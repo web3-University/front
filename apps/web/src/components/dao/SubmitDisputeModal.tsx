@@ -116,6 +116,14 @@ export default function SubmitDisputeModal({
   const [description, setDescription] = useState("");
 
   if (!isOpen) return null;
+  // 每次打开模态框时清空输入框
+  useEffect(() => {
+    if (isOpen) {
+      setType("内容质量");
+      setTarget("");
+      setDescription("");
+    }
+  }, [isOpen]);
 
   const handleSubmit = () => {
     if (!target.trim() || !description.trim()) return;
