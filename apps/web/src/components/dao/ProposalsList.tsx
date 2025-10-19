@@ -21,6 +21,7 @@ import {
 } from "@web3-university/uni-wallet-lib";
 import { formatUnits, parseUnits } from "viem";
 import { CONTRACTS, TOKEN_DECIMALS } from "@/config/contracts";
+import { createProposal, getProposals, vote } from "@/lib/api/dao";
 
 // 模拟数据
 const mockProposals: DaoByStatus = {
@@ -115,6 +116,8 @@ export default function ProposalsList() {
 
   const [isCreating, setIsCreating] = useState(false);
 
+  const [proposalsList, setProposalsList] = useState<Proposal[]>([]);
+
   // YD Token 合约交互
   const {
     allowance,
@@ -128,8 +131,9 @@ export default function ProposalsList() {
     enabled: true,
   });
 
-  const createProposal = async (newProposal: any) => {
+  const createProposalFn = async (newProposal: any) => {
     console.log(newProposal, "rucan--");
+    const { title, type, description } = newProposal;
     if (isCreating) return; // 防止重复点击
     setIsCreating(true);
 
@@ -193,6 +197,13 @@ export default function ProposalsList() {
       }
 
       // 开始调接口
+      const res = await createProposal({
+        courseId: 50, //TODO:
+        reason: description,
+        proposerWallet: CREATEPROPOSAL_CONTRACT_ADDRESS,
+        proposalDeposit: 1000,
+      });
+      console.log(res, "res---");
 
       //调用智能合约创建提案
       // const createResult = await crateProposalContract({
@@ -217,6 +228,25 @@ export default function ProposalsList() {
     } finally {
       setIsCreating(false);
     }
+  };
+
+  // 创建投票
+  const creatVoteFn = async (proposalId: number, option: number) => {
+    await vote(1, {
+      option: 1,
+      voterWallet: CREATEPROPOSAL_CONTRACT_ADDRESS,
+      votingPower: "1000",
+    });
+  };
+
+  //获取列表
+  const getProposalsFn = async () => {
+    const res: any = await getProposals({ page: 1, limit: 100 });
+    if (res?.success && res.data?.proposals) {
+      setProposalsList(res.data.proposals);
+      console.log(res.data.proposals, "proposals---");
+    }
+    console.log(res, "res---");
   };
 
   return (
@@ -293,13 +323,13 @@ export default function ProposalsList() {
       <SubmitProposalModal
         isOpen={showNewProposal}
         onClose={() => setShowNewProposal(false)}
-        onSubmit={createProposal}
+        onSubmit={createProposalFn}
       />
 
       <SubmitDisputeModal
         isOpen={showNewDispute}
         onClose={() => setShowNewDispute(false)}
-        onSubmit={createProposal}
+        onSubmit={createProposalFn}
       />
     </section>
   );

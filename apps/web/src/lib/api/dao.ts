@@ -39,7 +39,7 @@ export interface Proposal {
   courseId: number;
   proposerWallet: string;
   reason: string;
-  proposalDeposit: string;
+  proposalDeposit?: number;
   votingStartTime: string;
   votingEndTime: string;
   forVotes: string;
@@ -57,7 +57,7 @@ export interface CreateProposalRequest {
   courseId: number;
   reason: string;
   proposerWallet: string;
-  proposalDeposit: string;
+  proposalDeposit?: number;
 }
 
 /** 投票请求 */
@@ -139,7 +139,7 @@ export interface CancelProposalResponse {
 
 /** DAO 配置 */
 export interface DAOConfig {
-  proposalDeposit: string;
+  proposalDeposit?: number;
   minVotingPower: string;
   votingPeriod: number;
   quorumPercentage: number;
