@@ -22,6 +22,70 @@ interface NFT {
   }[];
 }
 
+// API 返回的证书数据结构
+interface CertificateResponse {
+  certificateId: number;
+  tokenId: string;
+  contractAddress: string;
+  userId: number;
+  walletAddress: string;
+  courseId: number;
+  completionDate: string;
+  metadata: string;
+  nftUrl: string;
+  transactionHash: string;
+  blockNumber: number;
+  createdAt: string;
+  updatedAt: string;
+  course: {
+    courseId: number;
+    title: string;
+    description: string;
+    cover: string;
+    difficulty: string;
+    price: string;
+    duration: number;
+    rating: number;
+    categories: string[];
+    tags: string[];
+    learningObjectives: string[];
+    prerequisites: string[];
+  };
+}
+
+// 根据难度等级确定稀有度
+function getDifficultyRarity(difficulty: string): NFTRarity {
+  const difficultyNum = Number.parseInt(difficulty);
+  if (difficultyNum >= 4) return "legendary";
+  if (difficultyNum === 3) return "epic";
+  if (difficultyNum === 2) return "rare";
+  return "common";
+}
+
+// 将 API 数据转换为展示数据
+function transformCertificateToNFT(cert: CertificateResponse): NFT {
+  return {
+    id: cert.certificateId,
+    tokenId: cert.tokenId,
+    name: `${cert.course.title} - 课程证书`,
+    description: cert.course.description || "完成课程学习获得的成就证书",
+    imageUrl: cert.nftUrl || cert.course.cover || "🏆",
+    rarity: getDifficultyRarity(cert.course.difficulty),
+    contractAddress: cert.contractAddress,
+    obtainedDate: new Date(cert.completionDate).toLocaleDateString("zh-CN"),
+    attributes: [
+      { trait_type: "课程名称", value: cert.course.title },
+      { trait_type: "难度", value: `Level ${cert.course.difficulty}` },
+      { trait_type: "时长", value: `${cert.course.duration} 小时` },
+      {
+        trait_type: "分类",
+        value: cert.course.categories[0] || "General",
+      },
+      { trait_type: "评分", value: `${cert.course.rating}/5` },
+    ],
+  };
+}
+
 const rarityConfig: Record<
   NFTRarity,
   { label: string; color: string; borderColor: string; bgGradient: string }
@@ -67,12 +131,14 @@ export default function NFTGallery() {
   const loadNFTs = async () => {
     setIsLoading(true);
     try {
-      const data = await http<NFT[]>(
+      const data = await http<CertificateResponse[]>(
         `/certificates/user?walletAddress=${address}`,
       );
       // 确保返回的数据是数组，如果不是则设置为空数组
       if (Array.isArray(data)) {
-        setNfts(data);
+        // 将 API 数据转换为展示数据
+        const transformedNFTs = data.map(transformCertificateToNFT);
+        setNfts(transformedNFTs);
       } else {
         console.warn("NFT接口返回的数据格式不正确:", data);
         setNfts([]);

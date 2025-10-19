@@ -269,6 +269,23 @@ export default function UserInfoSection() {
         },
       });
 
+      // 更新 localStorage 中的 USER 数据
+      try {
+        const localUserData = localStorage.getItem("USER");
+        if (localUserData) {
+          const userData = JSON.parse(localUserData);
+          // 更新用户信息
+          userData.avatar = avatarUrl;
+          userData.email = profile.email;
+          userData.username = profile.name;
+          // 写回 localStorage
+          localStorage.setItem("USER", JSON.stringify(userData));
+          console.log("localStorage USER 数据已更新:", userData);
+        }
+      } catch (storageError) {
+        console.error("更新 localStorage 失败:", storageError);
+      }
+
       setMessage({ type: "success", text: "保存成功！" });
       setIsEditing(false);
       setEmailCode(""); // 清空验证码
