@@ -145,14 +145,14 @@ export default function UserInfoSection() {
 
     try {
       console.log("发送验证码请求:", {
-        url: "/api/users/profile/email-code",
+        url: "/users/profile/email-code",
         body: {
           walletAddress: address,
           email: profile.email,
         },
       });
 
-      await http("/api/users/profile/email-code", {
+      await http("/users/profile/email-code", {
         method: "POST",
         body: {
           walletAddress: address,
@@ -237,18 +237,15 @@ export default function UserInfoSection() {
         formData.append("file", blob, "avatar.jpg");
         formData.append("fileType", "avatar");
 
-        const uploadResult = await http<{ url: string }>(
-          "/api/storage/upload",
-          {
-            method: "POST",
-            body: formData,
-          },
-        );
+        const uploadResult = await http<{ url: string }>("/storage/upload", {
+          method: "POST",
+          body: formData,
+        });
         avatarUrl = uploadResult.url;
       }
 
       // 保存用户信息
-      await http("/api/users/profile", {
+      await http("/users/profile", {
         method: "PUT",
         body: {
           walletAddress: address,

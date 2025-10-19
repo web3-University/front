@@ -68,56 +68,19 @@ export default function NFTGallery() {
     setIsLoading(true);
     try {
       const data = await http<NFT[]>(
-        `/api/certificates/user?walletAddress=${address}`,
+        `/certificates/user?walletAddress=${address}`,
       );
-      setNfts(data);
+      // 确保返回的数据是数组，如果不是则设置为空数组
+      if (Array.isArray(data)) {
+        setNfts(data);
+      } else {
+        console.warn("NFT接口返回的数据格式不正确:", data);
+        setNfts([]);
+      }
     } catch (error) {
       console.error("加载NFT失败:", error);
-      // 使用模拟数据作为示例
-      setNfts([
-        {
-          id: 1,
-          tokenId: "1",
-          name: "Web3 Pioneer",
-          description: "完成第一门课程的成就NFT",
-          imageUrl: "🏆",
-          rarity: "rare",
-          contractAddress: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
-          obtainedDate: "2024-01-15",
-          attributes: [
-            { trait_type: "Type", value: "Achievement" },
-            { trait_type: "Course", value: "DeFi Basics" },
-          ],
-        },
-        {
-          id: 2,
-          tokenId: "2",
-          name: "Smart Contract Master",
-          description: "完成10门智能合约课程",
-          imageUrl: "💎",
-          rarity: "epic",
-          contractAddress: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
-          obtainedDate: "2024-02-20",
-          attributes: [
-            { trait_type: "Type", value: "Achievement" },
-            { trait_type: "Courses Completed", value: "10" },
-          ],
-        },
-        {
-          id: 3,
-          tokenId: "3",
-          name: "Early Supporter",
-          description: "平台早期支持者专属NFT",
-          imageUrl: "🌟",
-          rarity: "legendary",
-          contractAddress: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
-          obtainedDate: "2024-01-01",
-          attributes: [
-            { trait_type: "Type", value: "Special" },
-            { trait_type: "Edition", value: "Genesis" },
-          ],
-        },
-      ]);
+      // 接口失败时设置为空数组，避免 .map() 报错
+      setNfts([]);
     } finally {
       setIsLoading(false);
     }
@@ -215,7 +178,9 @@ export default function NFTGallery() {
               {/* 稀有度标签 */}
               <div className="mb-3 flex justify-center">
                 <span
-                  className={`rounded-full border ${rarityConfig[nft.rarity].color} border-current px-3 py-1 text-xs font-bold tracking-wider`}
+                  className={`rounded-full border ${
+                    rarityConfig[nft.rarity].color
+                  } border-current px-3 py-1 text-xs font-bold tracking-wider`}
                 >
                   {rarityConfig[nft.rarity].label}
                 </span>
@@ -259,7 +224,9 @@ export default function NFTGallery() {
                   {selectedNFT.name}
                 </h3>
                 <span
-                  className={`mt-2 inline-block rounded-full border ${rarityConfig[selectedNFT.rarity].color} border-current px-3 py-1 text-xs font-bold tracking-wider`}
+                  className={`mt-2 inline-block rounded-full border ${
+                    rarityConfig[selectedNFT.rarity].color
+                  } border-current px-3 py-1 text-xs font-bold tracking-wider`}
                 >
                   {rarityConfig[selectedNFT.rarity].label}
                 </span>

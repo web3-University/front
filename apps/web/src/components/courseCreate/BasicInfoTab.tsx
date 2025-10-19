@@ -132,18 +132,20 @@ const BasicInfoTab = () => {
     return "";
   };
 
+  const [tagInput, setTagInput] = useState("");
+
   const handleAddTag = () => {
-    const tagInput = document.getElementById("tagInput") as HTMLInputElement;
-    if (tagInput && tagInput.value.trim()) {
-      setFormData((prev) => ({
-        ...prev,
-        basicInfo: {
-          ...prev.basicInfo,
-          tags: [...prev.basicInfo.tags, tagInput.value.trim()],
-        },
-      }));
-      tagInput.value = "";
-    }
+    if (!tagInput.trim()) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      basicInfo: {
+        ...prev.basicInfo,
+        tags: [...prev.basicInfo.tags, tagInput.trim()],
+      },
+    }));
+
+    setTagInput(""); // ✅ 这里清空输入框
   };
 
   const handleRemoveTag = (index: number) => {
@@ -464,7 +466,7 @@ const BasicInfoTab = () => {
               key={index}
               className="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs"
             >
-              {tag}{" "}
+              {tag}
               <button onClick={() => handleRemoveTag(index)} className="ml-1">
                 ×
               </button>
@@ -474,6 +476,8 @@ const BasicInfoTab = () => {
         <div className="flex">
           <input
             id="tagInput"
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
             className="flex-1 rounded-l-md border border-gray-300 p-2"
             placeholder="添加标签..."
           />
