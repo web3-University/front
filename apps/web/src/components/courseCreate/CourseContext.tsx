@@ -267,23 +267,11 @@ export const CourseProvider: React.FC<CourseProviderProps> = ({ children }) => {
       const response = await createCourse(createCourseData);
 
       console.log("课程创建成功:", response);
+      const courseId = response.data.courseId;
+      await createAllLessons(courseId, formData, auth);
       window.location.href = "/market";
 
-      // const lessonData = {
-      //   title: formData.courseContent[0].title,
-      //   description: 10,
-      //   videoUrl: formData.courseContent[0].videoFile,
-      //   duration: formData.courseContent[0].duration,
-      //   order: 1,
-      //   type: formData.courseContent[0].type,
-      //   isFreePreview: formData.courseContent[0].isFreePreview,
-      //   courseId:1,
-      //   instructorWallet: auth.address,
-      //   content: formData.courseContent[0].textContent,
-      // }
-      // createLesson(lessonData)
-
-      // createCourseContract(formData.basicInfo.title, auth.address, formData.pricingSetting.price.toString(),3)
+      // createCourseContract(formData.basicInfo.title, auth.address, formData.pricingSetting.price.toString(),formData.courseContent.length)
 
       // 可以添加成功后的处理逻辑，比如跳转到课程详情页
       // 或者显示成功提示
@@ -297,6 +285,36 @@ export const CourseProvider: React.FC<CourseProviderProps> = ({ children }) => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const createAllLessons = async (
+    courseId: number,
+    formData: any,
+    auth: any,
+  ) => {
+    if (!Array.isArray(formData.courseContent)) return;
+    await Promise.all(
+      formData.courseContent
+        // ✅ 过滤空章节，避免发送无意义请求
+        .filter((chapter: CourseContentItem) => chapter?.title)
+        .map((chapter: CourseContentItem, index: number) => {
+          const lessonData = {
+            title: chapter.title,
+            description: chapter.description || "",
+            videoUrl: chapter.videoFile || null, // 如果是 video 类型
+            // content: chapter.textContent || "", // 如果是 text 类型
+            duration: Number(chapter.duration) || 0,
+            order: index + 1,
+            type: chapter.type, // "video" | "text"
+            isFreePreview: chapter.isFreePreview || false,
+            courseId,
+            instructorWallet: auth?.address || "",
+          };
+
+          // ✅ 并发请求创建章节
+          return createLesson(lessonData);
+        }),
+    );
   };
 
   // 课程内容：添加章节
