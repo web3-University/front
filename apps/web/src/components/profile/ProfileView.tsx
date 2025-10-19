@@ -1,12 +1,13 @@
 "use client";
 
-import { ArrowRight, Award, Sparkles, User } from "lucide-react";
+import { ArrowRight, Award, Receipt, Sparkles, User } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import NFTGallery from "./NFTGallery";
+import TransactionHistory from "./TransactionHistory";
 import UserInfoSection from "./UserInfoSection";
 
-type Tab = "profile" | "nft";
+type Tab = "profile" | "nft" | "transactions";
 
 export default function ProfileView() {
   const [activeTab, setActiveTab] = useState<Tab>("profile");
@@ -67,6 +68,17 @@ export default function ProfileView() {
               <Sparkles className="h-5 w-5" />
               NFT收藏
             </button>
+            <button
+              onClick={() => setActiveTab("transactions")}
+              className={`flex-1 flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-medium transition-all ${
+                activeTab === "transactions"
+                  ? "bg-gradient-to-r from-[#8A71FF] to-[#9D7FFF] text-white shadow-md"
+                  : "text-[#6A6D94] hover:bg-white/50"
+              }`}
+            >
+              <Receipt className="h-5 w-5" />
+              交易记录
+            </button>
           </div>
         </div>
 
@@ -74,6 +86,7 @@ export default function ProfileView() {
         <div>
           {activeTab === "profile" && <UserInfoSection />}
           {activeTab === "nft" && <NFTGallery />}
+          {activeTab === "transactions" && <TransactionHistory />}
         </div>
       </div>
     </div>
