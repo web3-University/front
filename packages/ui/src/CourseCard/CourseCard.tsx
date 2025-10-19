@@ -189,12 +189,12 @@ export const CourseCard: React.FC<CourseCardProps> = (props) => {
     <article
       key={course.id}
       onClick={handleCardClick}
-      className={`group relative flex h-full flex-col overflow-hidden rounded-3xl bg-gradient-to-b from-white to-[#F7F5FF] pb-6 shadow-[0_22px_60px_rgba(168,174,255,0.22)] ring-1 ring-[#ECEBFF] transition-transform duration-200 hover:-translate-y-2 ${
+      className={`group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:border-[#8A71FF] hover:shadow-xl ${
         clickable ? "cursor-pointer" : ""
       }`}
     >
       {/* 课程封面图片区域 */}
-      <div className="relative h-48 w-full overflow-hidden rounded-2xl">
+      <div className="relative mb-4 h-48 w-full overflow-hidden rounded-xl">
         {course.cover ? (
           /* 有封面图片时显示图片 */
           <img
@@ -210,64 +210,72 @@ export const CourseCard: React.FC<CourseCardProps> = (props) => {
             }`}
           />
         )}
-      </div>
-      <div
-        className={`relative h-8 w-full overflow-hidden rounded-2xl bg-gradient-to-br px-3 ${
-          course.coverColor || "from-gray-400 to-gray-600"
-        }`}
-      >
-        <span className="absolute left-4 top-4 inline-flex rounded-full bg-white/90 py-1 text-xs font-semibold text-[#2B2558]">
-          {course.category || "未分类"}
-        </span>
+
+        {/* 难度标签 - 右上角 */}
         {course.difficulty && (
-          <span
-            className={`absolute right-4 top-4 inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${difficultyInfo.bgColor} ${difficultyInfo.color}`}
-          >
-            <BarChart3 className="h-3 w-3" />
-            {difficultyInfo.label}
-          </span>
+          <div className="absolute right-4 top-4">
+            <span
+              className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${difficultyInfo.bgColor} ${difficultyInfo.color}`}
+            >
+              <BarChart3 className="h-3 w-3" />
+              {difficultyInfo.label}
+            </span>
+          </div>
         )}
       </div>
 
-      <div className="flex flex-1 flex-col gap-4 pt-6 text-left px-3">
+      <div className="flex flex-1 flex-col gap-4">
         <div>
-          <h3 className="text-xl font-semibold text-[#2B2558] line-clamp-2">
+          <h3 className="mb-3 text-lg font-bold text-gray-900 line-clamp-2 group-hover:text-[#8A71FF]">
             {course.title || "未命名课程"}
           </h3>
           {course.description && (
-            <p className="mt-2 text-sm text-[#7B7EA9] line-clamp-2">
+            <p className="mb-4 text-sm text-gray-600 line-clamp-3">
               {course.description}
             </p>
           )}
         </div>
 
-        {/* 课程信息行 */}
-        <div className="flex items-center justify-between text-xs text-[#8F92B5] px-3">
-          <div className="flex items-center gap-4">
-            {course.duration && (
+        {/* 课程信息 */}
+        <div className="mb-4 space-y-2 border-t border-gray-100 pt-4">
+          {course.duration && (
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-500">时长</span>
               <div className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />
-                <span>{formatDuration(course.duration)}</span>
+                <span className="font-medium text-gray-900">
+                  {formatDuration(course.duration)}
+                </span>
               </div>
-            )}
+            </div>
+          )}
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-500">评分</span>
             <div className="flex items-center gap-1 text-[#F5B742]">
               <Star className="h-3 w-3 fill-[#F5B742] text-[#F5B742]" />
               <span className="font-semibold">
                 {(course.rating || 0).toFixed(1)}
               </span>
-              <span className="text-[#8F92B5]">({course.students || 0}人)</span>
+              <span className="text-gray-500">({course.students || 0}人)</span>
             </div>
           </div>
-          <div className="flex items-center gap-1 text-[#FF9F50]">
-            <Wallet className="h-4 w-4" />
-            <span className="text-base font-semibold">
-              YD {course.price || 0}
-            </span>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-500">价格</span>
+            <div className="flex items-center gap-1 text-[#FF9F50]">
+              <Wallet className="h-4 w-4" />
+              <span className="font-semibold text-gray-900">
+                YD {course.price || 0}
+              </span>
+            </div>
           </div>
         </div>
 
         {/* 插槽区域 */}
-        {children && <div data-slot="actions">{children}</div>}
+        {children && (
+          <div data-slot="actions" className="mt-4">
+            {children}
+          </div>
+        )}
       </div>
     </article>
   );
