@@ -15,16 +15,6 @@ export default function MarketPage() {
 
         {/* 课程卡片列表（包含筛选功能）*/}
         <CourseList />
-
-        {/* 加载更多按钮 */}
-        <div className="mt-8 text-center">
-          <button
-            type="button"
-            className="bg-[#1a2540] hover:bg-[#243050] text-white px-6 py-2 rounded-md"
-          >
-            加载更多课程
-          </button>
-        </div>
       </main>
     </div>
   );
