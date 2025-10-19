@@ -193,9 +193,9 @@ export const CourseProvider: React.FC<CourseProviderProps> = ({ children }) => {
 
   // 快捷操作：保存草稿
   const saveDraft = async () => {
-    if (!validateForm()) {
-      return;
-    }
+    // if (!validateForm()) {
+    //   return;
+    // }
 
     try {
       console.log("保存草稿：", formData);
@@ -266,11 +266,9 @@ export const CourseProvider: React.FC<CourseProviderProps> = ({ children }) => {
       );
 
       console.log("✅ 合约注册成功，交易 Hash:", txHash);
+      localStorage.removeItem("course_draft");
 
       window.location.href = "/market";
-
-      // 可以添加成功后的处理逻辑，比如跳转到课程详情页
-      // 或者显示成功提示
     } catch (error) {
       console.error("创建课程失败:", error);
       setErrors((prev) => ({
