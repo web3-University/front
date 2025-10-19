@@ -1,6 +1,6 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
 import { useWalletInfo } from "@web3-university/uni-wallet-lib";
+import { useCallback, useEffect, useState } from "react";
 import { useCourse } from "@/hooks/useCourse";
 import { PurchaseStatus, usePurchaseCourse } from "@/hooks/usePurchaseCourse";
 import type { CourseFilters } from "@/lib/api/course";
@@ -101,7 +101,6 @@ const CourseList = () => {
   useEffect(() => {
     const mappedCourses: FeaturedCourse[] = apiCourses.map((course) => {
       // 确保price字段有有效值
-      console.log("course:", course);
       const courseId = course.courseId?.toString() || "";
       return {
         id: courseId,

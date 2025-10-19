@@ -120,7 +120,7 @@ export const uploadCouseImage = (data: UploadImageParams) => {
   formData.append("file", data.file);
   formData.append("fileType", data.fileType);
 
-  return http<ApiResponse<string>>("/api/storage/upload", {
+  return http<ApiResponse<string>>("/storage/upload", {
     method: "POST",
     body: formData, // 使用 FormData 而不是直接传递 data
   });

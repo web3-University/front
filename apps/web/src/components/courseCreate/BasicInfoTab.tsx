@@ -1,6 +1,6 @@
 import React, { type ChangeEvent, useState } from "react";
-import { useCourseContext } from "./CourseContext";
 import { useUpload } from "../../hooks/useUpload";
+import { useCourseContext } from "./CourseContext";
 
 // 课程分类数据，每个对象包含value和label
 const courseCategories = [
@@ -66,6 +66,8 @@ const BasicInfoTab = () => {
       "image",
       formData.basicInfo.coverImage as string,
     );
+
+    console.log(newUrl, "___newUrl");
 
     if (newUrl) {
       // 上传成功，更新为服务器 URL
