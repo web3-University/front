@@ -9,15 +9,18 @@ import type { Course } from "@/lib/api/course";
 export type FeaturedCourse = {
   id: string;
   title: string;
-  description: string; // 添加description字段
+  description: string;
   category: string;
   instructor: string;
   rating: number;
   students: number;
-  duration: number;
-  difficulty: string;
   price: number;
   coverColor: string;
+  duration?: number;
+  difficulty?: string;
+  isPurchased?: boolean; // 新增：是否已购买
+  cover?: string; // 新增：课程封面
+  [key: string]: any;
 };
 
 // const fallbackCourses: FeaturedCourse[] = [
@@ -82,6 +85,7 @@ export default function FeaturedCourses({ onBuy }: FeaturedCoursesProps) {
         difficulty: course.difficulty || "1",
         price: course.price || 0,
         coverColor: course.cover || "from-[#4B6CFF] to-[#7EE7FF]",
+        cover: course.cover, // 新增：课程封面
       }))
       .filter((course) => course.id && course.title); // 过滤掉无效的课程数据
     setCourses(mappedCourses);
