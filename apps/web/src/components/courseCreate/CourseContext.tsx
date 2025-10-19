@@ -241,8 +241,7 @@ export const CourseProvider: React.FC<CourseProviderProps> = ({ children }) => {
         walletAddress: auth.address,
         title: formData.basicInfo.title,
         description: formData.basicInfo.description,
-        cover: formData.basicInfo.coverImage || "", //
-        // cover: formData.basicInfo.coverImage, // 提供默认的有效URL
+        cover: formData.basicInfo.coverImage || "",
         categories: [formData.basicInfo.category], // 将单个分类转换为数组
         difficulty: formData.basicInfo.difficulty,
         price: formData.pricingSetting.price.toString(), // 转换为字符串
