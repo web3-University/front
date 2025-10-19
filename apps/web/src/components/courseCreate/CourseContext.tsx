@@ -20,7 +20,7 @@ export interface CourseContentItem {
   title: string;
   type: "video" | "text";
   description: string;
-  videoFile?: File | null;
+  videoFile?: string | null;
   textContent?: string;
   duration?: string;
   isFreePreview: boolean;
@@ -103,7 +103,7 @@ export const CourseProvider: React.FC<CourseProviderProps> = ({ children }) => {
         title: "",
         description: "",
         category: "",
-        difficulty: "beginner",
+        difficulty: "1",
         coverImage: null,
         tags: [],
         learningGoals: ["掌握基础"],
@@ -244,16 +244,10 @@ export const CourseProvider: React.FC<CourseProviderProps> = ({ children }) => {
         walletAddress: auth.address,
         title: formData.basicInfo.title,
         description: formData.basicInfo.description,
-        cover: "https://via.placeholder.com/400x300", // 提供默认的有效URL
+        cover: "https://via.placeholder.com/400x300", //
+        // cover: formData.basicInfo.coverImage, // 提供默认的有效URL
         categories: [formData.basicInfo.category], // 将单个分类转换为数组
-        difficulty:
-          formData.basicInfo.difficulty === "beginner"
-            ? "1"
-            : formData.basicInfo.difficulty === "intermediate"
-              ? "2"
-              : formData.basicInfo.difficulty === "advanced"
-                ? "3"
-                : "1", // 确保难度值有效
+        difficulty: formData.basicInfo.difficulty,
         price: formData.pricingSetting.price.toString(), // 转换为字符串
         duration: parseInt(formData.pricingSetting.estimatedDuration) || 0,
         isFree: formData.pricingSetting.price === 0 ? "1" : "0", // 根据价格判断是否免费
