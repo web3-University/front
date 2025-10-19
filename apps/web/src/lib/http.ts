@@ -46,6 +46,7 @@ async function refreshAccessToken(): Promise<string | null> {
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({ refreshToken }),
       });
 
       if (!response.ok) {
