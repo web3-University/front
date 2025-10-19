@@ -74,10 +74,10 @@ export interface CreateCourseDto {
 export interface CreateLessonDto {
   courseId: number;
   title: string;
-  content: string;
+  // content: string;
   order: number;
   duration?: number;
-  videoUrl?: string;
+  videoUrl: string | null;
 }
 
 export interface ApiResponse<T> {
