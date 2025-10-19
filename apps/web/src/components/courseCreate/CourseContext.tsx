@@ -77,9 +77,9 @@ export const CourseProvider: React.FC<CourseProviderProps> = ({ children }) => {
   const auth = useAuth();
   const {
     // 写入方法（返回 Promise）
-    createCourse: createCourseContract, // 创建课程
+    registerCourse, // 创建课程
   } = useCourseContract({
-    address: "0x1Af44F76cbF12d18Cb01C92d4076Da41e9B826EF",
+    address: "0x2aC2E8D99B585b321ffd875B95467a9B606e146a",
     tokenDecimals: 18, // YD Token 精度
   });
 
@@ -263,9 +263,9 @@ export const CourseProvider: React.FC<CourseProviderProps> = ({ children }) => {
       console.log("课程创建成功:", response);
       const courseId = response.data.courseId;
       await createAllLessons(courseId, formData, auth);
-      window.location.href = "/market";
+      // window.location.href = "/market";
 
-      // createCourseContract(formData.basicInfo.title, auth.address, formData.pricingSetting.price.toString(),formData.courseContent.length)
+      registerCourse(courseId, formData.pricingSetting.price.toString());
 
       // 可以添加成功后的处理逻辑，比如跳转到课程详情页
       // 或者显示成功提示
