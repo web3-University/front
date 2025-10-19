@@ -1,15 +1,7 @@
 "use client";
-
-import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useMemo, useState } from "react";
-import type { ChangeEvent, FormEvent } from "react";
-import type { LucideIcon } from "lucide-react";
-
 import { useAuth } from "@web3-university/uni-wallet-lib";
-import { registerUser } from "@/lib/api/user";
-
+import type { LucideIcon } from "lucide-react";
 import {
   Award,
   CheckCircle2,
@@ -18,6 +10,11 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import type { ChangeEvent, FormEvent } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { registerUser } from "@/lib/api/user";
 
 const benefits: Array<{
   icon: LucideIcon;
