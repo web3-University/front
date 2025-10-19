@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useWalletInfo } from "@web3-university/uni-wallet-lib";
-import { Sparkles, Award, ExternalLink, Loader2 } from "lucide-react";
+import { Award, ExternalLink, Loader2, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
 import { http } from "@/lib/http";
 
 type NFTRarity = "common" | "rare" | "epic" | "legendary";
@@ -67,7 +67,9 @@ export default function NFTGallery() {
   const loadNFTs = async () => {
     setIsLoading(true);
     try {
-      const data = await http<NFT[]>(`/nfts/user?address=${address}`);
+      const data = await http<NFT[]>(
+        `/api/certificates/user?walletAddress=${address}`,
+      );
       setNfts(data);
     } catch (error) {
       console.error("加载NFT失败:", error);

@@ -10,6 +10,7 @@ type HighlightItem = {
   title: string;
   description: string;
   iconBg: string;
+  eyebrow?: string;
 };
 
 const highlights: HighlightItem[] = [
@@ -87,7 +88,7 @@ export default function InstructorInvitation() {
           </Link>
           <Link href="/course-create">
             <Button variant="secondary" size="lg">
-              了解开课流程
+              创建课程
             </Button>
           </Link>
         </div>

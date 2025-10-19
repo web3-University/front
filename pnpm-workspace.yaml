@@ -1,4 +1,6 @@
 packages:
-  - "apps/*" # 应用程序
-  - "packages/*" # 共享包
+  - apps/*
+  - packages/*
 
+onlyBuiltDependencies:
+  - esbuild

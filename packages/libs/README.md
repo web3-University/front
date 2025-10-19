@@ -19,7 +19,7 @@ pnpm add @web3-university/libs --registry=http://8.138.248.76:4873/
 用于格式化各种区块链地址，支持多种链类型，自动按照不同链的规则进行截断显示。
 
 ```typescript
-import { formatAddress } from '@web3-university/libs';
+import { formatAddress } from "@web3-university/libs";
 
 // 以太坊地址格式化 (默认)
 const ethAddress = "0x1234567890123456789012345678901234567890";
@@ -53,7 +53,7 @@ console.log(formatAddress("very-long-account-name.near", "near"));
 用于格式化时间，支持多种预定义格式、相对时间和自定义格式。
 
 ```typescript
-import { formatTime } from '@web3-university/libs';
+import { formatTime } from "@web3-university/libs";
 
 // 默认格式 (YYYY-MM-DD HH:mm:ss)
 console.log(formatTime(new Date()));
@@ -78,16 +78,18 @@ console.log(formatTime(oneHourAgo, { format: "relative" }));
 // 输出: "1小时前"
 
 // 自定义格式
-console.log(formatTime(new Date(), {
-  format: "custom",
-  customFormat: "YYYY年MM月DD日 HH:mm"
-}));
+console.log(
+  formatTime(new Date(), {
+    format: "custom",
+    customFormat: "YYYY年MM月DD日 HH:mm",
+  })
+);
 // 输出: "2025年10月10日 23:45"
 
 // 支持多种输入类型
-formatTime(new Date())           // Date 对象
-formatTime(1728576000000)        // 时间戳
-formatTime("2025-10-10")         // 日期字符串
+formatTime(new Date()); // Date 对象
+formatTime(1728576000000); // 时间戳
+formatTime("2025-10-10"); // 日期字符串
 ```
 
 ## 📋 API 文档
@@ -103,19 +105,19 @@ formatTime("2025-10-10")         // 日期字符串
 
 #### 支持的链类型
 
-| 链类型 | 前缀长度 | 后缀长度 | 特殊规则 |
-|--------|----------|----------|----------|
-| ethereum | 6 | 4 | - |
-| bitcoin | 4 | 4 | - |
-| solana | 6 | 6 | - |
-| tron | 6 | 4 | - |
-| cosmos | 6 | 6 | - |
-| polkadot | 6 | 6 | - |
-| ripple | 6 | 6 | - |
-| cardano | 6 | 6 | - |
-| tezos | 6 | 6 | - |
-| near | 6 | 6 | 长度 ≤ 15 字符时保持完整 |
-| generic | 6 | 4 | 通用格式 |
+| 链类型   | 前缀长度 | 后缀长度 | 特殊规则                 |
+| -------- | -------- | -------- | ------------------------ |
+| ethereum | 6        | 4        | -                        |
+| bitcoin  | 4        | 4        | -                        |
+| solana   | 6        | 6        | -                        |
+| tron     | 6        | 4        | -                        |
+| cosmos   | 6        | 6        | -                        |
+| polkadot | 6        | 6        | -                        |
+| ripple   | 6        | 6        | -                        |
+| cardano  | 6        | 6        | -                        |
+| tezos    | 6        | 6        | -                        |
+| near     | 6        | 6        | 长度 ≤ 15 字符时保持完整 |
+| generic  | 6        | 4        | 通用格式                 |
 
 #### 返回值
 
@@ -127,19 +129,19 @@ formatTime("2025-10-10")         // 日期字符串
 
 ```typescript
 // 基本用法
-formatAddress("0x1234567890123456789012345678901234567890")
+formatAddress("0x1234567890123456789012345678901234567890");
 // 返回: "0x1234...7890"
 
 // 空值处理
-formatAddress("")
+formatAddress("");
 // 返回: ""
 
 // 短地址处理
-formatAddress("0x123")
+formatAddress("0x123");
 // 返回: "0x123" (保持原样)
 
 // NEAR 特殊处理
-formatAddress("alice.near", "near")
+formatAddress("alice.near", "near");
 // 返回: "alice.near" (短名称保持完整)
 ```
 
@@ -156,16 +158,16 @@ formatAddress("alice.near", "near")
 
 #### 支持的格式类型
 
-| 格式类型 | 说明 | 示例输出 |
-|---------|------|---------|
-| `YYYY-MM-DD` | 年-月-日 | "2025-10-10" |
-| `YYYY-MM-DD HH:mm:ss` | 年-月-日 时:分:秒 (默认) | "2025-10-10 23:45:30" |
-| `YYYY/MM/DD` | 年/月/日 | "2025/10/10" |
-| `YYYY/MM/DD HH:mm:ss` | 年/月/日 时:分:秒 | "2025/10/10 23:45:30" |
-| `MM-DD HH:mm` | 月-日 时:分 | "10-10 23:45" |
-| `HH:mm:ss` | 时:分:秒 | "23:45:30" |
-| `relative` | 相对时间 | "刚刚"、"5分钟前"、"2小时前" |
-| `custom` | 自定义格式 | 根据 customFormat 参数 |
+| 格式类型              | 说明                     | 示例输出                       |
+| --------------------- | ------------------------ | ------------------------------ |
+| `YYYY-MM-DD`          | 年-月-日                 | "2025-10-10"                   |
+| `YYYY-MM-DD HH:mm:ss` | 年-月-日 时:分:秒 (默认) | "2025-10-10 23:45:30"          |
+| `YYYY/MM/DD`          | 年/月/日                 | "2025/10/10"                   |
+| `YYYY/MM/DD HH:mm:ss` | 年/月/日 时:分:秒        | "2025/10/10 23:45:30"          |
+| `MM-DD HH:mm`         | 月-日 时:分              | "10-10 23:45"                  |
+| `HH:mm:ss`            | 时:分:秒                 | "23:45:30"                     |
+| `relative`            | 相对时间                 | "刚刚"、"5 分钟前"、"2 小时前" |
+| `custom`              | 自定义格式               | 根据 customFormat 参数         |
 
 #### 自定义格式占位符
 
@@ -181,11 +183,11 @@ formatAddress("alice.near", "near")
 #### 相对时间规则
 
 - 小于 60 秒：显示"刚刚"
-- 1-59 分钟：显示"X分钟前"
-- 1-23 小时：显示"X小时前"
-- 1-29 天：显示"X天前"
-- 1-11 个月：显示"X个月前"
-- 12 个月及以上：显示"X年前"
+- 1-59 分钟：显示"X 分钟前"
+- 1-23 小时：显示"X 小时前"
+- 1-29 天：显示"X 天前"
+- 1-11 个月：显示"X 个月前"
+- 12 个月及以上：显示"X 年前"
 
 #### 返回值
 
@@ -198,22 +200,22 @@ formatAddress("alice.near", "near")
 const now = new Date();
 
 // 预定义格式
-formatTime(now, { format: "YYYY-MM-DD" })
+formatTime(now, { format: "YYYY-MM-DD" });
 // 返回: "2025-10-10"
 
 // 相对时间
-formatTime(Date.now() - 5 * 60 * 1000, { format: "relative" })
+formatTime(Date.now() - 5 * 60 * 1000, { format: "relative" });
 // 返回: "5分钟前"
 
 // 自定义格式
 formatTime(now, {
   format: "custom",
-  customFormat: "YYYY年MM月DD日 星期"
-})
+  customFormat: "YYYY年MM月DD日 星期",
+});
 // 返回: "2025年10月10日 星期"
 
 // 错误处理
-formatTime("invalid-date")
+formatTime("invalid-date");
 // 返回: ""
 ```
 

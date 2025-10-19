@@ -2,9 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import type { ChangeEvent } from "react";
+import { useCallback, useMemo, useState } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import type { LucideIcon } from "lucide-react";
+
+import { useAuth } from "@web3-university/uni-wallet-lib";
+import { registerUser } from "@/lib/api/user";
+
 import {
   Award,
   CheckCircle2,
@@ -60,36 +64,127 @@ const requirements = [
   "承诺课程内容的原创性",
 ];
 
+const specializationOptions = [
+  { value: "blockchain", label: "区块链 · Web3" },
+  { value: "defi", label: "去中心化金融" },
+  { value: "nft", label: "NFT 艺术" },
+  { value: "security", label: "智能合约安全" },
+  { value: "dao", label: "DAO 治理" },
+  { value: "metaverse", label: "元宇宙应用" },
+  { value: "ai", label: "AI + Web3" },
+];
+
+type InstructorFormData = {
+  name: string;
+  email: string;
+  domains: string[];
+  bio: string;
+};
+
 export default function BecomeInstructorView() {
-  const [formData, setFormData] = useState({
+  const { isAuthenticated, address } = useAuth();
+  const [formData, setFormData] = useState<InstructorFormData>({
     name: "",
     email: "",
-    domain: "",
+    domains: [],
     bio: "",
   });
   const [agreed, setAgreed] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitState, setSubmitState] = useState<{
+    status: "success" | "error";
+    message: string;
+  } | null>(null);
 
   const isFormComplete = useMemo(() => {
     return (
       formData.name.trim().length > 0 &&
       formData.email.trim().length > 0 &&
-      formData.domain.trim().length > 0 &&
+      formData.domains.length > 0 &&
       agreed
     );
   }, [formData, agreed]);
 
+  const canSubmit =
+    isAuthenticated && Boolean(address) && isFormComplete && !isSubmitting;
+
   const updateField =
-    (key: keyof typeof formData) =>
-    (
-      event: ChangeEvent<
-        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-      >,
-    ) => {
+    (key: Exclude<keyof InstructorFormData, "domains">) =>
+    (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setFormData((prev) => ({
         ...prev,
         [key]: event.target.value,
       }));
     };
+
+  const toggleDomain = useCallback((value: string) => {
+    setFormData((prev) => {
+      const exists = prev.domains.includes(value);
+      return {
+        ...prev,
+        domains: exists
+          ? prev.domains.filter((item) => item !== value)
+          : [...prev.domains, value],
+      };
+    });
+  }, []);
+
+  const handleSubmit = useCallback(
+    async (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      if (isSubmitting || !isFormComplete) {
+        return;
+      }
+
+      if (!isAuthenticated || !address) {
+        setSubmitState({
+          status: "error",
+          message: "请先连接钱包，然后提交注册信息。",
+        });
+        return;
+      }
+
+      setIsSubmitting(true);
+      setSubmitState(null);
+
+      const trimmedName = formData.name.trim();
+      const trimmedEmail = formData.email.trim();
+      const trimmedBio = formData.bio.trim();
+      const selectedDomains = formData.domains;
+
+      try {
+        await registerUser({
+          walletAddress: address,
+          username: trimmedName,
+          email: trimmedEmail,
+          bio: trimmedBio,
+          specializations: selectedDomains,
+          isInstructorRegistered: true, // 标记为已注册讲师
+        });
+
+        setSubmitState({
+          status: "success",
+          message: "注册成功！讲师中心已创建，您可以开始发布课程。",
+        });
+      } catch (error) {
+        console.error("instructor registration failed", error);
+        setSubmitState({
+          status: "error",
+          message: "注册失败，请稍后重试或联系平台支持。",
+        });
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [
+      address,
+      formData,
+      isAuthenticated,
+      isFormComplete,
+      isSubmitting,
+      registerUser,
+    ],
+  );
 
   return (
     <main className="relative overflow-hidden bg-gradient-to-br from-[#edf1ff] via-[#f7faff] to-[#fff6f9] text-slate-900">
@@ -127,20 +222,7 @@ export default function BecomeInstructorView() {
                   </div>
                   <ShieldCheck className="h-8 w-8 text-indigo-400" />
                 </div>
-
-                <form
-                  className="mt-8 grid gap-6"
-                  onSubmit={(event) => {
-                    event.preventDefault();
-                    if (!isFormComplete) {
-                      return;
-                    }
-                    console.log("instructor registration", {
-                      ...formData,
-                      agreed,
-                    });
-                  }}
-                >
+                <form className="mt-8 grid gap-6" onSubmit={handleSubmit}>
                   <div className="grid gap-6 md:grid-cols-2">
                     <label className="block">
                       <span className="text-sm font-medium text-slate-700">
@@ -171,23 +253,43 @@ export default function BecomeInstructorView() {
                     </label>
                   </div>
 
-                  <label className="block">
-                    <span className="text-sm font-medium text-slate-700">
-                      专业领域 *
-                    </span>
-                    <select
-                      className="mt-2 w-full appearance-none rounded-xl border border-indigo-100 bg-white px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-200/80"
-                      value={formData.domain}
-                      onChange={updateField("domain")}
-                    >
-                      <option value="">选择您的主要专业领域</option>
-                      <option value="blockchain">区块链 · Web3</option>
-                      <option value="defi">去中心化金融</option>
-                      <option value="nft">NFT 艺术</option>
-                      <option value="security">智能合约安全</option>
-                      <option value="other">其他领域</option>
-                    </select>
-                  </label>
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="text-sm font-medium text-slate-700">
+                        专业领域 *
+                      </span>
+                      <span className="text-xs text-slate-400">
+                        可多选，选择最能代表您的方向
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {specializationOptions.map((option) => {
+                        const selected = formData.domains.includes(
+                          option.value,
+                        );
+                        return (
+                          <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => toggleDomain(option.value)}
+                            aria-pressed={selected}
+                            className={`rounded-full border px-4 py-2 text-xs font-medium transition ${
+                              selected
+                                ? "border-indigo-300 bg-indigo-500/90 text-white shadow-sm shadow-indigo-500/30"
+                                : "border-indigo-100 bg-white text-slate-600 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600"
+                            }`}
+                          >
+                            {option.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {formData.domains.length === 0 && (
+                      <p className="text-xs text-rose-400">
+                        请至少选择一个专业领域，以便学员快速了解您擅长的方向。
+                      </p>
+                    )}
+                  </div>
 
                   <label className="block">
                     <span className="text-sm font-medium text-slate-700">
@@ -245,17 +347,37 @@ export default function BecomeInstructorView() {
                     </span>
                   </label>
 
-                  <div className="flex flex-col gap-4 rounded-2xl bg-indigo-50/70 p-4 text-xs text-slate-600 md:flex-row md:items-center md:justify-between">
-                    <p>
-                      提交后，平台将为您创建讲师中心，支持课程发布与收益管理。
-                    </p>
-                    <button
-                      type="submit"
-                      disabled={!isFormComplete}
-                      className="inline-flex items-center justify-center rounded-full border border-transparent bg-indigo-500 px-6 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition hover:bg-indigo-500/90 disabled:cursor-not-allowed disabled:border-indigo-200 disabled:bg-white disabled:text-slate-400 disabled:shadow-none"
-                    >
-                      提交注册信息
-                    </button>
+                  <div className="flex flex-col gap-3 rounded-2xl bg-indigo-50/70 p-4 text-xs text-slate-600">
+                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                      <p>
+                        提交后，平台将为您创建讲师中心，支持课程发布与收益管理。
+                      </p>
+                      <button
+                        type="submit"
+                        disabled={!canSubmit}
+                        className="inline-flex items-center justify-center rounded-full border border-transparent bg-indigo-500 px-6 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition hover:bg-indigo-500/90 disabled:cursor-not-allowed disabled:border-indigo-200 disabled:bg-white disabled:text-slate-400 disabled:shadow-none"
+                      >
+                        {isSubmitting ? "提交中..." : "提交注册信息"}
+                      </button>
+                    </div>
+
+                    {(!isAuthenticated || !address) && (
+                      <div className="rounded-xl border border-indigo-200 bg-white px-3 py-2 text-xs text-indigo-500">
+                        请先连接钱包，再提交注册信息。
+                      </div>
+                    )}
+
+                    {submitState && (
+                      <div
+                        className={`rounded-xl border px-3 py-2 text-xs ${
+                          submitState.status === "success"
+                            ? "border-emerald-200 bg-emerald-50 text-emerald-600"
+                            : "border-rose-200 bg-rose-50 text-rose-600"
+                        }`}
+                      >
+                        {submitState.message}
+                      </div>
+                    )}
                   </div>
                 </form>
               </div>

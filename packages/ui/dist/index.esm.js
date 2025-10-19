@@ -623,11 +623,66 @@ const createLucideIcon = (iconName, iconNode) => {
  */
 
 
-const __iconNode$3 = [
+const __iconNode$6 = [
+  ["path", { d: "M12 7v14", key: "1akyts" }],
+  [
+    "path",
+    {
+      d: "M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z",
+      key: "ruj8y"
+    }
+  ]
+];
+const BookOpen = createLucideIcon("book-open", __iconNode$6);
+
+/**
+ * @license lucide-react v0.544.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+
+
+const __iconNode$5 = [
+  ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
+  ["path", { d: "M18 17V9", key: "2bz60n" }],
+  ["path", { d: "M13 17V5", key: "1frdt8" }],
+  ["path", { d: "M8 17v-3", key: "17ska0" }]
+];
+const ChartColumn = createLucideIcon("chart-column", __iconNode$5);
+
+/**
+ * @license lucide-react v0.544.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+
+
+const __iconNode$4 = [
   ["path", { d: "M12 6v6l4 2", key: "mmk7yg" }],
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]
 ];
-const Clock = createLucideIcon("clock", __iconNode$3);
+const Clock = createLucideIcon("clock", __iconNode$4);
+
+/**
+ * @license lucide-react v0.544.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+
+
+const __iconNode$3 = [
+  [
+    "path",
+    {
+      d: "M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z",
+      key: "10ikf1"
+    }
+  ]
+];
+const Play = createLucideIcon("play", __iconNode$3);
 
 /**
  * @license lucide-react v0.544.0 - ISC
@@ -684,35 +739,6 @@ const __iconNode = [
 ];
 const Wallet = createLucideIcon("wallet", __iconNode);
 
-// 难度等级映射
-const getDifficultyConfig = (difficulty) => {
-    switch (difficulty) {
-        case "1":
-            return {
-                label: "初级",
-                bgColor: "bg-green-500/90",
-                textColor: "text-white",
-            };
-        case "2":
-            return {
-                label: "中级",
-                bgColor: "bg-yellow-500/90",
-                textColor: "text-white",
-            };
-        case "3":
-            return {
-                label: "高级",
-                bgColor: "bg-red-500/90",
-                textColor: "text-white",
-            };
-        default:
-            return {
-                label: "未知",
-                bgColor: "bg-gray-400/90",
-                textColor: "text-white",
-            };
-    }
-};
 const CourseCard = (props) => {
     const { course, onDetail, clickable = true, children } = props;
     // 添加安全检查
@@ -720,7 +746,6 @@ const CourseCard = (props) => {
         console.error("CourseCard: course prop is required");
         return null;
     }
-    const difficultyConfig = getDifficultyConfig(course.difficulty);
     const handleCardClick = (e) => {
         // 如果点击的是按钮区域，不触发卡片点击
         if (e.target.closest('[data-slot="actions"]')) {
@@ -730,7 +755,48 @@ const CourseCard = (props) => {
             onDetail(course);
         }
     };
-    return (jsxRuntimeExports.jsxs("article", { onClick: handleCardClick, className: `group relative flex h-full flex-col overflow-hidden rounded-3xl bg-gradient-to-b from-white to-[#F7F5FF] px-6 pb-6 pt-6 shadow-[0_22px_60px_rgba(168,174,255,0.22)] ring-1 ring-[#ECEBFF] transition-transform duration-200 hover:-translate-y-2 ${clickable ? "cursor-pointer" : ""}`, children: [jsxRuntimeExports.jsxs("div", { className: "relative h-48 w-full overflow-hidden rounded-2xl", children: [jsxRuntimeExports.jsx("img", { src: course.coverColor, alt: course.title || "课程封面", className: "h-full w-full object-cover" }), jsxRuntimeExports.jsxs("div", { className: "absolute left-4 top-4 flex gap-2", children: [jsxRuntimeExports.jsx("span", { className: "rounded-full bg-blue-500/90 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm", children: course.category || "未分类" }), jsxRuntimeExports.jsx("span", { className: `rounded-full ${difficultyConfig.bgColor} px-3 py-1 text-xs font-semibold ${difficultyConfig.textColor} backdrop-blur-sm`, children: difficultyConfig.label })] })] }), jsxRuntimeExports.jsxs("div", { className: "flex flex-1 flex-col gap-4 pt-6 text-left", children: [jsxRuntimeExports.jsxs("div", { children: [jsxRuntimeExports.jsx("h3", { className: "text-xl font-semibold text-[#2B2558]", children: course.title || "未命名课程" }), jsxRuntimeExports.jsx("p", { className: "mt-2 text-sm text-[#7B7EA9] truncate", children: course.description || "暂无描述" }), jsxRuntimeExports.jsxs("p", { className: "mt-2 text-sm text-[#7B7EA9]", children: ["\u8BB2\u5E08\uFF1A", course.instructor || "未知"] })] }), jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between text-sm", children: [jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 text-[#F5B742]", children: [jsxRuntimeExports.jsx(Star, { className: "h-4 w-4 fill-[#F5B742] text-[#F5B742]" }), jsxRuntimeExports.jsx("span", { className: "font-semibold", children: (course.rating || 0).toFixed(1) }), jsxRuntimeExports.jsx(Users, { className: "h-3.5 w-3.5 text-[#8F92B5]" }), jsxRuntimeExports.jsx("span", { className: "text-xs text-[#8F92B5]", children: course.students || 0 }), jsxRuntimeExports.jsx(Clock, { className: "ml-2 h-3.5 w-3.5 text-[#8F92B5]" }), jsxRuntimeExports.jsxs("span", { className: "text-xs text-[#8F92B5]", children: [((course.duration || 0) / 3600).toFixed(1), "h"] })] }), jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1 text-[#FF9F50]", children: [jsxRuntimeExports.jsx(Wallet, { className: "h-4 w-4" }), jsxRuntimeExports.jsxs("span", { className: "text-base font-semibold", children: ["YD ", course.price || 0] })] })] }), children && jsxRuntimeExports.jsx("div", { "data-slot": "actions", children: children })] })] }, course.id));
+    // 难度级别映射
+    const getDifficultyLabel = (difficulty) => {
+        switch (difficulty) {
+            case "1":
+                return {
+                    label: "初级",
+                    color: "text-green-600",
+                    bgColor: "bg-green-100",
+                };
+            case "2":
+                return {
+                    label: "中级",
+                    color: "text-blue-600",
+                    bgColor: "bg-blue-100",
+                };
+            case "3":
+                return {
+                    label: "高级",
+                    color: "text-purple-600",
+                    bgColor: "bg-purple-100",
+                };
+            default:
+                return {
+                    label: "初级",
+                    color: "text-green-600",
+                    bgColor: "bg-green-100",
+                };
+        }
+    };
+    // 格式化时长
+    const formatDuration = (duration) => {
+        if (!duration)
+            return "未知时长";
+        const hours = Math.floor(duration / 60);
+        const minutes = duration % 60;
+        if (hours > 0) {
+            return minutes > 0 ? `${hours}小时${minutes}分钟` : `${hours}小时`;
+        }
+        return `${minutes}分钟`;
+    };
+    const difficultyInfo = getDifficultyLabel(course.difficulty);
+    return (jsxRuntimeExports.jsxs("article", { onClick: handleCardClick, className: `group relative flex h-full flex-col overflow-hidden rounded-3xl bg-gradient-to-b from-white to-[#F7F5FF] px-6 pb-6 pt-6 shadow-[0_22px_60px_rgba(168,174,255,0.22)] ring-1 ring-[#ECEBFF] transition-transform duration-200 hover:-translate-y-2 ${clickable ? "cursor-pointer" : ""}`, children: [jsxRuntimeExports.jsxs("div", { className: `relative h-48 w-full overflow-hidden rounded-2xl bg-gradient-to-br ${course.coverColor || "from-gray-400 to-gray-600"}`, children: [jsxRuntimeExports.jsxs("div", { className: "absolute inset-0 flex items-center justify-center", children: [jsxRuntimeExports.jsxs("div", { className: "relative", children: [jsxRuntimeExports.jsx(BookOpen, { className: "h-16 w-16 text-white/80", strokeWidth: 1.5 }), jsxRuntimeExports.jsx(Play, { className: "absolute -bottom-2 -right-2 h-8 w-8 text-white/60", strokeWidth: 1.5 })] }), jsxRuntimeExports.jsx("div", { className: "absolute top-8 left-8", children: jsxRuntimeExports.jsx("div", { className: "h-3 w-3 rounded-full bg-white/30" }) }), jsxRuntimeExports.jsx("div", { className: "absolute bottom-8 right-8", children: jsxRuntimeExports.jsx("div", { className: "h-2 w-2 rounded-full bg-white/40" }) }), jsxRuntimeExports.jsx("div", { className: "absolute top-16 right-12", children: jsxRuntimeExports.jsx("div", { className: "h-1.5 w-1.5 rounded-full bg-white/50" }) }), jsxRuntimeExports.jsx("div", { className: "absolute bottom-4 left-4 right-4", children: jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between text-white/70 text-xs", children: [jsxRuntimeExports.jsxs("span", { className: "flex items-center gap-1", children: [jsxRuntimeExports.jsx(Users, { className: "h-3 w-3" }), "\u5728\u7EBF\u8BFE\u7A0B"] }), jsxRuntimeExports.jsxs("span", { className: "flex items-center gap-1", children: [jsxRuntimeExports.jsx(Clock, { className: "h-3 w-3" }), "\u968F\u65F6\u5B66\u4E60"] })] }) })] }), jsxRuntimeExports.jsx("span", { className: "absolute left-4 top-4 inline-flex rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-[#2B2558]", children: course.category || "未分类" }), course.difficulty && (jsxRuntimeExports.jsxs("span", { className: `absolute right-4 top-4 inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${difficultyInfo.bgColor} ${difficultyInfo.color}`, children: [jsxRuntimeExports.jsx(ChartColumn, { className: "h-3 w-3" }), difficultyInfo.label] }))] }), jsxRuntimeExports.jsxs("div", { className: "flex flex-1 flex-col gap-4 pt-6 text-left", children: [jsxRuntimeExports.jsxs("div", { children: [jsxRuntimeExports.jsx("h3", { className: "text-xl font-semibold text-[#2B2558] line-clamp-2", children: course.title || "未命名课程" }), course.description && (jsxRuntimeExports.jsx("p", { className: "mt-2 text-sm text-[#7B7EA9] line-clamp-2", children: course.description })), jsxRuntimeExports.jsxs("p", { className: "mt-2 text-sm text-[#7B7EA9]", children: ["\u8BB2\u5E08\uFF1A", course.instructor || "未知"] })] }), jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between text-xs text-[#8F92B5]", children: [jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [course.duration && (jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [jsxRuntimeExports.jsx(Clock, { className: "h-3 w-3" }), jsxRuntimeExports.jsx("span", { children: formatDuration(course.duration) })] })), jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1 text-[#F5B742]", children: [jsxRuntimeExports.jsx(Star, { className: "h-3 w-3 fill-[#F5B742] text-[#F5B742]" }), jsxRuntimeExports.jsx("span", { className: "font-semibold", children: (course.rating || 0).toFixed(1) }), jsxRuntimeExports.jsxs("span", { className: "text-[#8F92B5]", children: ["(", course.students || 0, "\u4EBA)"] })] })] }), jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1 text-[#FF9F50]", children: [jsxRuntimeExports.jsx(Wallet, { className: "h-4 w-4" }), jsxRuntimeExports.jsxs("span", { className: "text-base font-semibold", children: ["YD ", course.price || 0] })] })] }), children && jsxRuntimeExports.jsx("div", { "data-slot": "actions", children: children })] })] }, course.id));
 };
 
 export { ButtonCva, CourseCard };

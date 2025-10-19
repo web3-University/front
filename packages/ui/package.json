@@ -7,6 +7,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "rollup --config rollup.config.mjs",
+    "build:watch": "rollup --config rollup.config.mjs -w",
     "dev": "rollup --config rollup.config.mjs -w",
     "clean": "rm -rf dist"
   },

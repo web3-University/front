@@ -7,6 +7,8 @@ import {
 } from "@web3-university/uni-wallet-lib";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { formatUnits } from "viem";
+import { COURSE_CONTRACT_ADDRESS } from "@/config";
+import { CONTRACTS, TOKEN_DECIMALS } from "@/config/contracts";
 import { purchaseCourse as purchaseCourseAPI } from "@/lib/api/course";
 
 /**
@@ -81,9 +83,6 @@ export interface UsePurchaseCourseReturn {
 export function usePurchaseCourse(): UsePurchaseCourseReturn {
   // 钱包连接状态
   const { address: walletAddress, isConnected } = useWalletConnection();
-  // 课程合约地址
-  const COURSE_CONTRACT_ADDRESS =
-    "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512" as `0x${string}`;
 
   // YD Token 合约交互
   const {
@@ -93,7 +92,6 @@ export function usePurchaseCourse(): UsePurchaseCourseReturn {
     refetchAllowance,
     balance: tokenBalance,
   } = useSimpleYDToken({
-    address: "0x5fbdb2315678afecb367f032d93f642f64180aa3" as `0x${string}`,
     spenderAddress: COURSE_CONTRACT_ADDRESS,
     enabled: true,
   });
@@ -101,8 +99,8 @@ export function usePurchaseCourse(): UsePurchaseCourseReturn {
   // 课程合约交互
   const { purchaseCourse: purchaseCourseContract, purchaseCourseReceipt } =
     useCourseContract({
-      address: COURSE_CONTRACT_ADDRESS,
-      tokenDecimals: 18,
+      address: CONTRACTS.COURSE_CONTRACT,
+      tokenDecimals: TOKEN_DECIMALS,
     });
 
   // 本地状态
@@ -193,6 +191,8 @@ export function usePurchaseCourse(): UsePurchaseCourseReturn {
   const purchaseCourse = useCallback(
     async (params: PurchaseCourseParams): Promise<boolean> => {
       const { courseId, coursePrice } = params;
+      console.log("购买课程参数:", courseId, coursePrice);
+
       try {
         // ========== 步骤 1: 检查钱包连接 ==========
         setStatus(PurchaseStatus.CHECKING_WALLET);
@@ -212,11 +212,15 @@ export function usePurchaseCourse(): UsePurchaseCourseReturn {
         //   throw new Error("未找到认证令牌，请重新登录");
         // }
         // ========== 步骤 3: 检查 Token 余额 ==========
+        console.log("当前 YD Token 余额:", tokenBalance);
+        console.log("课程价格:", coursePrice);
+
         if (!tokenBalance || tokenBalance < coursePrice) {
           throw new Error(
-            `YD Token 余额不足。需要 ${formatUnits(coursePrice, 18)} YD，当前余额 ${formatUnits(tokenBalance, 18)} YD`,
+            `YD Token 余额不足。需要 ${formatUnits(coursePrice, 18)} YD，当前余额 ${tokenBalance ? formatUnits(tokenBalance, 18) : tokenBalance} YD`,
           );
         }
+
         // ========== 步骤 4: 检查并授权 Token ==========
         setStatus(PurchaseStatus.CHECKING_ALLOWANCE);
         // 刷新授权额度
@@ -225,9 +229,11 @@ export function usePurchaseCourse(): UsePurchaseCourseReturn {
           setStatus(PurchaseStatus.APPROVING_TOKEN);
           // 授权足够的金额（授权课程价格的 1.5 倍，避免频繁授权）
           const approveAmount = (coursePrice * BigInt(150)) / BigInt(100);
+          console.log("授权金额:", approveAmount);
+
           const approveAmountStr = formatUnits(approveAmount, 18);
           const approveResult = await approve(
-            COURSE_CONTRACT_ADDRESS,
+            CONTRACTS.COURSE_CONTRACT,
             approveAmountStr,
           );
           if (!approveResult) {
@@ -266,7 +272,6 @@ export function usePurchaseCourse(): UsePurchaseCourseReturn {
       refetchAllowance,
       purchaseCourseContract,
       purchaseCourseReceipt,
-      COURSE_CONTRACT_ADDRESS,
     ],
   );
   return {

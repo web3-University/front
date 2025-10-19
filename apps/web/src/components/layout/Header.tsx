@@ -1,6 +1,6 @@
 "use client";
 
-import { WalletButton, useAuth } from "@web3-university/uni-wallet-lib";
+import { useAuth, WalletButton } from "@web3-university/uni-wallet-lib";
 import clsx from "clsx";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
