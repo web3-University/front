@@ -1,9 +1,11 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
+import { useWalletInfo } from "uni-wallet-lib";
 import { parseUnits } from "viem";
 import { useCourse } from "@/hooks/useCourse";
 import { PurchaseStatus, usePurchaseCourse } from "@/hooks/usePurchaseCourse";
 import type { CourseFilters } from "@/lib/api/course";
+import { getPurchasedCourses } from "@/lib/api/course";
 import CourseItem from "./CourseItem";
 import FilterNav from "./FilterNav";
 
@@ -19,9 +21,13 @@ export type FeaturedCourse = {
   difficulty: string;
   price: number;
   coverColor: string;
+  isPurchased?: boolean; // 新增：是否已购买
 };
 
 const CourseList = () => {
+  // 获取钱包信息
+  const { address, isConnected } = useWalletInfo();
+
   // 使用 useCourse hook 管理课程数据
   const { courses: apiCourses, loading, error, fetchCourses } = useCourse();
 
@@ -48,6 +54,11 @@ const CourseList = () => {
   // 映射后的课程数据
   const [courses, setCourses] = useState<FeaturedCourse[]>([]);
 
+  // 已购买课程列表
+  const [purchasedCourseIds, setPurchasedCourseIds] = useState<Set<string>>(
+    new Set(),
+  );
+
   // 记录当前正在购买的课程 ID
   const [purchasingCourseId, setPurchasingCourseId] = useState<string | null>(
     null,
@@ -60,13 +71,42 @@ const CourseList = () => {
     fetchCourses(filters);
   }, []);
 
+  // 获取已购买课程列表
+  const fetchPurchasedCourses = useCallback(async () => {
+    if (!address || !isConnected) {
+      setPurchasedCourseIds(new Set());
+      return;
+    }
+
+    try {
+      const response = await getPurchasedCourses(address);
+      if (response.data) {
+        const purchasedIds = new Set(
+          response.data.map(
+            (course) => course.courseId?.toString() || course.id?.toString(),
+          ),
+        );
+        setPurchasedCourseIds(purchasedIds);
+      }
+    } catch (error) {
+      console.error("获取已购买课程失败:", error);
+      setPurchasedCourseIds(new Set());
+    }
+  }, [address, isConnected]);
+
+  // 当钱包连接状态或地址变化时，获取已购买课程
+  useEffect(() => {
+    fetchPurchasedCourses();
+  }, [fetchPurchasedCourses]);
+
   // 当 API 课程数据变化时，映射到前端格式
   useEffect(() => {
     const mappedCourses: FeaturedCourse[] = apiCourses.map((course) => {
       // 确保price字段有有效值
       console.log("course:", course);
+      const courseId = course.courseId?.toString() || "";
       return {
-        id: course.courseId?.toString() || "",
+        id: courseId,
         title: course.title || "未知课程",
         description: course.description || "暂无描述",
         category: course.categories?.[0] || "未分类",
@@ -77,10 +117,11 @@ const CourseList = () => {
         difficulty: course.difficulty || "1",
         price: Number(course.price),
         coverColor: course.cover || "from-[#4B6CFF] to-[#7EE7FF]",
+        isPurchased: purchasedCourseIds.has(courseId), // 检查是否已购买
       };
     });
     setCourses(mappedCourses);
-  }, [apiCourses]);
+  }, [apiCourses, purchasedCourseIds]);
 
   // 处理筛选条件变化
   const handleFilterChange = useCallback(
@@ -146,6 +187,8 @@ const CourseList = () => {
       );
       setPurchasingCourseId(null);
       setPurchasingCourseTitle(null);
+      // 购买成功后刷新已购买课程列表
+      fetchPurchasedCourses();
       setTimeout(() => {
         resetPurchase();
       }, 3000);
@@ -156,6 +199,7 @@ const CourseList = () => {
     setPurchasingCourseTitle,
     resetPurchase,
     transactionHash,
+    fetchPurchasedCourses,
   ]);
 
   return (
@@ -213,7 +257,8 @@ const CourseList = () => {
             course={course}
             onPurchaseSuccess={(transactionHash) => {
               console.log("购买成功:", transactionHash);
-              // 可以在这里添加成功后的处理逻辑，比如刷新课程列表
+              // 购买成功后刷新已购买课程列表，更新按钮状态
+              fetchPurchasedCourses();
             }}
             onPurchaseError={(error) => {
               console.error("购买失败:", error);

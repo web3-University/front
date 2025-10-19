@@ -15,6 +15,7 @@ interface CourseItemProps {
     coverColor: string;
     duration?: number;
     difficulty?: string;
+    isPurchased?: boolean; // 新增：是否已购买
     [key: string]: any;
   };
   onPurchaseSuccess?: (transactionHash: string) => void;
@@ -32,13 +33,19 @@ const CourseItem: React.FC<CourseItemProps> = ({
   };
   return (
     <CourseCard course={course} onDetail={handleCourseDetail}>
-      <CourseButton
-        courseId={course.id}
-        coursePrice={course.price}
-        courseTitle={course.title}
-        onPurchaseSuccess={onPurchaseSuccess}
-        onPurchaseError={onPurchaseError}
-      />
+      {course.isPurchased ? (
+        <div className="flex items-center justify-center px-4 py-2 bg-green-100 text-green-700 rounded-lg font-medium">
+          ✅ 已购买
+        </div>
+      ) : (
+        <CourseButton
+          courseId={course.id}
+          coursePrice={course.price}
+          courseTitle={course.title}
+          onPurchaseSuccess={onPurchaseSuccess}
+          onPurchaseError={onPurchaseError}
+        />
+      )}
     </CourseCard>
   );
 };

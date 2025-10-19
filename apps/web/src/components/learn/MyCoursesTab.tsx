@@ -1,11 +1,11 @@
 "use client";
 
-import { Clock, Play, Loader2 } from "lucide-react";
+import { useWalletInfo } from "@web3-university/uni-wallet-lib";
+import { Clock, Loader2, Play } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useWalletInfo } from "@web3-university/uni-wallet-lib";
 import { Button } from "@/components/ui/button";
-import { getPurchasedCourses } from "@/lib/api/user";
+import { getPurchasedCourses } from "@/lib/api/course";
 
 type Course = {
   id: number;

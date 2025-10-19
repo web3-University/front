@@ -7,7 +7,6 @@ import { getAuthToken } from "@/lib/utils/storage";
 export interface Course {
   courseId: any;
   id: number;
-  courseId: number;
   walletAddress?: string;
   title: string;
   description?: string;
@@ -195,3 +194,12 @@ export const purchaseCourse = (data: {
  */
 export const getPopularCourses = () =>
   http<ApiResponse<Course[]>>("/courses/popular");
+
+/**
+ * 获取用户已购买的课程
+ * GET /api/users/purchasedCourses
+ */
+export const getPurchasedCourses = (walletAddress: string) =>
+  http<ApiResponse<Course[]>>(
+    `/users/purchasedCourses?walletAddress=${walletAddress}`,
+  );

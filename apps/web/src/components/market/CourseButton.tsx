@@ -6,9 +6,7 @@ import {
   useWalletConnection,
 } from "@web3-university/uni-wallet-lib";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Address, formatUnits, parseUnits } from "viem";
-import { useAccount, useConnect, useDisconnect } from "wagmi";
-import { injected } from "wagmi/connectors";
+import { formatUnits, parseUnits } from "viem";
 import { COURSE_CONTRACT_ADDRESS } from "@/config";
 import { purchaseCourse as purchaseCourseAPI } from "@/lib/api/course";
 
@@ -261,10 +259,17 @@ const CourseButton = ({
   ]);
 
   // 计算按钮状态
-  const isLoading =
-    status !== PurchaseStatus.IDLE &&
-    status !== PurchaseStatus.SUCCESS &&
-    status !== PurchaseStatus.ERROR;
+  const isApproving =
+    status === PurchaseStatus.CHECKING_ALLOWANCE ||
+    status === PurchaseStatus.APPROVING_TOKEN ||
+    status === PurchaseStatus.WAITING_APPROVE;
+
+  const isPurchasing =
+    status === PurchaseStatus.PURCHASING_COURSE ||
+    status === PurchaseStatus.WAITING_TRANSACTION ||
+    status === PurchaseStatus.SAVING_TO_DB;
+
+  const isLoading = isApproving || isPurchasing;
 
   const getStatusText = () => {
     switch (status) {
@@ -318,10 +323,9 @@ const CourseButton = ({
           variant="secondary"
           className="flex-1"
           onClick={handleApprove}
-          disabled={isLoading}
+          disabled={isApproving}
         >
-          {status === PurchaseStatus.APPROVING_TOKEN ||
-          status === PurchaseStatus.WAITING_APPROVE ? (
+          {isApproving ? (
             <span className="flex items-center justify-center gap-2">
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
               授权中...
@@ -336,9 +340,9 @@ const CourseButton = ({
           variant="primary"
           className="flex-1"
           onClick={handlePurchase}
-          disabled={isLoading || needsApproval}
+          disabled={isPurchasing || needsApproval}
         >
-          {isLoading && !needsApproval ? (
+          {isPurchasing ? (
             <span className="flex items-center justify-center gap-2">
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
               购买中...
