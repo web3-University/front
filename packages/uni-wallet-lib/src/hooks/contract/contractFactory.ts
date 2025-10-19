@@ -116,7 +116,7 @@ export function contractFactory(address: Address, abi: Abi) {
             typeof lastArg === "object" &&
             !Array.isArray(lastArg) &&
             // 检查是否包含 overrides 的常见字段
-            (lastArg.value !== undefined || lastArg.gas !== undefined);
+            ("value" in lastArg || "gas" in lastArg);
 
           if (isOverrides) {
             overrides = lastArg as WriteOverrides;

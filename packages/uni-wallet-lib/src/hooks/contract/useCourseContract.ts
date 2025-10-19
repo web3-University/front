@@ -1,5 +1,7 @@
+import { useState } from "react";
 import type { Address } from "viem";
 import { parseUnits } from "viem";
+import { useEstimateGas, useAccount } from "wagmi";
 import type { UseWaitForTransactionReceiptReturnType as ReceiptReturnType } from "wagmi";
 import { COURSE_CONTRACT_ABI } from "../../contract";
 import type { WriteReturnType } from "./contractFactory";
@@ -133,7 +135,36 @@ export function useCourseContract({
 } {
   const factory = contractFactory(address, COURSE_CONTRACT_ABI);
 
+  const { address: userAddress } = useAccount();
+  const [estGasTo, setEstGasTo] = useState<Address>();
+  const [estGasValue, setEstGasValue] = useState<bigint>();
+  const { data: gasEstimate, refetch: refetchEstimateGas } = useEstimateGas({
+    account: userAddress,
+    to: estGasTo,
+    value: estGasValue,
+    query: {
+      enabled: false,
+    },
+  });
+
   // ========== 工具函数 ==========
+
+  const prepareRefetchEstimateGas = async (to?: Address, value?: bigint) => {
+    setEstGasTo(to);
+    setEstGasValue(value);
+
+    // 等待 React 下一次渲染周期，确保 state 更新
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    console.log(`🔢 请求参数: to->${to} / value->${value}`);
+    // 然后调用 refetch
+    await refetchEstimateGas();
+    console.log("⛽️ Estimate Gas:", gasEstimate);
+
+    // ✅ 立即清理
+    setEstGasTo(undefined);
+    setEstGasValue(undefined);
+  };
 
   /**
    * 解析价格
@@ -382,7 +413,10 @@ export function useCourseContract({
   // 注册课程
   const registerCourseWriter = factory.write("registerCourse");
   const registerCourse = async (courseId: string, price: bigint) => {
-    return await registerCourseWriter.send(courseId, price);
+    await prepareRefetchEstimateGas(COURSE_CONTRACT_ADDRESS, price);
+    return await registerCourseWriter.send(courseId, price, {
+      gas: gasEstimate,
+    });
   };
 
   // 更新课程

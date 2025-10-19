@@ -96,7 +96,7 @@ export const Profile: React.FC<ProfileProps> = ({
         aria-label="Account menu"
       >
         {userAvatar !== null ? (
-          <img src="{userAvatar}" className="avatar" />
+          <img src={userAvatar} className="avatar" />
         ) : (
           <svg
             xmlns="http://www.w3.org/2000/svg"

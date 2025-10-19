@@ -78,10 +78,7 @@ export const CourseProvider: React.FC<CourseProviderProps> = ({ children }) => {
   const {
     // 写入方法（返回 Promise）
     registerCourse, // 创建课程
-  } = useCourseContract({
-    address: "0x2aC2E8D99B585b321ffd875B95467a9B606e146a",
-    tokenDecimals: 18, // YD Token 精度
-  });
+  } = useCourseContract();
 
   // 初始状态
   const [formData, setFormData] = useState<CourseFormData>(() => {
@@ -263,9 +260,15 @@ export const CourseProvider: React.FC<CourseProviderProps> = ({ children }) => {
       console.log("课程创建成功:", response);
       const courseId = response.data.courseId;
       await createAllLessons(courseId, formData, auth);
-      // window.location.href = "/market";
 
-      registerCourse(courseId, formData.pricingSetting.price.toString());
+      const txHash = await registerCourse(
+        courseId,
+        BigInt(formData.pricingSetting.price),
+      );
+
+      console.log("✅ 合约注册成功，交易 Hash:", txHash);
+
+      window.location.href = "/market";
 
       // 可以添加成功后的处理逻辑，比如跳转到课程详情页
       // 或者显示成功提示
