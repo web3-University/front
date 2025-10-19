@@ -1,11 +1,10 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import { useWalletInfo } from "uni-wallet-lib";
-import { parseUnits } from "viem";
 import { useCourse } from "@/hooks/useCourse";
 import { PurchaseStatus, usePurchaseCourse } from "@/hooks/usePurchaseCourse";
 import type { CourseFilters } from "@/lib/api/course";
-import { getPurchasedCourses } from "@/lib/api/course";
+import { getPurchasedCourses } from "@/lib/api/user";
 import CourseItem from "./CourseItem";
 import FilterNav from "./FilterNav";
 
@@ -33,7 +32,6 @@ const CourseList = () => {
 
   // 使用购买课程 hook
   const {
-    purchaseCourse,
     status: purchaseStatus,
     loading: isPurchasing,
     error: purchaseError,

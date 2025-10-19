@@ -5,7 +5,7 @@ import { Clock, Loader2, Play } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { getPurchasedCourses } from "@/lib/api/course";
+import { getPurchasedCourses } from "@/lib/api/user";
 
 type Course = {
   id: number;

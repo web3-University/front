@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 
 import { MAIN_ROUTES } from "@/config/routes";
+import { registerUser } from "@/lib/api/user";
 
 function isRouteActive(href: string, pathname: string, aliases: string[] = []) {
   if (pathname === href) return true;
@@ -95,14 +96,4 @@ export default function Header() {
       </div>
     </header>
   );
-}
-function registerUser(registrationData: {
-  walletAddress: string;
-  username: string; // 使用地址前8位作为默认用户名
-  email: string; // 生成默认邮箱
-  avatar: string; // 默认头像
-  bio: string;
-  specializations: string[];
-}) {
-  throw new Error("Function not implemented.");
 }

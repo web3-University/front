@@ -8,21 +8,9 @@ import {
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { formatUnits, parseUnits } from "viem";
 import { COURSE_CONTRACT_ADDRESS } from "@/config";
+import { PurchaseStatus } from "@/hooks/usePurchaseCourse";
 import { purchaseCourse as purchaseCourseAPI } from "@/lib/api/course";
-
 import { Button } from "../ui/button";
-
-export enum PurchaseStatus {
-  IDLE = "IDLE",
-  CHECKING_ALLOWANCE = "CHECKING_ALLOWANCE",
-  APPROVING_TOKEN = "APPROVING_TOKEN",
-  WAITING_APPROVE = "WAITING_APPROVE",
-  PURCHASING_COURSE = "PURCHASING_COURSE",
-  WAITING_TRANSACTION = "WAITING_TRANSACTION",
-  SAVING_TO_DB = "SAVING_TO_DB",
-  SUCCESS = "SUCCESS",
-  ERROR = "ERROR",
-}
 
 interface CourseButtonProps {
   courseId: string;
@@ -148,9 +136,7 @@ const CourseButton = ({
     }
 
     if (!hasEnoughBalance) {
-      setError(
-        `YD Token 余额不足。需要 ${formatUnits(coursePriceBigInt, 18)} YD`,
-      );
+      setError(`YD Token 余额不足。`);
       return;
     }
 
@@ -200,7 +186,9 @@ const CourseButton = ({
     onPurchaseError,
   ]);
 
-  // 监听授权交易确认
+  /**
+   * 监听授权交易确认
+   */
   useEffect(() => {
     if (approveReceipt && status === PurchaseStatus.WAITING_APPROVE) {
       console.log("授权交易确认:", approveReceipt);
@@ -213,7 +201,9 @@ const CourseButton = ({
     }
   }, [approveReceipt, status, refetchAllowance]);
 
-  // 监听购买交易确认
+  /**
+   * 监听购买交易确认
+   */
   useEffect(() => {
     if (
       purchaseCourseReceipt &&
