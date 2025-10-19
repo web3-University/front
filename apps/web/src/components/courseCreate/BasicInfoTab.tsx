@@ -1,5 +1,6 @@
 import React, { type ChangeEvent, useState } from "react";
 import { useCourseContext } from "./CourseContext";
+import { useUpload } from "../../hooks/useUpload";
 
 // 课程分类数据，每个对象包含value和label
 const courseCategories = [
@@ -20,9 +21,11 @@ const difficultyLevels = [
 
 const BasicInfoTab = () => {
   const { formData, setFormData, errors } = useCourseContext();
-  const [isCoverImageUploaded, setIsCoverImageUploaded] = useState(
-    !!formData.basicInfo.coverImage,
-  );
+  const { uploadFile, isUploading, error, progress, reset } = useUpload();
+  console.log(error, "___error");
+  // 保存本地文件用于预览
+  const [localFile, setLocalFile] = useState<File | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
 
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -44,36 +47,105 @@ const BasicInfoTab = () => {
     }));
   };
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const input = e.target as HTMLInputElement;
-    if (!input.files || input.files.length === 0) return;
-    setFormData((prev) => ({
-      ...prev,
-      basicInfo: { ...prev.basicInfo, coverImage: input.files![0] },
-    }));
-    setIsCoverImageUploaded(true);
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // 立即保存本地文件并显示
+    setLocalFile(file);
+
+    // 开始上传
+    const newUrl = await uploadFile(
+      file,
+      "image",
+      formData.basicInfo.coverImage as string,
+    );
+
+    if (newUrl) {
+      // 上传成功，更新为服务器 URL
+      setFormData((prev) => ({
+        ...prev,
+        basicInfo: {
+          ...prev.basicInfo,
+          coverImage: newUrl,
+        },
+      }));
+    } else {
+      // 上传失败，保持本地文件显示
+      // localFile 已经设置，不需要额外操作
+    }
   };
 
   const handleRemoveCoverImage = () => {
     setFormData((prev) => ({
       ...prev,
-      basicInfo: { ...prev.basicInfo, coverImage: null },
+      basicInfo: {
+        ...prev.basicInfo,
+        coverImage: null,
+      },
     }));
-    setIsCoverImageUploaded(false);
+    setLocalFile(null);
+    reset();
   };
 
-  const handleAddTag = () => {
-    const tagInput = document.getElementById("tagInput") as HTMLInputElement;
-    if (tagInput && tagInput.value.trim()) {
-      setFormData((prev) => ({
-        ...prev,
-        basicInfo: {
-          ...prev.basicInfo,
-          tags: [...prev.basicInfo.tags, tagInput.value.trim()],
-        },
-      }));
-      tagInput.value = "";
+  const handlePreviewImage = () => {
+    setShowPreview(true);
+  };
+
+  const handleClosePreview = () => {
+    setShowPreview(false);
+  };
+
+  // 获取显示的图片 URL
+  const getImageUrl = () => {
+    if (
+      formData.basicInfo.coverImage &&
+      typeof formData.basicInfo.coverImage === "string"
+    ) {
+      // 有服务器 URL，使用服务器 URL
+      return formData.basicInfo.coverImage;
+    } else if (localFile) {
+      // 只有本地文件，使用本地 URL
+      try {
+        return URL.createObjectURL(localFile);
+      } catch (error) {
+        console.error("创建本地 URL 失败:", error);
+        // 如果创建本地 URL 失败，返回默认占位图
+        return "https://placehold.co/1280x720/EEE/999?text=Course+Cover";
+      }
     }
+    return null;
+  };
+
+  // 获取文件名
+  const getFileName = () => {
+    if (localFile) {
+      return localFile.name;
+    } else if (
+      formData.basicInfo.coverImage &&
+      typeof formData.basicInfo.coverImage === "string"
+    ) {
+      // 从 URL 提取文件名
+      const urlParts = formData.basicInfo.coverImage.split("/");
+      return urlParts[urlParts.length - 1] || "课程封面";
+    }
+    return "";
+  };
+
+  const [tagInput, setTagInput] = useState("");
+
+  const handleAddTag = () => {
+    if (!tagInput.trim()) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      basicInfo: {
+        ...prev.basicInfo,
+        tags: [...prev.basicInfo.tags, tagInput.trim()],
+      },
+    }));
+
+    setTagInput(""); // ✅ 这里清空输入框
   };
 
   const handleRemoveTag = (index: number) => {
@@ -114,6 +186,10 @@ const BasicInfoTab = () => {
       },
     }));
   };
+
+  const imageUrl = getImageUrl();
+  const fileName = getFileName();
+  const hasImage = imageUrl && fileName;
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-4 shadow space-y-4 text-black">
@@ -229,30 +305,99 @@ const BasicInfoTab = () => {
         <label className="block text-sm font-medium text-gray-700 mb-1">
           课程封面图 *
         </label>
-        {isCoverImageUploaded ? (
-          <div className="relative bg-white border border-gray-200 rounded-md p-4">
-            {formData.basicInfo.coverImage && (
-              <img
-                src={
-                  formData.basicInfo.coverImage instanceof File ||
-                  formData.basicInfo.coverImage instanceof Blob
-                    ? URL.createObjectURL(formData.basicInfo.coverImage)
-                    : formData.basicInfo.coverImage // 假设是字符串 URL
-                }
-                alt="课程封面预览"
-                className="w-full h-auto max-h-48 object-contain rounded"
-                onError={(e) => {
-                  console.error("图片加载失败", e);
-                  e.currentTarget.src = "/placeholder-image.png"; // 可选：设置占位图
-                }}
-              />
+
+        {hasImage ? (
+          <div className="border border-gray-200 rounded-md p-4">
+            {/* 文件信息区域 */}
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center space-x-2 flex-1">
+                <svg
+                  className="w-5 h-5 text-purple-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+                <span className="text-sm text-gray-700 truncate">
+                  {fileName}
+                </span>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={handlePreviewImage}
+                  className="text-xs px-3 py-1 bg-purple-500 text-white rounded hover:bg-purple-600"
+                >
+                  预览
+                </button>
+                <button
+                  type="button"
+                  onClick={handleRemoveCoverImage}
+                  disabled={isUploading}
+                  className="text-xs px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50 ml-3"
+                >
+                  移除
+                </button>
+              </div>
+            </div>
+
+            {/* 上传进度条 */}
+            {isUploading && (
+              <div className="mt-2">
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-purple-500 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${progress}%` }}
+                  ></div>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  上传中... {progress}%
+                </p>
+              </div>
             )}
-            <button
-              onClick={handleRemoveCoverImage}
-              className="absolute top-2 right-2 text-xs px-2 py-1 bg-red-500 text-white rounded"
-            >
-              移除
-            </button>
+
+            {/* 上传失败提示 */}
+            {error && (
+              <div className="mt-2 flex items-center space-x-1 text-red-500 text-sm">
+                <svg
+                  className="w-4 h-4"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span>上传失败（显示本地文件）</span>
+              </div>
+            )}
+
+            {/* 上传成功提示 */}
+            {!isUploading && !error && formData.basicInfo.coverImage && (
+              <div className="mt-2 flex items-center space-x-1 text-green-500 text-sm">
+                <svg
+                  className="w-4 h-4"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span>上传成功</span>
+              </div>
+            )}
           </div>
         ) : (
           <div className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center">
@@ -269,18 +414,47 @@ const BasicInfoTab = () => {
             />
             <label
               htmlFor="coverImage"
-              className="inline-block px-4 py-2 bg-purple-500 text-white text-sm rounded-md cursor-pointer"
+              className="inline-block px-4 py-2 bg-purple-500 text-white text-sm rounded-md cursor-pointer hover:bg-purple-600"
             >
               选择文件
             </label>
           </div>
         )}
+
         {errors["basicInfo.coverImage"] && (
           <p className="text-red-500 text-xs mt-1">
             {errors["basicInfo.coverImage"]}
           </p>
         )}
       </div>
+
+      {/* 图片预览模态框 */}
+      {showPreview && imageUrl && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+          onClick={handleClosePreview}
+        >
+          <div className="relative max-w-4xl max-h-[90vh] p-4">
+            <button
+              onClick={handleClosePreview}
+              className="absolute top-2 right-2 text-white bg-black bg-opacity-50 rounded-full w-8 h-8 flex items-center justify-center hover:bg-opacity-75"
+            >
+              ×
+            </button>
+            <img
+              src={imageUrl}
+              alt="封面预览"
+              className="max-w-full max-h-[85vh] object-contain rounded"
+              onClick={(e) => e.stopPropagation()}
+              onError={(e) => {
+                console.error("图片加载失败");
+                e.currentTarget.src =
+                  "https://placehold.co/1280x720/EEE/999?text=Course+Cover";
+              }}
+            />
+          </div>
+        </div>
+      )}
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -292,7 +466,7 @@ const BasicInfoTab = () => {
               key={index}
               className="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs"
             >
-              {tag}{" "}
+              {tag}
               <button onClick={() => handleRemoveTag(index)} className="ml-1">
                 ×
               </button>
@@ -302,6 +476,8 @@ const BasicInfoTab = () => {
         <div className="flex">
           <input
             id="tagInput"
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
             className="flex-1 rounded-l-md border border-gray-300 p-2"
             placeholder="添加标签..."
           />
@@ -320,8 +496,10 @@ const BasicInfoTab = () => {
           学习目标
         </label>
         {formData.basicInfo.learningGoals.map((goal, index) => (
-          <div key={index} className="flex items-center mb-2">
-            <span className="text-purple-500 text-xl mr-2">📌</span>
+          <div key={index} className="flex items-stretch mb-2">
+            <span className="text-purple-500 text-xl mr-2 flex items-center">
+              📌
+            </span>
             <input
               type="text"
               value={goal}
@@ -333,27 +511,27 @@ const BasicInfoTab = () => {
                   basicInfo: { ...prev.basicInfo, learningGoals: newGoals },
                 }));
               }}
-              className="flex-1 rounded-l-md border border-gray-300 p-2"
+              className="flex-1 rounded-l-md border border-gray-300 p-2 border-r-0"
             />
             <button
               type="button"
               onClick={() => handleRemoveLearningGoal(index)}
-              className="bg-red-500 text-white w-8 h-8 flex items-center justify-center rounded-r-md"
+              className="bg-red-500 text-white w-10 flex items-center justify-center rounded-r-md hover:bg-red-600"
             >
               ×
             </button>
           </div>
         ))}
-        <div className="flex items-center">
+        <div className="flex items-stretch ml-[1.8rem]">
           <input
             id="goalInput"
-            className="flex-1 rounded-l-md border border-gray-300 p-2"
+            className="flex-1 rounded-l-md border border-gray-300 p-2 border-r-0"
             placeholder="新的学习目标..."
           />
           <button
             type="button"
             onClick={handleAddLearningGoal}
-            className="bg-green-500 text-white w-8 h-8 flex items-center justify-center rounded-r-md"
+            className="bg-green-500 text-white w-10 flex items-center justify-center rounded-r-md hover:bg-green-600"
           >
             +
           </button>

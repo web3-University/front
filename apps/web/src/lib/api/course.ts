@@ -85,7 +85,10 @@ export interface ApiResponse<T> {
   message?: string;
   statusCode?: number;
 }
-
+export interface UploadImageParams {
+  file: File | Blob;
+  fileType: string;
+}
 // ========== 课程管理 API ==========
 
 /**
@@ -112,7 +115,16 @@ export const getMyCourses = (params: {
     `/courses/my?walletAddress=${walletAddress}&page=${page}&limit=${limit}`,
   );
 };
+export const uploadCouseImage = (data: UploadImageParams) => {
+  const formData = new FormData();
+  formData.append("file", data.file);
+  formData.append("fileType", data.fileType);
 
+  return http<ApiResponse<string>>("/api/storage/upload", {
+    method: "POST",
+    body: formData, // 使用 FormData 而不是直接传递 data
+  });
+};
 /**
  * 获取课程列表（带筛选）
  * POST /courses/list
