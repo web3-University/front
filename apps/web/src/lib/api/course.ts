@@ -5,6 +5,7 @@ import { getAuthToken } from "@/lib/utils/storage";
 // ========== 类型定义 ==========
 
 export interface Course {
+  courseId: any;
   id: number;
   walletAddress?: string;
   title: string;
