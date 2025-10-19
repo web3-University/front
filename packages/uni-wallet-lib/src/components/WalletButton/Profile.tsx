@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useWalletConnection } from "../../hooks/wallet";
+import { useSimpleYDToken } from "../../hooks/contract/useSimpleYDToken";
 import "./Profile.css";
 
 type AccountProps = {
@@ -27,16 +28,22 @@ export interface ProfileProps {
   account: AccountProps;
   chain: ChainProps;
   openAccountModal: () => void;
+  openProfile: () => void;
 }
 
 export const Profile: React.FC<ProfileProps> = ({
   account,
   chain,
-  openAccountModal,
+  openProfile,
 }: ProfileProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const { disconnect } = useWalletConnection();
+
+  // 获取YD币余额
+  const { formattedBalance } = useSimpleYDToken({
+    enabled: true,
+  });
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent): void => {
@@ -54,6 +61,11 @@ export const Profile: React.FC<ProfileProps> = ({
   const handleDisconnect = (): void => {
     setIsMenuOpen(false);
     disconnect();
+  };
+
+  const handleProfile = (): void => {
+    setIsMenuOpen(false);
+    openProfile();
   };
 
   const handleCopyAddress = (): void => {
@@ -136,7 +148,30 @@ export const Profile: React.FC<ProfileProps> = ({
               </svg>
               当前余额
             </div>
-            <div className="balance-info-amount">{account.displayBalance}</div>
+            <div className="balance-info-amount">{formattedBalance}</div>
+          </div>
+
+          <div className="profile-box hover-animation">
+            <button
+              className="profile-box-button"
+              type="button"
+              onClick={handleProfile}
+            ></button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            Profile
           </div>
 
           <button className="disconnect-button" onClick={handleDisconnect}>

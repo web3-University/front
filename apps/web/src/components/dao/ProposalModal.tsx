@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import type { Proposal } from "@/types/dao";
+import { Proposal } from "@/types/dao";
 import ProposalCard from "./ProposalCard";
 
 interface ProposalModalProps {

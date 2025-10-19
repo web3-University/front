@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import type { Address } from "viem";
-import { parseEther, parseUnits } from "viem";
+import { parseEther, parseUnits, formatUnits } from "viem";
 import type { UseWaitForTransactionReceiptReturnType as ReceiptReturnType } from "wagmi";
 import { useAccount, useEstimateGas } from "wagmi";
 import { SIMPLE_YD_TOKEN_ABI } from "../../contract";
@@ -34,6 +34,10 @@ export function useSimpleYDToken({
   totalSupply: bigint;
   // 当前用户的代币余额
   balance: bigint;
+  // 格式化的余额（字符串）
+  formattedBalance: string;
+  // 代币精度
+  decimals: number;
   // 当前用户对指定地址的授权额度
   allowance: bigint;
   // 转账收据
@@ -131,13 +135,23 @@ export function useSimpleYDToken({
   const { data: totalSupply } = factory.read("totalSupply")();
 
   // 读取当前用户的代币余额
-  const { data: balance, refetch: refetchBalance } = factory.read(
+  const { data: balance, refetch: refetchBalance } = factory.read<bigint>(
     "balanceOf",
     enabled && !!userAddress,
   )(userAddress);
 
   // 读取代币精度
-  const { data: decimals } = factory.read("decimals")();
+  const { data: decimals } = factory.read<number>("decimals")();
+
+  // 格式化代币
+  const formattedBalance = useMemo(() => {
+    if (balance && decimals) {
+      const balanceString = formatUnits(balance, decimals);
+
+      return `${Number(balanceString).toFixed(4)}`;
+    }
+    return "0.0000";
+  }, [balance, decimals]);
 
   // 读取当前用户对指定地址的授权额度
   const { data: allowance, refetch: refetchAllowance } = factory.read(
@@ -272,6 +286,8 @@ export function useSimpleYDToken({
     /* 代币基本信息 */
     totalSupply: totalSupply as bigint,
     balance: balance as bigint,
+    formattedBalance,
+    decimals: decimals as number,
     allowance: allowance as bigint,
     transferReceipt: transferWriter.receipt,
     approveReceipt: approveWriter.receipt,
