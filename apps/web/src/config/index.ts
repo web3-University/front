@@ -1,3 +1,3 @@
 // 课程合约地址
 export const COURSE_CONTRACT_ADDRESS =
-  "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512" as `0x${string}`;
+  "0x2aC2E8D99B585b321ffd875B95467a9B606e146a" as `0x${string}`;

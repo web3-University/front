@@ -40,7 +40,7 @@ interface CourseFormData {
     description: string;
     category: string;
     difficulty: string;
-    coverImage: File | Blob | string | null;
+    coverImage: string;
     tags: string[];
     learningGoals: string[];
     prerequisites: string[]; // 添加prerequisites字段
@@ -78,10 +78,7 @@ export const CourseProvider: React.FC<CourseProviderProps> = ({ children }) => {
   const {
     // 写入方法（返回 Promise）
     registerCourse, // 创建课程
-  } = useCourseContract({
-    address: "0x2aC2E8D99B585b321ffd875B95467a9B606e146a",
-    tokenDecimals: 18, // YD Token 精度
-  });
+  } = useCourseContract();
 
   // 初始状态
   const [formData, setFormData] = useState<CourseFormData>(() => {
@@ -244,7 +241,7 @@ export const CourseProvider: React.FC<CourseProviderProps> = ({ children }) => {
         walletAddress: auth.address,
         title: formData.basicInfo.title,
         description: formData.basicInfo.description,
-        cover: "https://via.placeholder.com/400x300", //
+        cover: formData.basicInfo.coverImage || "", //
         // cover: formData.basicInfo.coverImage, // 提供默认的有效URL
         categories: [formData.basicInfo.category], // 将单个分类转换为数组
         difficulty: formData.basicInfo.difficulty,
@@ -263,9 +260,15 @@ export const CourseProvider: React.FC<CourseProviderProps> = ({ children }) => {
       console.log("课程创建成功:", response);
       const courseId = response.data.courseId;
       await createAllLessons(courseId, formData, auth);
-      // window.location.href = "/market";
 
-      registerCourse(courseId, formData.pricingSetting.price.toString());
+      const txHash = await registerCourse(
+        courseId,
+        BigInt(formData.pricingSetting.price),
+      );
+
+      console.log("✅ 合约注册成功，交易 Hash:", txHash);
+
+      window.location.href = "/market";
 
       // 可以添加成功后的处理逻辑，比如跳转到课程详情页
       // 或者显示成功提示
