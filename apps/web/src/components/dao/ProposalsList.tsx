@@ -14,6 +14,13 @@ import ProposalModal from "./ProposalModal";
 import SubmitProposalModal from "./SubmitProposalModal";
 import SubmitDisputeModal from "./SubmitDisputeModal";
 import NewProposal from "@/components/dao/NewProposal";
+import {
+  useWalletSign,
+  useSimpleYDToken,
+  useWalletInfo,
+} from "@web3-university/uni-wallet-lib";
+import { formatUnits, parseUnits } from "viem";
+import { CONTRACTS, TOKEN_DECIMALS } from "@/config/contracts";
 
 // 模拟数据
 const mockProposals: DaoByStatus = {
@@ -98,6 +105,120 @@ export default function ProposalsList() {
   const [showNewProposal, setShowNewProposal] = useState(false);
   const [showNewDispute, setShowNewDispute] = useState(false);
 
+  const { signMessage } = useWalletSign();
+  // 钱包连接状态
+  const { address: walletAddress, isConnected } = useWalletInfo();
+
+  //创建提案合约地址
+  const CREATEPROPOSAL_CONTRACT_ADDRESS =
+    "0x5E3Ab3256cfa5C89bEb63DbB8e12ba42d63F216f"; //TODO:
+
+  const [isCreating, setIsCreating] = useState(false);
+
+  // YD Token 合约交互
+  const {
+    allowance,
+    approve,
+    approveReceipt,
+    refetchAllowance,
+    balance: tokenBalance,
+  } = useSimpleYDToken({
+    address: CONTRACTS.YD_TOKEN,
+    spenderAddress: CREATEPROPOSAL_CONTRACT_ADDRESS,
+    enabled: true,
+  });
+
+  const createProposal = async (newProposal: any) => {
+    console.log(newProposal, "rucan--");
+    if (isCreating) return; // 防止重复点击
+    setIsCreating(true);
+
+    try {
+      // 所有逻辑...
+
+      if (!isConnected || !walletAddress) {
+        throw new Error("请先连接钱包");
+      }
+
+      // 1. 签名认证
+      console.log("开始签名认证...");
+      // 生成签名消息用于用户确认
+      const timestamp = Date.now();
+      const message = `提交提案\n时间戳: ${timestamp}\n钱包地址: ${walletAddress}`;
+
+      // 请求钱包签名（用户确认操作）
+      let signature: string;
+      try {
+        const signResult = await signMessage(message);
+        signature = signResult.signature;
+        console.log("签名成功:", signature);
+      } catch (_signError) {
+        // 用户拒绝签名，不继续请求接口
+        console.log("用户拒绝签名");
+        // setMessage({ type: "error", text: "已取消操作" });
+        return;
+      }
+
+      // 检查 Token 余额
+      const GAS = parseUnits("10", 18); //TODO: 假设提案创建费用为 10 YD
+      if (!tokenBalance) {
+        throw new Error("无法获取 YD Token 余额");
+      }
+      if (!tokenBalance || tokenBalance < GAS) {
+        throw new Error(
+          `YD Token 余额不足。需要 ${formatUnits(GAS, 18)} YD，当前余额 ${formatUnits(tokenBalance, 18)} YD`,
+        );
+      }
+
+      console.log("检查授权---");
+      //检查并授权 Token
+      await refetchAllowance();
+      console.log("检查通过---");
+
+      console.log("检查授权额度---");
+
+      if (!allowance || allowance < GAS) {
+        //allowance授权额度
+        //   // 授权足够的金额（授权课程价格的 1.5 倍，避免频繁授权）
+        const approveAmount = (GAS * BigInt(150)) / BigInt(100);
+        const approveAmountStr = formatUnits(approveAmount, 18);
+        const approveResult = await approve(
+          CREATEPROPOSAL_CONTRACT_ADDRESS,
+          approveAmountStr,
+        );
+        if (!approveResult) {
+          // ❌ 这里应该等待授权交易确认，否则可能立即检查授权额度还是不够
+          throw new Error("授权失败，未返回交易哈希");
+        }
+      }
+
+      // 开始调接口
+
+      //调用智能合约创建提案
+      // const createResult = await crateProposalContract({
+      //   proposalId,
+      //   content,
+      // });
+      // if (!createResult) {
+      //   throw new Error("创建提案失败，未返回交易哈希");
+      // }
+      // console.log("创建提案交易哈希:", createResult);
+
+      //等待交易确认
+      // const receipt = await purchaseCourseReceipt(createResult);
+      // if (!receipt || receipt.status !== "success") {
+      //   throw new Error("创建提案交易失败");
+      // }
+      // console.log("创建提案交易已确认:", receipt);
+    } catch (error) {
+      console.error("创建提案失败:");
+      // 需要给用户显示错误信息
+      alert("创建提案失败");
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
   return (
     <section className="relative">
       {/* Tabs - 优化后的样式 */}
@@ -172,17 +293,13 @@ export default function ProposalsList() {
       <SubmitProposalModal
         isOpen={showNewProposal}
         onClose={() => setShowNewProposal(false)}
-        onSubmit={(newProposal) => {
-          console.log("Submitted Proposal:", newProposal);
-        }}
+        onSubmit={createProposal}
       />
 
       <SubmitDisputeModal
         isOpen={showNewDispute}
         onClose={() => setShowNewDispute(false)}
-        onSubmit={(newProposal) => {
-          console.log("Submitted Dispute:", newProposal);
-        }}
+        onSubmit={createProposal}
       />
     </section>
   );
