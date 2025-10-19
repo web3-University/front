@@ -11,7 +11,8 @@ import {
   Target,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef } from "react";
+import ReactPlayer from "react-player";
 
 interface CourseBodyProps {
   course: Course;
@@ -20,16 +21,22 @@ interface CourseBodyProps {
 
 export default function CourseBody({ course, lessons }: CourseBodyProps) {
   const [playingLessonId, setPlayingLessonId] = useState<
-    number | null | string
+    null | number | string
   >(null);
-  const mockVideoUrl = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
-  const handlePlay = (lessonId: string) => {
-    console.log(lessonId, "___lessopnId");
+  const playerContainerRef = useRef<HTMLDivElement>(null);
+
+  // 修复 YouTube URL - 移除 playlist 参数
+  const mockVideoUrl = "https://www.youtube.com/watch?v=6aGVB-VGgoM";
+
+  const handlePlay = (lessonId: string | number) => {
+    console.log(lessonId, "___lessonId");
     setPlayingLessonId(playingLessonId === lessonId ? null : lessonId);
   };
+
   const handleClosePlayer = () => {
     setPlayingLessonId(null);
   };
+
   const hasValidObjectives =
     course.learningObjectives &&
     course.learningObjectives.length > 0 &&
@@ -130,83 +137,115 @@ export default function CourseBody({ course, lessons }: CourseBodyProps) {
             </div>
             <p className="text-gray-500 text-lg">暂无章节内容</p>
             <p className="text-gray-400 text-sm mt-2">
-              课程章节正在制作中，敬请期待
+              课程章节正在制作中,敬请期待
             </p>
           </div>
         ) : (
           <div className="space-y-3">
             {lessonList.map((lesson, index) => {
-              console.log(lesson, "___+++lesson");
               const lessonOrder = lesson.order ?? index + 1;
               const lessonTitle = lesson.title || `未命名章节 ${lessonOrder}`;
               const lessonSummary =
                 typeof lesson.content === "string" ? lesson.content : "";
               const lessonDuration = formatLessonDuration(lesson.duration);
               const hasVideo = Boolean(lesson.videoUrl);
+
               return (
-                <div
-                  key={lesson.id ?? `lesson-${lessonOrder}-${index}`}
-                  className="group flex items-center gap-4 p-5 bg-gradient-to-r from-gray-50 to-white rounded-xl hover:shadow-md transition-all border border-gray-100 hover:border-blue-200"
-                >
-                  {/* 章节序号 */}
-                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-md">
-                    {lessonOrder}
+                <div key={lesson.id ?? `lesson-${lessonOrder}-${index}`}>
+                  {/* 课程行 */}
+                  <div className="group flex items-center gap-4 p-5 bg-gradient-to-r from-gray-50 to-white rounded-xl hover:shadow-md transition-all border border-gray-100 hover:border-blue-200">
+                    {/* 章节序号 */}
+                    <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-md">
+                      {lessonOrder}
+                    </div>
+
+                    {/* 章节信息 */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-[#2B2558] font-semibold text-lg group-hover:text-blue-600 transition-colors mb-1">
+                        {lessonTitle}
+                      </h3>
+                      {lessonSummary && (
+                        <p className="text-sm text-gray-500 line-clamp-1">
+                          {lessonSummary}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* 时长和状态 */}
+                    <div className="flex items-center gap-4 flex-shrink-0">
+                      {lessonDuration && (
+                        <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 rounded-lg">
+                          <Clock className="h-4 w-4 text-blue-600" />
+                          <span className="text-sm font-medium text-blue-600">
+                            {lessonDuration}
+                          </span>
+                        </div>
+                      )}
+
+                      {hasVideo ? (
+                        <button
+                          onClick={() => handlePlay(lesson.id)}
+                          className="hover:scale-110 transition-transform"
+                        >
+                          <PlayCircle
+                            className={`h-6 w-6 ${
+                              playingLessonId === lesson.id
+                                ? "text-green-600"
+                                : "text-green-500"
+                            }`}
+                          />
+                        </button>
+                      ) : (
+                        <Lock className="h-6 w-6 text-gray-300" />
+                      )}
+                    </div>
                   </div>
 
-                  {/* 章节信息 */}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-[#2B2558] font-semibold text-lg group-hover:text-blue-600 transition-colors mb-1">
-                      {lessonTitle}
-                    </h3>
-                    {lessonSummary && (
-                      <p className="text-sm text-gray-500 line-clamp-1">
-                        {lessonSummary}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* 时长和状态 */}
-                  <div className="flex items-center gap-4 flex-shrink-0">
-                    {lessonDuration && (
-                      <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 rounded-lg">
-                        <Clock className="h-4 w-4 text-blue-600" />
-                        <span className="text-sm font-medium text-blue-600">
-                          {lessonDuration}
-                        </span>
-                      </div>
-                    )}
-
-                    {hasVideo ? (
-                      <PlayCircle
-                        className="h-6 w-6 text-green-500"
-                        onClick={() => {
-                          handlePlay(lesson.id);
-                        }}
-                      />
-                    ) : (
-                      <Lock className="h-6 w-6 text-gray-300" />
-                    )}
-                  </div>
+                  {/* 视频播放器 - 显示在课程行下方 */}
                   {playingLessonId === lesson.id && (
-                    <div className="mt-2 bg-black rounded-lg overflow-hidden relative">
+                    <div
+                      ref={playerContainerRef}
+                      className="mt-2 bg-black rounded-lg overflow-hidden relative"
+                    >
                       {/* 关闭按钮 */}
                       <button
                         onClick={handleClosePlayer}
                         className="absolute top-2 right-2 z-10 bg-black bg-opacity-50 hover:bg-opacity-75 rounded-full p-2 transition-all"
+                        title="关闭"
                       >
                         <X className="h-5 w-5 text-white" />
                       </button>
 
-                      {/* 视频播放器 */}
-                      <video
-                        controls
-                        autoPlay
-                        className="w-full aspect-video"
-                        src={mockVideoUrl}
-                        onEnded={handleClosePlayer}
-                      >
-                        您的浏览器不支持视频播放
-                      </video>
+                      {/* ReactPlayer 播放器 */}
+                      <ReactPlayer
+                        url={lesson.videoUrl || mockVideoUrl}
+                        width="100%"
+                        height="100%"
+                        controls={true}
+                        playing={true}
+                        light={false}
+                        className="aspect-video"
+                        onError={(e) => {
+                          console.error("视频播放错误:", e);
+                        }}
+                        onReady={() => {
+                          console.log("视频准备就绪");
+                        }}
+                        config={{
+                          youtube: {
+                            playerVars: {
+                              autoplay: 1,
+                              modestbranding: 1,
+                              rel: 0,
+                              showinfo: 0,
+                              origin: window.location.origin,
+                            },
+                            embedOptions: {
+                              host: "https://www.youtube-nocookie.com",
+                            },
+                          },
+                        }}
+                      />
                     </div>
                   )}
                 </div>
