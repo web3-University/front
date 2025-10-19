@@ -3,6 +3,7 @@
 import { useAuth, WalletButton } from "@web3-university/uni-wallet-lib";
 import clsx from "clsx";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 
@@ -20,6 +21,8 @@ export default function Header() {
   const pathname = usePathname();
   const { isAuthenticated, address } = useAuth();
   const hasRegistered = useRef(false);
+
+  const router = useRouter();
 
   // 监听钱包连接状态，连接后自动注册用户
   useEffect(() => {
@@ -57,6 +60,10 @@ export default function Header() {
     hasRegistered.current = false;
   }, [address]);
 
+  const routeToProfile = () => {
+    router.push("/profile");
+  };
+
   return (
     <header className="fixed inset-x-0 top-0 z-50 flex justify-center px-4 text-[#2B2558]">
       <div className="mt-6 flex h-16 w-full max-w-[1280px] items-center justify-between rounded-2xl bg-white/85 px-6 backdrop-blur-xl shadow-[0_24px_60px_rgba(154,161,255,0.18)] ring-1 ring-white/60">
@@ -91,7 +98,12 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <WalletButton label="连接钱包" showBalance showChainName />
+          <WalletButton
+            label="连接钱包"
+            showBalance
+            showChainName
+            onOpenProfile={routeToProfile}
+          />
         </div>
       </div>
     </header>
