@@ -7,7 +7,6 @@ import { getAuthToken } from "@/lib/utils/storage";
 export interface Course {
   courseId: any;
   id: number;
-  courseId: number;
   walletAddress?: string;
   title: string;
   description?: string;
