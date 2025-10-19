@@ -9,7 +9,9 @@ import {
   Lock,
   PlayCircle,
   Target,
+  X,
 } from "lucide-react";
+import { useState } from "react";
 
 interface CourseBodyProps {
   course: Course;
@@ -17,6 +19,17 @@ interface CourseBodyProps {
 }
 
 export default function CourseBody({ course, lessons }: CourseBodyProps) {
+  const [playingLessonId, setPlayingLessonId] = useState<
+    number | null | string
+  >(null);
+  const mockVideoUrl = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
+  const handlePlay = (lessonId: string) => {
+    console.log(lessonId, "___lessopnId");
+    setPlayingLessonId(playingLessonId === lessonId ? null : lessonId);
+  };
+  const handleClosePlayer = () => {
+    setPlayingLessonId(null);
+  };
   const hasValidObjectives =
     course.learningObjectives &&
     course.learningObjectives.length > 0 &&
@@ -123,6 +136,7 @@ export default function CourseBody({ course, lessons }: CourseBodyProps) {
         ) : (
           <div className="space-y-3">
             {lessonList.map((lesson, index) => {
+              console.log(lesson, "___+++lesson");
               const lessonOrder = lesson.order ?? index + 1;
               const lessonTitle = lesson.title || `未命名章节 ${lessonOrder}`;
               const lessonSummary =
@@ -163,11 +177,38 @@ export default function CourseBody({ course, lessons }: CourseBodyProps) {
                     )}
 
                     {hasVideo ? (
-                      <PlayCircle className="h-6 w-6 text-green-500" />
+                      <PlayCircle
+                        className="h-6 w-6 text-green-500"
+                        onClick={() => {
+                          handlePlay(lesson.id);
+                        }}
+                      />
                     ) : (
                       <Lock className="h-6 w-6 text-gray-300" />
                     )}
                   </div>
+                  {playingLessonId === lesson.id && (
+                    <div className="mt-2 bg-black rounded-lg overflow-hidden relative">
+                      {/* 关闭按钮 */}
+                      <button
+                        onClick={handleClosePlayer}
+                        className="absolute top-2 right-2 z-10 bg-black bg-opacity-50 hover:bg-opacity-75 rounded-full p-2 transition-all"
+                      >
+                        <X className="h-5 w-5 text-white" />
+                      </button>
+
+                      {/* 视频播放器 */}
+                      <video
+                        controls
+                        autoPlay
+                        className="w-full aspect-video"
+                        src={mockVideoUrl}
+                        onEnded={handleClosePlayer}
+                      >
+                        您的浏览器不支持视频播放
+                      </video>
+                    </div>
+                  )}
                 </div>
               );
             })}
