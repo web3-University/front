@@ -155,8 +155,7 @@ const CourseButton = ({
       setError(null);
 
       // 调用智能合约购买课程
-      console.log(courseId);
-
+      console.log("课程id: ", courseId);
       const contractResult = await purchaseCourseContract(courseId);
 
       if (!contractResult) {
@@ -313,7 +312,7 @@ const CourseButton = ({
 
       {/* 错误信息 */}
       {error && (
-        <div className="text-red-500 text-sm mt-1">❌购买失败，请重试</div>
+        <div className="text-red-500 text-sm mt-1">❌ 购买失败，请重试</div>
       )}
 
       {/* 成功信息 */}

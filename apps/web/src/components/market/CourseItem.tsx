@@ -16,6 +16,7 @@ interface CourseItemProps {
     duration?: number;
     difficulty?: string;
     isPurchased?: boolean; // 新增：是否已购买
+    cover?: string; // 新增：课程封面
     [key: string]: any;
   };
   onPurchaseSuccess?: (transactionHash: string) => void;

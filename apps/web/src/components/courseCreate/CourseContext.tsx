@@ -40,7 +40,7 @@ interface CourseFormData {
     description: string;
     category: string;
     difficulty: string;
-    coverImage: File | Blob | string | null;
+    coverImage: string;
     tags: string[];
     learningGoals: string[];
     prerequisites: string[]; // 添加prerequisites字段
@@ -244,7 +244,7 @@ export const CourseProvider: React.FC<CourseProviderProps> = ({ children }) => {
         walletAddress: auth.address,
         title: formData.basicInfo.title,
         description: formData.basicInfo.description,
-        cover: "https://via.placeholder.com/400x300", //
+        cover: formData.basicInfo.coverImage || "", //
         // cover: formData.basicInfo.coverImage, // 提供默认的有效URL
         categories: [formData.basicInfo.category], // 将单个分类转换为数组
         difficulty: formData.basicInfo.difficulty,

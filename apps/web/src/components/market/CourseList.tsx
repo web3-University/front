@@ -109,6 +109,7 @@ const CourseList = () => {
         category: course.categories?.[0] || "未分类",
         instructor: course.instructorName || "未知讲师",
         rating: course.rating || 0,
+        cover: course.cover || "",
         students: course.studentCount || 0,
         duration: course.duration || 0,
         difficulty: course.difficulty || "1",

@@ -12,6 +12,7 @@ export interface CourseCardProps {
         difficulty?: string;
         price: number;
         coverColor: string;
+        cover?: string;
     };
     onDetail?: (course: CourseCardProps["course"]) => void;
     clickable?: boolean;
