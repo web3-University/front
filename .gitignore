@@ -43,3 +43,6 @@ next-env.d.ts
 
 # swc
 /.swc/
+
+# storybook
+storybook-static/

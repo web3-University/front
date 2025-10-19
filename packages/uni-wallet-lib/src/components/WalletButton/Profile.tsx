@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useWalletConnection } from "../../hooks/wallet";
 import { useSimpleYDToken } from "../../hooks/contract/useSimpleYDToken";
 import "./Profile.css";
@@ -45,6 +45,21 @@ export const Profile: React.FC<ProfileProps> = ({
     enabled: true,
   });
 
+  // 从 localStorage 获取用户头像
+  const userAvatar = useMemo(() => {
+    try {
+      const userStr = localStorage.getItem("USER");
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        return user.avatar || null;
+      }
+      return null;
+    } catch (error) {
+      console.error("Failed to parse USER from localStorage:", error);
+      return null;
+    }
+  }, []);
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent): void => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -80,20 +95,24 @@ export const Profile: React.FC<ProfileProps> = ({
         className="profile__menu-trigger profile__avatar"
         aria-label="Account menu"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-          <circle cx="12" cy="7" r="4" />
-        </svg>
+        {userAvatar !== null ? (
+          <img src="{userAvatar}" className="avatar" />
+        ) : (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+        )}
       </button>
 
       {isMenuOpen && (
@@ -171,7 +190,7 @@ export const Profile: React.FC<ProfileProps> = ({
               <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
               <circle cx="12" cy="7" r="4" />
             </svg>
-            Profile
+            个人中心
           </div>
 
           <button className="disconnect-button" onClick={handleDisconnect}>

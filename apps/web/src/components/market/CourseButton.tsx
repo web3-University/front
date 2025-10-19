@@ -50,10 +50,7 @@ const CourseButton = ({
 
   // 课程合约交互
   const { purchaseCourse: purchaseCourseContract, purchaseCourseReceipt } =
-    useCourseContract({
-      address: COURSE_CONTRACT_ADDRESS,
-      tokenDecimals: 18,
-    });
+    useCourseContract();
 
   // 将价格转换为 bigint
   const coursePriceBigInt = useMemo(() => {
@@ -158,7 +155,9 @@ const CourseButton = ({
       setError(null);
 
       // 调用智能合约购买课程
-      const contractResult = await purchaseCourseContract(BigInt(courseId));
+      console.log(courseId);
+
+      const contractResult = await purchaseCourseContract(courseId);
 
       if (!contractResult) {
         throw new Error("合约调用失败，未返回交易哈希");
@@ -313,7 +312,9 @@ const CourseButton = ({
       </div>
 
       {/* 错误信息 */}
-      {error && <div className="text-red-500 text-sm mt-1">{error}</div>}
+      {error && (
+        <div className="text-red-500 text-sm mt-1">❌购买失败，请重试</div>
+      )}
 
       {/* 成功信息 */}
       {status === PurchaseStatus.SUCCESS && (

@@ -186,3 +186,7 @@
 .disconnect-button.loading {
   opacity: 0.7;
 }
+
+.avatar {
+  object-fit: cover;
+}

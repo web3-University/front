@@ -344,6 +344,8 @@ interface StakeInfo {
 declare function useSimpleYDToken({ address, spenderAddress, enabled, }: UseSimpleYDTokenProps): {
     totalSupply: bigint;
     balance: bigint;
+    formattedBalance: string;
+    decimals: number;
     allowance: bigint;
     transferReceipt: UseWaitForTransactionReceiptReturnType;
     approveReceipt: UseWaitForTransactionReceiptReturnType;
@@ -415,7 +417,7 @@ declare function useCourseContract({ address, tokenDecimals, }?: UseCourseContra
     getRefundEligibilityDetails: (student: Address, courseId: bigint) => UseContractReadReturn<[boolean, string, bigint, bigint, bigint, bigint]>;
     isCertifiedInstructor(instructor: Address): UseContractReadReturn<boolean>;
     createCourse: (title: string, instructor: Address, price: string, totalLessons: bigint) => Promise<WriteReturnType>;
-    purchaseCourse: (courseId: bigint) => Promise<WriteReturnType>;
+    purchaseCourse: (courseId: string) => Promise<WriteReturnType>;
     updateCoursePrice: (courseId: bigint, newPrice: string) => Promise<WriteReturnType>;
     updateCourseProgress: (courseId: bigint, completedLessons: bigint) => Promise<WriteReturnType>;
     requestRefund: (courseId: bigint) => Promise<WriteReturnType>;
@@ -424,6 +426,7 @@ declare function useCourseContract({ address, tokenDecimals, }?: UseCourseContra
     batchCertifyInstructors: (instructors: Address[]) => Promise<WriteReturnType>;
     updateCourse: (courseId: bigint, title: string, totalLessons: bigint) => Promise<WriteReturnType>;
     updatePlatformAddress: (newPlatformAddress: Address) => Promise<WriteReturnType>;
+    registerCourse: (courseId: string, price: bigint) => Promise<WriteReturnType>;
     publishCourse: (courseId: bigint) => Promise<WriteReturnType>;
     unpublishCourse: (courseId: bigint) => Promise<WriteReturnType>;
     deleteCourse: (courseId: bigint) => Promise<WriteReturnType>;
@@ -437,6 +440,7 @@ declare function useCourseContract({ address, tokenDecimals, }?: UseCourseContra
     batchCertifyInstructorsReceipt: UseWaitForTransactionReceiptReturnType;
     updatePlatformAddressReceipt: UseWaitForTransactionReceiptReturnType;
     updateCourseReceipt: UseWaitForTransactionReceiptReturnType;
+    registerCourseReceipt: UseWaitForTransactionReceiptReturnType;
     publishCourseReceipt: UseWaitForTransactionReceiptReturnType;
     unpublishCourseReceipt: UseWaitForTransactionReceiptReturnType;
     deleteCourseReceipt: UseWaitForTransactionReceiptReturnType;
@@ -498,6 +502,7 @@ interface WalletButtonProps {
     showChainName?: boolean;
     className?: string;
     size?: "small" | "medium" | "large";
+    onOpenProfile: () => void;
 }
 declare const WalletButton: React.FC<WalletButtonProps>;
 
