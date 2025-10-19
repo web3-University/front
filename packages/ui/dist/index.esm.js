@@ -623,66 +623,13 @@ const createLucideIcon = (iconName, iconNode) => {
  */
 
 
-const __iconNode$6 = [
-  ["path", { d: "M12 7v14", key: "1akyts" }],
-  [
-    "path",
-    {
-      d: "M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z",
-      key: "ruj8y"
-    }
-  ]
-];
-const BookOpen = createLucideIcon("book-open", __iconNode$6);
-
-/**
- * @license lucide-react v0.544.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-
-
-const __iconNode$5 = [
+const __iconNode$3 = [
   ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
   ["path", { d: "M18 17V9", key: "2bz60n" }],
   ["path", { d: "M13 17V5", key: "1frdt8" }],
   ["path", { d: "M8 17v-3", key: "17ska0" }]
 ];
-const ChartColumn = createLucideIcon("chart-column", __iconNode$5);
-
-/**
- * @license lucide-react v0.544.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-
-
-const __iconNode$4 = [
-  ["path", { d: "M12 6v6l4 2", key: "mmk7yg" }],
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]
-];
-const Clock = createLucideIcon("clock", __iconNode$4);
-
-/**
- * @license lucide-react v0.544.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-
-
-const __iconNode$3 = [
-  [
-    "path",
-    {
-      d: "M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z",
-      key: "10ikf1"
-    }
-  ]
-];
-const Play = createLucideIcon("play", __iconNode$3);
+const ChartColumn = createLucideIcon("chart-column", __iconNode$3);
 
 /**
  * @license lucide-react v0.544.0 - ISC
@@ -693,15 +640,10 @@ const Play = createLucideIcon("play", __iconNode$3);
 
 
 const __iconNode$2 = [
-  [
-    "path",
-    {
-      d: "M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z",
-      key: "r04s7s"
-    }
-  ]
+  ["path", { d: "M12 6v6l4 2", key: "mmk7yg" }],
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]
 ];
-const Star = createLucideIcon("star", __iconNode$2);
+const Clock = createLucideIcon("clock", __iconNode$2);
 
 /**
  * @license lucide-react v0.544.0 - ISC
@@ -712,12 +654,15 @@ const Star = createLucideIcon("star", __iconNode$2);
 
 
 const __iconNode$1 = [
-  ["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }],
-  ["path", { d: "M16 3.128a4 4 0 0 1 0 7.744", key: "16gr8j" }],
-  ["path", { d: "M22 21v-2a4 4 0 0 0-3-3.87", key: "kshegd" }],
-  ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }]
+  [
+    "path",
+    {
+      d: "M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z",
+      key: "r04s7s"
+    }
+  ]
 ];
-const Users = createLucideIcon("users", __iconNode$1);
+const Star = createLucideIcon("star", __iconNode$1);
 
 /**
  * @license lucide-react v0.544.0 - ISC
@@ -795,34 +740,6 @@ const CourseCard = (props) => {
         // 默认渐变色 - 优雅的蓝紫色渐变
         return "from-indigo-500 via-purple-600 to-blue-700";
     };
-    const getCategoryIcon = (category) => {
-        const categoryLower = category.toLowerCase();
-        if (categoryLower.includes("区块链") ||
-            categoryLower.includes("blockchain") ||
-            categoryLower.includes("web3")) {
-            return jsxRuntimeExports.jsx(Wallet, { className: "h-8 w-8 text-white" });
-        }
-        if (categoryLower.includes("编程") ||
-            categoryLower.includes("开发") ||
-            categoryLower.includes("programming") ||
-            categoryLower.includes("development")) {
-            return jsxRuntimeExports.jsx(BookOpen, { className: "h-8 w-8 text-white" });
-        }
-        if (categoryLower.includes("数据") ||
-            categoryLower.includes("分析") ||
-            categoryLower.includes("data") ||
-            categoryLower.includes("analytics")) {
-            return jsxRuntimeExports.jsx(ChartColumn, { className: "h-8 w-8 text-white" });
-        }
-        if (categoryLower.includes("用户") ||
-            categoryLower.includes("ui") ||
-            categoryLower.includes("ux") ||
-            categoryLower.includes("设计")) {
-            return jsxRuntimeExports.jsx(Users, { className: "h-8 w-8 text-white" });
-        }
-        // 默认图标
-        return jsxRuntimeExports.jsx(BookOpen, { className: "h-8 w-8 text-white" });
-    };
     // 难度级别映射
     const getDifficultyLabel = (difficulty) => {
         switch (difficulty) {
@@ -864,7 +781,11 @@ const CourseCard = (props) => {
         return `${minutes}分钟`;
     };
     const difficultyInfo = getDifficultyLabel(course.difficulty);
-    return (jsxRuntimeExports.jsxs("article", { onClick: handleCardClick, className: `group relative flex h-full flex-col overflow-hidden rounded-3xl bg-gradient-to-b from-white to-[#F7F5FF] px-6 pb-6 pt-6 shadow-[0_22px_60px_rgba(168,174,255,0.22)] ring-1 ring-[#ECEBFF] transition-transform duration-200 hover:-translate-y-2 ${clickable ? "cursor-pointer" : ""}`, children: [jsxRuntimeExports.jsxs("div", { className: `relative h-8 w-full overflow-hidden rounded-2xl bg-gradient-to-br ${course.coverColor || "from-gray-400 to-gray-600"}`, children: [jsxRuntimeExports.jsx("span", { className: "absolute left-4 top-4 inline-flex rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-[#2B2558]", children: course.category || "未分类" }), course.difficulty && (jsxRuntimeExports.jsxs("span", { className: `absolute right-4 top-4 inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${difficultyInfo.bgColor} ${difficultyInfo.color}`, children: [jsxRuntimeExports.jsx(ChartColumn, { className: "h-3 w-3" }), difficultyInfo.label] }))] }), jsxRuntimeExports.jsxs("div", { className: `relative h-48 w-full overflow-hidden rounded-2xl bg-gradient-to-br ${course.coverColor || getCategoryColors(course.category)} flex items-center justify-center`, children: [jsxRuntimeExports.jsxs("div", { className: "absolute inset-0 opacity-10", children: [jsxRuntimeExports.jsx("div", { className: "absolute top-4 left-4 h-16 w-16 rounded-full bg-white/20" }), jsxRuntimeExports.jsx("div", { className: "absolute top-8 right-8 h-12 w-12 rounded-full bg-white/15" }), jsxRuntimeExports.jsx("div", { className: "absolute bottom-6 left-8 h-8 w-8 rounded-full bg-white/25" }), jsxRuntimeExports.jsx("div", { className: "absolute bottom-4 right-4 h-20 w-20 rounded-full bg-white/10" }), jsxRuntimeExports.jsx("div", { className: "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-32 w-32 rotate-45 border-2 border-white/20 rounded-lg" })] }), jsxRuntimeExports.jsxs("div", { className: "relative z-10 text-center text-white px-6", children: [jsxRuntimeExports.jsx("div", { className: "mb-4 h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#FFB347] to-[#FF6B9A] text-3xl font-semibold text-white shadow-[0_20px_45px_rgba(255,133,133,0.3)]", children: jsxRuntimeExports.jsx("div", { className: "rounded-2xl bg-white/20 backdrop-blur-sm p-4 shadow-lg", children: getCategoryIcon(course.category) }) }), jsxRuntimeExports.jsx("h4", { className: "text-lg font-bold text-white drop-shadow-lg line-clamp-2 leading-tight", children: course.title || "未命名课程" }), jsxRuntimeExports.jsxs("div", { className: "mt-3 inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-sm px-3 py-1 text-xs font-medium text-white", children: [jsxRuntimeExports.jsx(Play, { className: "h-3 w-3" }), jsxRuntimeExports.jsx("span", { children: "\u5F00\u59CB\u5B66\u4E60" })] })] }), jsxRuntimeExports.jsx("div", { className: "absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" })] }), jsxRuntimeExports.jsxs("div", { className: "flex flex-1 flex-col gap-4 pt-6 text-left", children: [jsxRuntimeExports.jsxs("div", { children: [jsxRuntimeExports.jsx("h3", { className: "text-xl font-semibold text-[#2B2558] line-clamp-2", children: course.title || "未命名课程" }), course.description && (jsxRuntimeExports.jsx("p", { className: "mt-2 text-sm text-[#7B7EA9] line-clamp-2", children: course.description })), jsxRuntimeExports.jsxs("p", { className: "mt-2 text-sm text-[#7B7EA9]", children: ["\u8BB2\u5E08\uFF1A", course.instructor || "未知"] })] }), jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between text-xs text-[#8F92B5]", children: [jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [course.duration && (jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [jsxRuntimeExports.jsx(Clock, { className: "h-3 w-3" }), jsxRuntimeExports.jsx("span", { children: formatDuration(course.duration) })] })), jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1 text-[#F5B742]", children: [jsxRuntimeExports.jsx(Star, { className: "h-3 w-3 fill-[#F5B742] text-[#F5B742]" }), jsxRuntimeExports.jsx("span", { className: "font-semibold", children: (course.rating || 0).toFixed(1) }), jsxRuntimeExports.jsxs("span", { className: "text-[#8F92B5]", children: ["(", course.students || 0, "\u4EBA)"] })] })] }), jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1 text-[#FF9F50]", children: [jsxRuntimeExports.jsx(Wallet, { className: "h-4 w-4" }), jsxRuntimeExports.jsxs("span", { className: "text-base font-semibold", children: ["YD ", course.price || 0] })] })] }), children && jsxRuntimeExports.jsx("div", { "data-slot": "actions", children: children })] })] }, course.id));
+    return (jsxRuntimeExports.jsxs("article", { onClick: handleCardClick, className: `group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:border-[#8A71FF] hover:shadow-xl ${clickable ? "cursor-pointer" : ""}`, children: [jsxRuntimeExports.jsxs("div", { className: "relative mb-4 h-48 w-full overflow-hidden rounded-xl", children: [course.cover ? (
+                    /* 有封面图片时显示图片 */
+                    jsxRuntimeExports.jsx("img", { src: course.cover, alt: course.title || "课程封面", className: "h-full w-full object-cover" })) : (
+                    /* 没有封面图片时显示简洁的默认背景 */
+                    jsxRuntimeExports.jsx("div", { className: `h-full w-full bg-gradient-to-br ${course.coverColor || getCategoryColors(course.category)}` })), course.difficulty && (jsxRuntimeExports.jsx("div", { className: "absolute right-4 top-4", children: jsxRuntimeExports.jsxs("span", { className: `inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${difficultyInfo.bgColor} ${difficultyInfo.color}`, children: [jsxRuntimeExports.jsx(ChartColumn, { className: "h-3 w-3" }), difficultyInfo.label] }) }))] }), jsxRuntimeExports.jsxs("div", { className: "flex flex-1 flex-col gap-4", children: [jsxRuntimeExports.jsxs("div", { children: [jsxRuntimeExports.jsx("h3", { className: "mb-3 text-lg font-bold text-gray-900 line-clamp-2 group-hover:text-[#8A71FF]", children: course.title || "未命名课程" }), course.description && (jsxRuntimeExports.jsx("p", { className: "mb-4 text-sm text-gray-600 line-clamp-3", children: course.description }))] }), jsxRuntimeExports.jsxs("div", { className: "mb-4 space-y-2 border-t border-gray-100 pt-4", children: [course.duration && (jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between text-sm", children: [jsxRuntimeExports.jsx("span", { className: "text-gray-500", children: "\u65F6\u957F" }), jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [jsxRuntimeExports.jsx(Clock, { className: "h-3 w-3" }), jsxRuntimeExports.jsx("span", { className: "font-medium text-gray-900", children: formatDuration(course.duration) })] })] })), jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between text-sm", children: [jsxRuntimeExports.jsx("span", { className: "text-gray-500", children: "\u8BC4\u5206" }), jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1 text-[#F5B742]", children: [jsxRuntimeExports.jsx(Star, { className: "h-3 w-3 fill-[#F5B742] text-[#F5B742]" }), jsxRuntimeExports.jsx("span", { className: "font-semibold", children: (course.rating || 0).toFixed(1) }), jsxRuntimeExports.jsxs("span", { className: "text-gray-500", children: ["(", course.students || 0, "\u4EBA)"] })] })] }), jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between text-sm", children: [jsxRuntimeExports.jsx("span", { className: "text-gray-500", children: "\u4EF7\u683C" }), jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1 text-[#FF9F50]", children: [jsxRuntimeExports.jsx(Wallet, { className: "h-4 w-4" }), jsxRuntimeExports.jsxs("span", { className: "font-semibold text-gray-900", children: ["YD ", course.price || 0] })] })] })] }), children && (jsxRuntimeExports.jsx("div", { "data-slot": "actions", className: "mt-4", children: children }))] })] }, course.id));
 };
 
 export { ButtonCva, CourseCard };

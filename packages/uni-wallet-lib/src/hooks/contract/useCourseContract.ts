@@ -1,7 +1,5 @@
-import { useState } from "react";
 import type { Address } from "viem";
 import { parseUnits } from "viem";
-import { useEstimateGas, useAccount } from "wagmi";
 import type { UseWaitForTransactionReceiptReturnType as ReceiptReturnType } from "wagmi";
 import { COURSE_CONTRACT_ABI } from "../../contract";
 import type { WriteReturnType } from "./contractFactory";
@@ -9,7 +7,7 @@ import { contractFactory } from "./contractFactory";
 import type { UseContractReadReturn } from "./useContractRead";
 
 const COURSE_CONTRACT_ADDRESS: Address =
-  "0x2aC2E8D99B585b321ffd875B95467a9B606e146a";
+  "0x7F08E79cc9955593EA442030Fa1CB22c879fc02a";
 
 /**
  * 课程信息结构体
@@ -133,38 +131,9 @@ export function useCourseContract({
   unpublishCourseReceipt: ReceiptReturnType;
   deleteCourseReceipt: ReceiptReturnType;
 } {
-  const factory = contractFactory(address, COURSE_CONTRACT_ABI);
-
-  const { address: userAddress } = useAccount();
-  const [estGasTo, setEstGasTo] = useState<Address>();
-  const [estGasValue, setEstGasValue] = useState<bigint>();
-  const { data: gasEstimate, refetch: refetchEstimateGas } = useEstimateGas({
-    account: userAddress,
-    to: estGasTo,
-    value: estGasValue,
-    query: {
-      enabled: false,
-    },
-  });
+  const factory = contractFactory(COURSE_CONTRACT_ADDRESS, COURSE_CONTRACT_ABI);
 
   // ========== 工具函数 ==========
-
-  const prepareRefetchEstimateGas = async (to?: Address, value?: bigint) => {
-    setEstGasTo(to);
-    setEstGasValue(value);
-
-    // 等待 React 下一次渲染周期，确保 state 更新
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    console.log(`🔢 请求参数: to->${to} / value->${value}`);
-    // 然后调用 refetch
-    await refetchEstimateGas();
-    console.log("⛽️ Estimate Gas:", gasEstimate);
-
-    // ✅ 立即清理
-    setEstGasTo(undefined);
-    setEstGasValue(undefined);
-  };
 
   /**
    * 解析价格
@@ -413,10 +382,7 @@ export function useCourseContract({
   // 注册课程
   const registerCourseWriter = factory.write("registerCourse");
   const registerCourse = async (courseId: string, price: bigint) => {
-    await prepareRefetchEstimateGas(COURSE_CONTRACT_ADDRESS, price);
-    return await registerCourseWriter.send(courseId, price, {
-      gas: gasEstimate,
-    });
+    return await registerCourseWriter.send(courseId, price);
   };
 
   // 更新课程

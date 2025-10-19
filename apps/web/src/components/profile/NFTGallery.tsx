@@ -131,13 +131,25 @@ export default function NFTGallery() {
   const loadNFTs = async () => {
     setIsLoading(true);
     try {
-      const data = await http<CertificateResponse[]>(
-        `/certificates/user?walletAddress=${address}`,
-      );
+      const response = await http<
+        { data: CertificateResponse[] } | CertificateResponse[]
+      >(`/certificates/user?walletAddress=${address}`);
+
+      // 处理可能包含 data 字段的响应
+      let data: CertificateResponse[];
+      if (response && typeof response === "object" && "data" in response) {
+        data = response.data;
+      } else {
+        data = response as CertificateResponse[];
+      }
+
+      console.log("NFT 接口返回数据:", data);
+
       // 确保返回的数据是数组，如果不是则设置为空数组
       if (Array.isArray(data)) {
         // 将 API 数据转换为展示数据
         const transformedNFTs = data.map(transformCertificateToNFT);
+        console.log("转换后的 NFT 数据:", transformedNFTs);
         setNfts(transformedNFTs);
       } else {
         console.warn("NFT接口返回的数据格式不正确:", data);

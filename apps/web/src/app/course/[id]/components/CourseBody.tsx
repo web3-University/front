@@ -10,9 +10,19 @@ import {
   PlayCircle,
   Target,
   X,
+  AlertCircle,
 } from "lucide-react";
-import { useState, useRef } from "react";
-import ReactPlayer from "react-player";
+import { useState, useRef, useEffect } from "react";
+import dynamic from "next/dynamic";
+
+const ReactPlayer = dynamic(() => import("react-player"), {
+  ssr: false,
+  loading: () => (
+    <div className="aspect-video bg-gray-900 flex items-center justify-center">
+      <div className="text-white">加载播放器...</div>
+    </div>
+  ),
+});
 
 interface CourseBodyProps {
   course: Course;
@@ -23,19 +33,36 @@ export default function CourseBody({ course, lessons }: CourseBodyProps) {
   const [playingLessonId, setPlayingLessonId] = useState<
     null | number | string
   >(null);
+  const [isPlayerReady, setIsPlayerReady] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const [playerError, setPlayerError] = useState<string | null>(null);
   const playerContainerRef = useRef<HTMLDivElement>(null);
 
-  // 修复 YouTube URL - 移除 playlist 参数
-  const mockVideoUrl = "https://www.youtube.com/watch?v=6aGVB-VGgoM";
+  // 使用一个肯定可以嵌入的测试视频
+  const mockVideoUrl = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handlePlay = (lessonId: string | number) => {
-    console.log(lessonId, "___lessonId");
+    setIsPlayerReady(false);
+    setPlayerError(null);
     setPlayingLessonId(playingLessonId === lessonId ? null : lessonId);
   };
 
   const handleClosePlayer = () => {
     setPlayingLessonId(null);
+    setIsPlayerReady(false);
+    setPlayerError(null);
   };
+
+  useEffect(() => {
+    if (!playingLessonId) {
+      setIsPlayerReady(false);
+      setPlayerError(null);
+    }
+  }, [playingLessonId]);
 
   const hasValidObjectives =
     course.learningObjectives &&
@@ -154,12 +181,10 @@ export default function CourseBody({ course, lessons }: CourseBodyProps) {
                 <div key={lesson.id ?? `lesson-${lessonOrder}-${index}`}>
                   {/* 课程行 */}
                   <div className="group flex items-center gap-4 p-5 bg-gradient-to-r from-gray-50 to-white rounded-xl hover:shadow-md transition-all border border-gray-100 hover:border-blue-200">
-                    {/* 章节序号 */}
                     <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-md">
                       {lessonOrder}
                     </div>
 
-                    {/* 章节信息 */}
                     <div className="flex-1 min-w-0">
                       <h3 className="text-[#2B2558] font-semibold text-lg group-hover:text-blue-600 transition-colors mb-1">
                         {lessonTitle}
@@ -171,7 +196,6 @@ export default function CourseBody({ course, lessons }: CourseBodyProps) {
                       )}
                     </div>
 
-                    {/* 时长和状态 */}
                     <div className="flex items-center gap-4 flex-shrink-0">
                       {lessonDuration && (
                         <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 rounded-lg">
@@ -201,13 +225,12 @@ export default function CourseBody({ course, lessons }: CourseBodyProps) {
                     </div>
                   </div>
 
-                  {/* 视频播放器 - 显示在课程行下方 */}
-                  {playingLessonId === lesson.id && (
+                  {/* 视频播放器 */}
+                  {isMounted && playingLessonId === lesson.id && (
                     <div
                       ref={playerContainerRef}
                       className="mt-2 bg-black rounded-lg overflow-hidden relative"
                     >
-                      {/* 关闭按钮 */}
                       <button
                         onClick={handleClosePlayer}
                         className="absolute top-2 right-2 z-10 bg-black bg-opacity-50 hover:bg-opacity-75 rounded-full p-2 transition-all"
@@ -216,36 +239,43 @@ export default function CourseBody({ course, lessons }: CourseBodyProps) {
                         <X className="h-5 w-5 text-white" />
                       </button>
 
-                      {/* ReactPlayer 播放器 */}
-                      <ReactPlayer
-                        url={lesson.videoUrl || mockVideoUrl}
-                        width="100%"
-                        height="100%"
-                        controls={true}
-                        playing={true}
-                        light={false}
-                        className="aspect-video"
-                        onError={(e) => {
-                          console.error("视频播放错误:", e);
-                        }}
-                        onReady={() => {
-                          console.log("视频准备就绪");
-                        }}
-                        config={{
-                          youtube: {
-                            playerVars: {
-                              autoplay: 1,
-                              modestbranding: 1,
-                              rel: 0,
-                              showinfo: 0,
-                              origin: window.location.origin,
-                            },
-                            embedOptions: {
-                              host: "https://www.youtube-nocookie.com",
-                            },
-                          },
-                        }}
-                      />
+                      {playerError ? (
+                        <div className="aspect-video flex items-center justify-center bg-gray-900 text-white p-8">
+                          <div className="text-center">
+                            <AlertCircle className="h-12 w-12 mx-auto mb-4 text-red-400" />
+                            <p className="text-lg mb-2">视频加载失败</p>
+                            <p className="text-sm text-gray-400">
+                              {playerError}
+                            </p>
+                            <button
+                              onClick={handleClosePlayer}
+                              className="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+                            >
+                              关闭
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <ReactPlayer
+                          url={lesson.videoUrl || mockVideoUrl}
+                          width="100%"
+                          height="100%"
+                          controls={true}
+                          playing={isPlayerReady}
+                          light={false}
+                          className="aspect-video"
+                          onError={(e: any) => {
+                            console.error("视频播放错误:", e);
+                            setPlayerError(
+                              "该视频可能不允许嵌入播放,请直接访问 YouTube 观看",
+                            );
+                          }}
+                          onReady={() => {
+                            console.log("视频准备就绪");
+                            setIsPlayerReady(true);
+                          }}
+                        />
+                      )}
                     </div>
                   )}
                 </div>

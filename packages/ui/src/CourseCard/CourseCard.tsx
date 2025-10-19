@@ -22,6 +22,7 @@ export interface CourseCardProps {
     difficulty?: string;
     price: number;
     coverColor: string;
+    cover?: string; // 新增：课程封面
   };
   onDetail?: (course: CourseCardProps["course"]) => void;
   clickable?: boolean;
@@ -188,111 +189,93 @@ export const CourseCard: React.FC<CourseCardProps> = (props) => {
     <article
       key={course.id}
       onClick={handleCardClick}
-      className={`group relative flex h-full flex-col overflow-hidden rounded-3xl bg-gradient-to-b from-white to-[#F7F5FF] px-6 pb-6 pt-6 shadow-[0_22px_60px_rgba(168,174,255,0.22)] ring-1 ring-[#ECEBFF] transition-transform duration-200 hover:-translate-y-2 ${
+      className={`group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:border-[#8A71FF] hover:shadow-xl ${
         clickable ? "cursor-pointer" : ""
       }`}
     >
-      <div
-        className={`relative h-8 w-full overflow-hidden rounded-2xl bg-gradient-to-br ${
-          course.coverColor || "from-gray-400 to-gray-600"
-        }`}
-      >
-        <span className="absolute left-4 top-4 inline-flex rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-[#2B2558]">
-          {course.category || "未分类"}
-        </span>
+      {/* 课程封面图片区域 */}
+      <div className="relative mb-4 h-48 w-full overflow-hidden rounded-xl">
+        {course.cover ? (
+          /* 有封面图片时显示图片 */
+          <img
+            src={course.cover}
+            alt={course.title || "课程封面"}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          /* 没有封面图片时显示简洁的默认背景 */
+          <div
+            className={`h-full w-full bg-gradient-to-br ${
+              course.coverColor || getCategoryColors(course.category)
+            }`}
+          />
+        )}
+
+        {/* 难度标签 - 右上角 */}
         {course.difficulty && (
-          <span
-            className={`absolute right-4 top-4 inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${difficultyInfo.bgColor} ${difficultyInfo.color}`}
-          >
-            <BarChart3 className="h-3 w-3" />
-            {difficultyInfo.label}
-          </span>
+          <div className="absolute right-4 top-4">
+            <span
+              className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${difficultyInfo.bgColor} ${difficultyInfo.color}`}
+            >
+              <BarChart3 className="h-3 w-3" />
+              {difficultyInfo.label}
+            </span>
+          </div>
         )}
       </div>
 
-      {/* 课程封面图片区域 */}
-      <div
-        className={`relative h-48 w-full overflow-hidden rounded-2xl bg-gradient-to-br ${
-          course.coverColor || getCategoryColors(course.category)
-        } flex items-center justify-center`}
-      >
-        {/* 背景装饰图案 */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-4 left-4 h-16 w-16 rounded-full bg-white/20"></div>
-          <div className="absolute top-8 right-8 h-12 w-12 rounded-full bg-white/15"></div>
-          <div className="absolute bottom-6 left-8 h-8 w-8 rounded-full bg-white/25"></div>
-          <div className="absolute bottom-4 right-4 h-20 w-20 rounded-full bg-white/10"></div>
-          {/* 几何图形装饰 */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-32 w-32 rotate-45 border-2 border-white/20 rounded-lg"></div>
-        </div>
-
-        {/* 主要内容区域 */}
-        <div className="relative z-10 text-center text-white px-6">
-          {/* 课程图标 */}
-          <div className="mb-4 h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#FFB347] to-[#FF6B9A] text-3xl font-semibold text-white shadow-[0_20px_45px_rgba(255,133,133,0.3)]">
-            <div className="rounded-2xl bg-white/20 backdrop-blur-sm p-4 shadow-lg">
-              {getCategoryIcon(course.category)}
-            </div>
-          </div>
-
-          {/* 课程标题 */}
-          <h4 className="text-lg font-bold text-white drop-shadow-lg line-clamp-2 leading-tight">
-            {course.title || "未命名课程"}
-          </h4>
-
-          {/* 装饰性标签 */}
-          <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-sm px-3 py-1 text-xs font-medium text-white">
-            <Play className="h-3 w-3" />
-            <span>开始学习</span>
-          </div>
-        </div>
-
-        {/* 光效装饰 */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
-      </div>
-
-      <div className="flex flex-1 flex-col gap-4 pt-6 text-left">
+      <div className="flex flex-1 flex-col gap-4">
         <div>
-          <h3 className="text-xl font-semibold text-[#2B2558] line-clamp-2">
+          <h3 className="mb-3 text-lg font-bold text-gray-900 line-clamp-2 group-hover:text-[#8A71FF]">
             {course.title || "未命名课程"}
           </h3>
           {course.description && (
-            <p className="mt-2 text-sm text-[#7B7EA9] line-clamp-2">
+            <p className="mb-4 text-sm text-gray-600 line-clamp-3">
               {course.description}
             </p>
           )}
-          <p className="mt-2 text-sm text-[#7B7EA9]">
-            讲师：{course.instructor || "未知"}
-          </p>
         </div>
 
-        {/* 课程信息行 */}
-        <div className="flex items-center justify-between text-xs text-[#8F92B5]">
-          <div className="flex items-center gap-4">
-            {course.duration && (
+        {/* 课程信息 */}
+        <div className="mb-4 space-y-2 border-t border-gray-100 pt-4">
+          {course.duration && (
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-500">时长</span>
               <div className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />
-                <span>{formatDuration(course.duration)}</span>
+                <span className="font-medium text-gray-900">
+                  {formatDuration(course.duration)}
+                </span>
               </div>
-            )}
+            </div>
+          )}
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-500">评分</span>
             <div className="flex items-center gap-1 text-[#F5B742]">
               <Star className="h-3 w-3 fill-[#F5B742] text-[#F5B742]" />
               <span className="font-semibold">
                 {(course.rating || 0).toFixed(1)}
               </span>
-              <span className="text-[#8F92B5]">({course.students || 0}人)</span>
+              <span className="text-gray-500">({course.students || 0}人)</span>
             </div>
           </div>
-          <div className="flex items-center gap-1 text-[#FF9F50]">
-            <Wallet className="h-4 w-4" />
-            <span className="text-base font-semibold">
-              YD {course.price || 0}
-            </span>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-500">价格</span>
+            <div className="flex items-center gap-1 text-[#FF9F50]">
+              <Wallet className="h-4 w-4" />
+              <span className="font-semibold text-gray-900">
+                YD {course.price || 0}
+              </span>
+            </div>
           </div>
         </div>
 
         {/* 插槽区域 */}
-        {children && <div data-slot="actions">{children}</div>}
+        {children && (
+          <div data-slot="actions" className="mt-4">
+            {children}
+          </div>
+        )}
       </div>
     </article>
   );

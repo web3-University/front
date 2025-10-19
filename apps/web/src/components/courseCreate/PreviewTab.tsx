@@ -18,7 +18,7 @@ const PreviewTab = () => {
         {/* 课程预览图（从formData中获取封面图） */}
         {formData.basicInfo.coverImage ? (
           <img
-            src={URL.createObjectURL(formData.basicInfo.coverImage)}
+            src={formData.basicInfo.coverImage}
             alt="课程封面"
             className="w-1/3 h-auto rounded-md object-cover"
           />
