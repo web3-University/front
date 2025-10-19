@@ -132,44 +132,6 @@ const CourseList = () => {
     [fetchCourses],
   );
 
-  // 处理购买课程
-  const handlePurchase = useCallback(
-    async (course: FeaturedCourse) => {
-      // 如果已经有其他课程正在购买中，则不允许购买
-      if (purchasingCourseId && purchasingCourseId !== course.id) {
-        alert("⚠️ 请等待当前课程购买完成");
-        return;
-      }
-
-      // 设置当前正在购买的课程 ID
-      setPurchasingCourseId(course.id);
-      setPurchasingCourseTitle(course.title);
-      console.log("准备购买课程:", course.id, course);
-
-      try {
-        // 检查课程价格是否存在
-        if (course.price === undefined || course.price === null) {
-          throw new Error("课程价格信息缺失");
-        }
-
-        // 将课程 ID 转换为 bigint
-        const courseId = BigInt(course.id || "1");
-        // 将价格转换为 bigint（18位精度）
-        const coursePrice = parseUnits(course.price.toString(), 18);
-
-        await purchaseCourse({
-          courseId,
-          coursePrice,
-        });
-      } catch (error) {
-        // 购买完成（成功或失败）后清除当前购买课程 ID
-        // 这里可以跳转到课程详情页或学习页面
-        // router.push(`/learn/${course.id}`);
-      }
-    },
-    [purchaseCourse, purchasingCourseId],
-  );
-
   // 监听购买错误
   useEffect(() => {
     if (purchaseStatus === PurchaseStatus.ERROR && purchaseError) {
@@ -229,10 +191,6 @@ const CourseList = () => {
           <div className="flex items-center gap-3">
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
             <span>
-              {purchaseStatus === PurchaseStatus.CHECKING_WALLET &&
-                "检查钱包连接..."}
-              {purchaseStatus === PurchaseStatus.AUTHENTICATING &&
-                "签名认证中..."}
               {purchaseStatus === PurchaseStatus.CHECKING_ALLOWANCE &&
                 "检查授权额度..."}
               {purchaseStatus === PurchaseStatus.APPROVING_TOKEN &&

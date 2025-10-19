@@ -14,8 +14,6 @@ import { Button } from "../ui/button";
 
 export enum PurchaseStatus {
   IDLE = "IDLE",
-  CHECKING_WALLET = "CHECKING_WALLET",
-  AUTHENTICATING = "AUTHENTICATING",
   CHECKING_ALLOWANCE = "CHECKING_ALLOWANCE",
   APPROVING_TOKEN = "APPROVING_TOKEN",
   WAITING_APPROVE = "WAITING_APPROVE",
@@ -95,9 +93,7 @@ const CourseButton = ({
       return;
     }
     if (!hasEnoughBalance) {
-      setError(
-        `YD Token 余额不足。需要 ${formatUnits(coursePriceBigInt, 18)} YD`,
-      );
+      setError(`YD Token 余额不足`);
       return;
     }
     try {
@@ -108,17 +104,10 @@ const CourseButton = ({
       await refetchAllowance();
 
       // 如果已经有足够的授权额度，仍然允许用户重新授权（增加额度）
-      console.log(
-        "当前授权额度:",
-        allowance ? formatUnits(allowance, 18) : "0",
-      );
-      console.log("需要授权额度:", formatUnits(coursePriceBigInt, 18));
-
       setStatus(PurchaseStatus.APPROVING_TOKEN);
 
-      // 授权足够的金额（授权课程价格的 1.5 倍，避免频繁授权）
-      const approveAmount = (coursePriceBigInt * BigInt(150)) / BigInt(100);
-      const approveAmountStr = formatUnits(approveAmount, 18);
+      // 授权课程价格
+      const approveAmountStr = formatUnits(coursePriceBigInt, 18);
 
       const approveResult = await approve(
         COURSE_CONTRACT_ADDRESS,
@@ -172,7 +161,6 @@ const CourseButton = ({
 
     // 验证 courseId
     const courseIdNum = Number(courseId);
-    console.log("准备购买课程，courseId:", courseId);
 
     if (!courseId || courseIdNum <= 0 || isNaN(courseIdNum)) {
       setError("无效的课程ID");
@@ -216,8 +204,12 @@ const CourseButton = ({
   useEffect(() => {
     if (approveReceipt && status === PurchaseStatus.WAITING_APPROVE) {
       console.log("授权交易确认:", approveReceipt);
-      refetchAllowance(); // 刷新授权额度
-      setStatus(PurchaseStatus.IDLE);
+      // 刷新授权额度
+      refetchAllowance();
+      // 延迟重置状态，确保allowance有时间更新
+      setTimeout(() => {
+        setStatus(PurchaseStatus.IDLE);
+      }, 1000);
     }
   }, [approveReceipt, status, refetchAllowance]);
 
@@ -268,31 +260,6 @@ const CourseButton = ({
     status === PurchaseStatus.PURCHASING_COURSE ||
     status === PurchaseStatus.WAITING_TRANSACTION ||
     status === PurchaseStatus.SAVING_TO_DB;
-
-  const isLoading = isApproving || isPurchasing;
-
-  const getStatusText = () => {
-    switch (status) {
-      case PurchaseStatus.CHECKING_WALLET:
-        return "检查钱包连接...";
-      case PurchaseStatus.AUTHENTICATING:
-        return "签名认证中...";
-      case PurchaseStatus.CHECKING_ALLOWANCE:
-        return "检查授权额度...";
-      case PurchaseStatus.APPROVING_TOKEN:
-        return "请在钱包中确认授权...";
-      case PurchaseStatus.WAITING_APPROVE:
-        return "等待授权确认...";
-      case PurchaseStatus.PURCHASING_COURSE:
-        return "请在钱包中确认购买...";
-      case PurchaseStatus.WAITING_TRANSACTION:
-        return "等待交易确认...";
-      case PurchaseStatus.SAVING_TO_DB:
-        return "保存购买记录...";
-      default:
-        return "";
-    }
-  };
 
   if (!isConnected) {
     return (
@@ -347,6 +314,8 @@ const CourseButton = ({
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
               购买中...
             </span>
+          ) : needsApproval ? (
+            "请先授权"
           ) : (
             "立即购买"
           )}
