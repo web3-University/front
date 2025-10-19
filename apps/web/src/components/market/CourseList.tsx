@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { useWalletInfo } from "uni-wallet-lib";
+import { useWalletInfo } from "@web3-university/uni-wallet-lib";
 import { useCourse } from "@/hooks/useCourse";
 import { PurchaseStatus, usePurchaseCourse } from "@/hooks/usePurchaseCourse";
 import type { CourseFilters } from "@/lib/api/course";
