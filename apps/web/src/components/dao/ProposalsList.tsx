@@ -1,14 +1,20 @@
 "use client";
 
 import React, { useState } from "react";
-import { PROPOSAL_TABS } from "@/lib/dao";
-import type { Proposal, ProposalsByStatus, ProposalTabKey } from "@/types/dao";
+import {
+  Proposal,
+  ProposalsByStatus,
+  DaoByStatus,
+  ProposalTabKey,
+  DaoTabKey,
+} from "@/types/dao";
+import { PROPOSAL_TABS, PROPOSAL_TABS_DAO } from "@/lib/dao";
 import ProposalCard from "./ProposalCard";
 import ProposalModal from "./ProposalModal";
-
+import NewProposal from "@/components/dao/NewProposal";
 // 模拟数据（后续可以移到 API 调用或 hooks 中）
-const mockProposals: ProposalsByStatus = {
-  active: [
+const mockProposals: DaoByStatus = {
+  proposal: [
     {
       id: 1,
       title: "调整课程上架质量标准",
@@ -49,7 +55,7 @@ const mockProposals: ProposalsByStatus = {
       category: "NFT规则",
     },
   ],
-  passed: [
+  dispute: [
     {
       id: 4,
       title: "引入课程退款机制",
@@ -64,7 +70,7 @@ const mockProposals: ProposalsByStatus = {
       category: "平台规则",
     },
   ],
-  rejected: [
+  history: [
     {
       id: 5,
       title: "降低课程最低定价",
@@ -82,7 +88,7 @@ const mockProposals: ProposalsByStatus = {
 };
 
 export default function ProposalsList() {
-  const [activeTab, setActiveTab] = useState<ProposalTabKey>("active");
+  const [activeTab, setActiveTab] = useState<DaoTabKey>("proposal");
   const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(
     null,
   );
@@ -91,7 +97,7 @@ export default function ProposalsList() {
     <section className="relative">
       {/* Tabs */}
       <div className="flex gap-2 mb-8 bg-white/10 backdrop-blur-md rounded-2xl p-2 border border-white/20">
-        {PROPOSAL_TABS.map((tab) => (
+        {PROPOSAL_TABS_DAO.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
@@ -101,11 +107,12 @@ export default function ProposalsList() {
                 : "text-gray-300 hover:text-white hover:bg-white/10"
             }`}
           >
-            {tab.label} ({mockProposals[tab.key].length})
+            {tab.label}
           </button>
         ))}
       </div>
-
+      {/* Create Proposal Button */}
+      <NewProposal type={activeTab} />
       {/* Proposals List */}
       <div className="space-y-6">
         {mockProposals[activeTab].map((proposal) => (

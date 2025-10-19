@@ -398,10 +398,10 @@ interface RefundRequest {
     approved: boolean;
 }
 interface UseCourseContractProps {
-    address: Address;
-    tokenDecimals: number;
+    address?: Address;
+    tokenDecimals?: number;
 }
-declare function useCourseContract({ address, tokenDecimals, }: UseCourseContractProps): {
+declare function useCourseContract({ address, tokenDecimals, }?: UseCourseContractProps): {
     hasAccess: (student?: Address, courseId?: bigint) => UseContractReadReturn<boolean>;
     getCourse: (courseId?: bigint) => UseContractReadReturn<Course>;
     getStudentCourses: (student: Address) => UseContractReadReturn<bigint[]>;

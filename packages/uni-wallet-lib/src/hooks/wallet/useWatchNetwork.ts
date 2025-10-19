@@ -1,5 +1,5 @@
-import { useEffect, useCallback } from "react";
-import { useChainId, useAccount } from "wagmi";
+import { useCallback, useEffect } from "react";
+import { useAccount, useChainId } from "wagmi";
 
 export interface NetworkChangeHandler {
   onNetworkChange?: (chainId: number) => void;

@@ -34,7 +34,8 @@
       "a11y": {
         "useKeyWithClickEvents": "off",
         "useButtonType": "off",
-        "noSvgWithoutTitle": "off"
+        "noSvgWithoutTitle": "off",
+        "noLabelWithoutControl": "off"
       },
       "performance": {
         "noImgElement": "off"

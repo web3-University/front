@@ -1,13 +1,13 @@
-import { useState, useCallback } from "react";
-import { useWalletConnection } from "../wallet/useWalletConnection";
-import { useWalletSign } from "./useWalletSign";
-import { safeStorage } from "../../utils/safeStorage";
+import { useCallback, useState } from "react";
 import type {
   AuthConfig,
   NonceResponse,
   VerifyResponse,
 } from "../../types/auth";
 import { SignInStatus } from "../../types/auth";
+import { safeStorage } from "../../utils/safeStorage";
+import { useWalletConnection } from "../wallet/useWalletConnection";
+import { useWalletSign } from "./useWalletSign";
 
 /**
  * 钱包认证 Hook
@@ -42,6 +42,7 @@ export function useWalletAuth(config: AuthConfig = {}) {
   const refreshTokenStorageKey = "REFRESH_TOKEN";
   const userStorageKey = "USER";
   const signatureStorageKey = "WALLET_SIGNATURE";
+  const walletAddressStorageKey = "TOKEN_BY_ADDRESS";
 
   const { signSIWEMessage } = useWalletSign();
   const { address: walletAddress, isConnected } = useWalletConnection();
@@ -141,6 +142,7 @@ export function useWalletAuth(config: AuthConfig = {}) {
       // 步骤 4: 保存 token / user / signature
       safeStorage.setItem(tokenStorageKey, accessToken);
       safeStorage.setItem(refreshTokenStorageKey, refreshToken);
+      safeStorage.setItem(walletAddressStorageKey, walletAddress);
       safeStorage.setItem(userStorageKey, JSON.stringify(user));
       safeStorage.setItem(signatureStorageKey, signature);
 
@@ -190,7 +192,7 @@ export function useWalletAuth(config: AuthConfig = {}) {
   const signOut = useCallback(() => {
     safeStorage.removeItem(tokenStorageKey);
     safeStorage.removeItem(refreshTokenStorageKey);
-    safeStorage.removeItem(`${tokenStorageKey}_address`);
+    safeStorage.removeItem(walletAddressStorageKey);
     updateStatus(SignInStatus.IDLE);
     setError(null);
   }, [tokenStorageKey, refreshTokenStorageKey, updateStatus]);
@@ -203,7 +205,7 @@ export function useWalletAuth(config: AuthConfig = {}) {
    */
   const isAuthenticated = useCallback((): boolean => {
     const token = safeStorage.getItem(tokenStorageKey);
-    const storedAddress = safeStorage.getItem(`${tokenStorageKey}_address`);
+    const storedAddress = safeStorage.getItem(walletAddressStorageKey);
     return !!(token && storedAddress && storedAddress === walletAddress);
   }, [tokenStorageKey, walletAddress]);
 
@@ -213,7 +215,7 @@ export function useWalletAuth(config: AuthConfig = {}) {
    */
   const reload = useCallback(() => {
     // 如果当前地址与存储的地址不匹配,自动登出
-    const storedAddress = safeStorage.getItem(`${tokenStorageKey}_address`);
+    const storedAddress = safeStorage.getItem(walletAddressStorageKey);
     if (storedAddress && walletAddress && storedAddress !== walletAddress) {
       signOut();
     }

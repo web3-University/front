@@ -10,6 +10,7 @@ type HighlightItem = {
   title: string;
   description: string;
   iconBg: string;
+  eyebrow?: string;
 };
 
 const highlights: HighlightItem[] = [

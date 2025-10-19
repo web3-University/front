@@ -1,5 +1,4 @@
 import Hero from "@/components/dao/Hero";
-import NewProposal from "@/components/dao/NewProposal";
 import ProposalsList from "@/components/dao/ProposalsList";
 import Stats from "@/components/dao/Stats";
 
@@ -12,8 +11,7 @@ export default function DaoView() {
       <Hero />
       {/* Stats */}
       <Stats />
-      {/* Create Proposal Button */}
-      <NewProposal />
+
       {/* Tabs & Proposals List */}
       <ProposalsList />
     </main>

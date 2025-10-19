@@ -7,8 +7,9 @@ import {
 } from "@web3-university/uni-wallet-lib";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { formatUnits } from "viem";
-import { purchaseCourse as purchaseCourseAPI } from "@/lib/api/course";
+import { COURSE_CONTRACT_ADDRESS } from "@/config";
 import { CONTRACTS, TOKEN_DECIMALS } from "@/config/contracts";
+import { purchaseCourse as purchaseCourseAPI } from "@/lib/api/course";
 
 /**
  * 购买状态枚举
@@ -91,8 +92,7 @@ export function usePurchaseCourse(): UsePurchaseCourseReturn {
     refetchAllowance,
     balance: tokenBalance,
   } = useSimpleYDToken({
-    address: CONTRACTS.YD_TOKEN,
-    spenderAddress: CONTRACTS.COURSE_CONTRACT,
+    spenderAddress: COURSE_CONTRACT_ADDRESS,
     enabled: true,
   });
 
@@ -191,6 +191,8 @@ export function usePurchaseCourse(): UsePurchaseCourseReturn {
   const purchaseCourse = useCallback(
     async (params: PurchaseCourseParams): Promise<boolean> => {
       const { courseId, coursePrice } = params;
+      console.log("购买课程参数:", courseId, coursePrice);
+
       try {
         // ========== 步骤 1: 检查钱包连接 ==========
         setStatus(PurchaseStatus.CHECKING_WALLET);
@@ -210,11 +212,15 @@ export function usePurchaseCourse(): UsePurchaseCourseReturn {
         //   throw new Error("未找到认证令牌，请重新登录");
         // }
         // ========== 步骤 3: 检查 Token 余额 ==========
+        console.log("当前 YD Token 余额:", tokenBalance);
+        console.log("课程价格:", coursePrice);
+
         if (!tokenBalance || tokenBalance < coursePrice) {
           throw new Error(
             `YD Token 余额不足。需要 ${formatUnits(coursePrice, 18)} YD，当前余额 ${tokenBalance ? formatUnits(tokenBalance, 18) : tokenBalance} YD`,
           );
         }
+
         // ========== 步骤 4: 检查并授权 Token ==========
         setStatus(PurchaseStatus.CHECKING_ALLOWANCE);
         // 刷新授权额度
@@ -223,6 +229,8 @@ export function usePurchaseCourse(): UsePurchaseCourseReturn {
           setStatus(PurchaseStatus.APPROVING_TOKEN);
           // 授权足够的金额（授权课程价格的 1.5 倍，避免频繁授权）
           const approveAmount = (coursePrice * BigInt(150)) / BigInt(100);
+          console.log("授权金额:", approveAmount);
+
           const approveAmountStr = formatUnits(approveAmount, 18);
           const approveResult = await approve(
             CONTRACTS.COURSE_CONTRACT,

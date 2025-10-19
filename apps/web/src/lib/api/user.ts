@@ -40,7 +40,7 @@ export interface ApiResponse<T> {
  * POST /api/users/register
  */
 export const registerUser = (data: RegisterUserDto) =>
-  http<ApiResponse<User>>("/api/users/register", {
+  http<ApiResponse<User>>("/users/register", {
     method: "POST",
     body: data,
   });
@@ -69,4 +69,12 @@ export const updateUserProfile = (data: Partial<RegisterUserDto>) =>
 export const checkUserRegistered = (walletAddress: string) =>
   http<ApiResponse<boolean>>(
     `/users/isRegistered?walletAddress=${walletAddress}`,
+  );
+/**
+ * 获取用户已购买的课程
+ * GET /api/users/purchasedCourses
+ */
+export const getPurchasedCourses = (walletAddress: string) =>
+  http<ApiResponse<any[]>>(
+    `/users/purchasedCourses?walletAddress=${walletAddress}`,
   );

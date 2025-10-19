@@ -44,12 +44,16 @@ export const TIME_CONFIG = {
 } as const;
 
 // Tab 配置
+export const PROPOSAL_TABS_DAO = [
+  { key: "proposal", label: "治理提案" },
+  { key: "dispute", label: "争议解决" },
+  { key: "history", label: "历史记录" },
+] as const;
 export const PROPOSAL_TABS = [
   { key: "active", label: "进行中" },
   { key: "passed", label: "已通过" },
   { key: "rejected", label: "未通过" },
 ] as const;
-
 // 合约地址（根据网络动态获取）
 export const DAO_CONTRACTS = {
   GOVERNANCE: process.env.NEXT_PUBLIC_GOVERNANCE_CONTRACT,

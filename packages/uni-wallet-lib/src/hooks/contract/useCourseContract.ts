@@ -1,10 +1,10 @@
-import { parseUnits } from "viem";
 import type { Address } from "viem";
-import { contractFactory } from "./contractFactory";
-import { COURSE_CONTRACT_ABI } from "../../contract";
+import { parseUnits } from "viem";
 import type { UseWaitForTransactionReceiptReturnType as ReceiptReturnType } from "wagmi";
-import type { UseContractReadReturn } from "./useContractRead";
+import { COURSE_CONTRACT_ABI } from "../../contract";
 import type { WriteReturnType } from "./contractFactory";
+import { contractFactory } from "./contractFactory";
+import type { UseContractReadReturn } from "./useContractRead";
 
 const COURSE_CONTRACT_ADDRESS: Address =
   "0x1Af44F76cbF12d18Cb01C92d4076Da41e9B826EF";
@@ -44,16 +44,16 @@ export interface RefundRequest {
 }
 
 interface UseCourseContractProps {
-  // 合约地址
-  address: Address;
+  // 合约地址，可选，默认使用预设地址
+  address?: Address;
   // 代币精度，用于课程金额换算，默认18
-  tokenDecimals: number;
+  tokenDecimals?: number;
 }
 
 export function useCourseContract({
   address = COURSE_CONTRACT_ADDRESS,
   tokenDecimals = 18,
-}: UseCourseContractProps): {
+}: UseCourseContractProps = {}): {
   /* 合约查询方法 */
   hasAccess: (
     student?: Address,
@@ -284,6 +284,7 @@ export function useCourseContract({
 
   // 购买课程
   const purchaseCourseWriter = factory.write("purchaseCourse");
+
   /**
    * 购买课程
    * @param courseId 课程ID

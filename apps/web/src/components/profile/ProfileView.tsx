@@ -1,10 +1,16 @@
 "use client";
 
+import { ArrowRight, Award, Sparkles, User } from "lucide-react";
 import Link from "next/link";
-import { Award, ArrowRight } from "lucide-react";
+import { useState } from "react";
+import NFTGallery from "./NFTGallery";
 import UserInfoSection from "./UserInfoSection";
 
+type Tab = "profile" | "nft";
+
 export default function ProfileView() {
+  const [activeTab, setActiveTab] = useState<Tab>("profile");
+
   return (
     <div className="min-h-screen pt-32 pb-16">
       <div className="mx-auto max-w-[1280px] px-6">
@@ -36,8 +42,39 @@ export default function ProfileView() {
           </div>
         </Link>
 
-        {/* 个人信息 */}
-        <UserInfoSection />
+        {/* Tab 切换 */}
+        <div className="mb-8">
+          <div className="flex gap-2 rounded-2xl bg-white/60 p-2 backdrop-blur-sm shadow-sm ring-1 ring-white/60">
+            <button
+              onClick={() => setActiveTab("profile")}
+              className={`flex-1 flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-medium transition-all ${
+                activeTab === "profile"
+                  ? "bg-gradient-to-r from-[#8A71FF] to-[#9D7FFF] text-white shadow-md"
+                  : "text-[#6A6D94] hover:bg-white/50"
+              }`}
+            >
+              <User className="h-5 w-5" />
+              个人信息
+            </button>
+            <button
+              onClick={() => setActiveTab("nft")}
+              className={`flex-1 flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-medium transition-all ${
+                activeTab === "nft"
+                  ? "bg-gradient-to-r from-[#8A71FF] to-[#9D7FFF] text-white shadow-md"
+                  : "text-[#6A6D94] hover:bg-white/50"
+              }`}
+            >
+              <Sparkles className="h-5 w-5" />
+              NFT收藏
+            </button>
+          </div>
+        </div>
+
+        {/* Tab 内容 */}
+        <div>
+          {activeTab === "profile" && <UserInfoSection />}
+          {activeTab === "nft" && <NFTGallery />}
+        </div>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useWatchNetwork, type NetworkChangeHandler } from "../../hooks/wallet";
+import { type NetworkChangeHandler, useWatchNetwork } from "../../hooks/wallet";
 
 export interface NetworkSyncProps extends NetworkChangeHandler {
   /**

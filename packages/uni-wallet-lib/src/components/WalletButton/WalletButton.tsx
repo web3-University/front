@@ -1,7 +1,10 @@
-import React from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import type React from "react";
 import { Profile } from "./Profile";
 import "./WalletButton.css";
+import { useMemo } from "react";
+import { formatUnits } from "viem";
+import { useSimpleYDToken } from "../../hooks/contract/useSimpleYDToken";
 
 export interface WalletButtonProps {
   label?: string;
@@ -18,6 +21,19 @@ export const WalletButton: React.FC<WalletButtonProps> = ({
   className = "",
   size = "medium",
 }: WalletButtonProps) => {
+  // 获取YD币余额
+  const { balance: ydBalance, totalSupply } = useSimpleYDToken({
+    enabled: true,
+  });
+
+  // 格式化YD币余额显示
+  const ydBalanceLabel = useMemo(() => {
+    console.log("一灯币", totalSupply);
+
+    if (!ydBalance) return "0";
+    return Number(formatUnits(ydBalance, 18)).toFixed(4);
+  }, [ydBalance]);
+
   return (
     <div className={`wallet-button wallet-button--${size} ${className}`}>
       <ConnectButton.Custom>
@@ -35,6 +51,8 @@ export const WalletButton: React.FC<WalletButtonProps> = ({
             account &&
             currentChain &&
             (!authenticationStatus || authenticationStatus === "authenticated");
+          console.log(account);
+
           return (
             <div className="wallet-button__container">
               {(() => {
@@ -63,9 +81,7 @@ export const WalletButton: React.FC<WalletButtonProps> = ({
                             />
                           </div>
                         )}
-                        {showBalance && account.displayBalance && (
-                          <span>{account.displayBalance}</span>
-                        )}
+                        {showBalance && <span>{ydBalanceLabel} YD</span>}
                       </div>
                     )}
 
