@@ -237,11 +237,19 @@ export default function UserInfoSection() {
         formData.append("file", blob, "avatar.jpg");
         formData.append("fileType", "avatar");
 
-        const uploadResult = await http<{ url: string }>("/storage/upload", {
+        const uploadResult = await http<{
+          data: {
+            key: string;
+            url: string;
+            uploadedAt: string;
+          };
+        }>("/storage/upload", {
           method: "POST",
           body: formData,
         });
-        avatarUrl = uploadResult.url;
+        // 使用上传成功后返回的 url (从 data 字段中获取)
+        avatarUrl = uploadResult.data.url;
+        console.log("头像上传成功:", uploadResult);
       }
 
       // 保存用户信息
@@ -260,6 +268,23 @@ export default function UserInfoSection() {
           timestamp,
         },
       });
+
+      // 更新 localStorage 中的 USER 数据
+      try {
+        const localUserData = localStorage.getItem("USER");
+        if (localUserData) {
+          const userData = JSON.parse(localUserData);
+          // 更新用户信息
+          userData.avatar = avatarUrl;
+          userData.email = profile.email;
+          userData.username = profile.name;
+          // 写回 localStorage
+          localStorage.setItem("USER", JSON.stringify(userData));
+          console.log("localStorage USER 数据已更新:", userData);
+        }
+      } catch (storageError) {
+        console.error("更新 localStorage 失败:", storageError);
+      }
 
       setMessage({ type: "success", text: "保存成功！" });
       setIsEditing(false);

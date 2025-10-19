@@ -12,6 +12,7 @@ export interface WalletButtonProps {
   showChainName?: boolean;
   className?: string;
   size?: "small" | "medium" | "large";
+  onOpenProfile: () => void;
 }
 
 export const WalletButton: React.FC<WalletButtonProps> = ({
@@ -20,15 +21,16 @@ export const WalletButton: React.FC<WalletButtonProps> = ({
   showChainName = true,
   className = "",
   size = "medium",
+  onOpenProfile,
 }: WalletButtonProps) => {
   // 获取YD币余额
-  const { balance: ydBalance, totalSupply } = useSimpleYDToken({
+  const { balance: ydBalance } = useSimpleYDToken({
     enabled: true,
   });
 
   // 格式化YD币余额显示
   const ydBalanceLabel = useMemo(() => {
-    console.log("一灯币", totalSupply);
+    console.log("一灯币", ydBalance);
 
     if (!ydBalance) return "0";
     return Number(formatUnits(ydBalance, 18)).toFixed(4);
@@ -85,11 +87,7 @@ export const WalletButton: React.FC<WalletButtonProps> = ({
                       </div>
                     )}
 
-                    <button
-                      onClick={openAccountModal}
-                      type="button"
-                      className="wallet-button__account"
-                    >
+                    <button type="button" className="wallet-button__account">
                       <span className="wallet-button__status-bot"></span>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -134,6 +132,7 @@ export const WalletButton: React.FC<WalletButtonProps> = ({
                       account={account}
                       chain={currentChain}
                       openAccountModal={openAccountModal}
+                      openProfile={onOpenProfile}
                     />
                   </div>
                 );

@@ -7,7 +7,7 @@ import { contractFactory } from "./contractFactory";
 import type { UseContractReadReturn } from "./useContractRead";
 
 const COURSE_CONTRACT_ADDRESS: Address =
-  "0x1Af44F76cbF12d18Cb01C92d4076Da41e9B826EF";
+  "0x2aC2E8D99B585b321ffd875B95467a9B606e146a";
 
 /**
  * 课程信息结构体
@@ -89,7 +89,7 @@ export function useCourseContract({
     price: string,
     totalLessons: bigint,
   ) => Promise<WriteReturnType>;
-  purchaseCourse: (courseId: bigint) => Promise<WriteReturnType>;
+  purchaseCourse: (courseId: string) => Promise<WriteReturnType>;
   updateCoursePrice: (
     courseId: bigint,
     newPrice: string,
@@ -110,6 +110,7 @@ export function useCourseContract({
   updatePlatformAddress: (
     newPlatformAddress: Address,
   ) => Promise<WriteReturnType>;
+  registerCourse: (courseId: string, price: bigint) => Promise<WriteReturnType>;
   publishCourse: (courseId: bigint) => Promise<WriteReturnType>;
   unpublishCourse: (courseId: bigint) => Promise<WriteReturnType>;
   deleteCourse: (courseId: bigint) => Promise<WriteReturnType>;
@@ -125,6 +126,7 @@ export function useCourseContract({
   batchCertifyInstructorsReceipt: ReceiptReturnType;
   updatePlatformAddressReceipt: ReceiptReturnType;
   updateCourseReceipt: ReceiptReturnType;
+  registerCourseReceipt: ReceiptReturnType;
   publishCourseReceipt: ReceiptReturnType;
   unpublishCourseReceipt: ReceiptReturnType;
   deleteCourseReceipt: ReceiptReturnType;
@@ -290,7 +292,7 @@ export function useCourseContract({
    * @param courseId 课程ID
    * @returns
    */
-  const purchaseCourse = async (courseId: bigint) => {
+  const purchaseCourse = async (courseId: string) => {
     return await purchaseCourseWriter.send(courseId);
   };
 
@@ -377,6 +379,12 @@ export function useCourseContract({
     return await updatePlatformAddressWriter.send(newPlatformAddress);
   };
 
+  // 注册课程
+  const registerCourseWriter = factory.write("registerCourse");
+  const registerCourse = async (courseId: string, price: bigint) => {
+    return await registerCourseWriter.send(courseId, price);
+  };
+
   // 更新课程
   const updateCourseWriter = factory.write("updateCourse");
   /**
@@ -449,6 +457,7 @@ export function useCourseContract({
     revokeInstructor,
     batchCertifyInstructors,
     updatePlatformAddress,
+    registerCourse,
     updateCourse,
     publishCourse,
     unpublishCourse,
@@ -464,6 +473,7 @@ export function useCourseContract({
     revokeInstructorReceipt: revokeInstructorWriter.receipt,
     batchCertifyInstructorsReceipt: batchCertifyInstructorsWriter.receipt,
     updatePlatformAddressReceipt: updatePlatformAddressWriter.receipt,
+    registerCourseReceipt: updateCoursePriceWriter.receipt,
     updateCourseReceipt: updateCourseWriter.receipt,
     publishCourseReceipt: publishCourseWriter.receipt,
     unpublishCourseReceipt: unpublishCourseWriter.receipt,

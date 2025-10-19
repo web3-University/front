@@ -13,10 +13,16 @@ const courseCategories = [
 ];
 
 // 难度级别数据，每个对象包含value和label
+// const difficultyLevels = [
+//   { value: "beginner", label: "初级" },
+//   { value: "intermediate", label: "中级" },
+//   { value: "advanced", label: "高级" },
+// ];
+
 const difficultyLevels = [
-  { value: "beginner", label: "初级" },
-  { value: "intermediate", label: "中级" },
-  { value: "advanced", label: "高级" },
+  { value: "1", label: "初级" },
+  { value: "2", label: "中级" },
+  { value: "3", label: "高级" },
 ];
 
 const BasicInfoTab = () => {
@@ -263,7 +269,7 @@ const BasicInfoTab = () => {
               选择课程分类
             </option>
             {courseCategories.map((c) => (
-              <option key={c.value} value={c.value}>
+              <option key={c.label} value={c.label}>
                 {c.label}
               </option>
             ))}
