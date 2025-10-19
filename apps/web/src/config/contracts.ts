@@ -6,7 +6,7 @@
 export const CONTRACTS = {
   // 课程合约地址
   COURSE_CONTRACT:
-    "0x1Af44F76cbF12d18Cb01C92d4076Da41e9B826EF" as `0x${string}`,
+    "0x2aC2E8D99B585b321ffd875B95467a9B606e146a" as `0x${string}`,
 
   // YD Token 合约地址
   YD_TOKEN: "0x6Ebb0dAeEA2f89648aa077C57687fC851d199767" as `0x${string}`,

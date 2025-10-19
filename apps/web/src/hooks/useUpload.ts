@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { uploadCouseImage, type UploadImageParams } from "@/lib/api/course";
 import { FileType } from "lucide-react";
+import { useState } from "react";
+import { type UploadImageParams, uploadCouseImage } from "@/lib/api/course";
+
 // 文件类型定义
 type FileType = "avatar" | "video" | "image" | "file";
 
@@ -47,13 +48,13 @@ export const useUpload = (): UseUploadReturn => {
       fileType: fileType,
     };
     const response = await uploadCouseImage(params);
+    console.log("response", response);
 
-    if (!response.ok) {
+    if (!response.data) {
       throw new Error("获取上传地址失败");
     }
 
-    const data = await response.json();
-    return data; // { uploadUrl: string, fileUrl: string }
+    return response.data; // { uploadUrl: string, fileUrl: string }
   };
 
   // 上传文件到服务器或云存储
@@ -123,15 +124,14 @@ export const useUpload = (): UseUploadReturn => {
       }
 
       // 获取文件名
-      const fileName = file instanceof File ? file.name : `${Date.now()}.bin`;
-
       // 1. 获取上传地址
-      const { uploadUrl, fileUrl } = await getUploadUrl(file, fileType);
+      const { url: fileUrl } = (await getUploadUrl(file, fileType)) as any;
 
+      console.log(fileUrl, "__uploadUrl, fileUrl");
       // 2. 上传文件
-      await uploadToStorage(file, uploadUrl, (progress) => {
-        setState((prev) => ({ ...prev, progress }));
-      });
+      // await uploadToStorage(file, uploadUrl, (progress) => {
+      //   setState((prev) => ({ ...prev, progress }));
+      // });
 
       // 3. 上传成功 - 更新为新 URL
       setState({
