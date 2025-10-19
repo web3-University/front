@@ -101,7 +101,6 @@ const CourseList = () => {
   useEffect(() => {
     const mappedCourses: FeaturedCourse[] = apiCourses.map((course) => {
       // 确保price字段有有效值
-      console.log("course:", course);
       const courseId = course.courseId?.toString() || "";
       return {
         id: courseId,

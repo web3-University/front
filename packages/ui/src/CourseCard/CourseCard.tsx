@@ -48,6 +48,99 @@ export const CourseCard: React.FC<CourseCardProps> = (props) => {
     }
   };
 
+  // 根据课程类别获取对应的美观颜色方案
+  const getCategoryColors = (category: string) => {
+    const categoryLower = category.toLowerCase();
+
+    if (
+      categoryLower.includes("区块链") ||
+      categoryLower.includes("blockchain") ||
+      categoryLower.includes("web3")
+    ) {
+      return "from-emerald-400 via-teal-500 to-cyan-600";
+    }
+    if (
+      categoryLower.includes("编程") ||
+      categoryLower.includes("开发") ||
+      categoryLower.includes("programming") ||
+      categoryLower.includes("development")
+    ) {
+      return "from-blue-500 via-indigo-600 to-purple-700";
+    }
+    if (
+      categoryLower.includes("数据") ||
+      categoryLower.includes("分析") ||
+      categoryLower.includes("data") ||
+      categoryLower.includes("analytics")
+    ) {
+      return "from-orange-400 via-red-500 to-pink-600";
+    }
+    if (
+      categoryLower.includes("用户") ||
+      categoryLower.includes("ui") ||
+      categoryLower.includes("ux") ||
+      categoryLower.includes("设计")
+    ) {
+      return "from-violet-500 via-purple-600 to-fuchsia-700";
+    }
+    if (
+      categoryLower.includes("人工智能") ||
+      categoryLower.includes("ai") ||
+      categoryLower.includes("机器学习") ||
+      categoryLower.includes("ml")
+    ) {
+      return "from-green-400 via-emerald-500 to-teal-600";
+    }
+    if (
+      categoryLower.includes("安全") ||
+      categoryLower.includes("security") ||
+      categoryLower.includes("网络")
+    ) {
+      return "from-red-500 via-rose-600 to-pink-700";
+    }
+
+    // 默认渐变色 - 优雅的蓝紫色渐变
+    return "from-indigo-500 via-purple-600 to-blue-700";
+  };
+  const getCategoryIcon = (category: string) => {
+    const categoryLower = category.toLowerCase();
+
+    if (
+      categoryLower.includes("区块链") ||
+      categoryLower.includes("blockchain") ||
+      categoryLower.includes("web3")
+    ) {
+      return <Wallet className="h-8 w-8 text-white" />;
+    }
+    if (
+      categoryLower.includes("编程") ||
+      categoryLower.includes("开发") ||
+      categoryLower.includes("programming") ||
+      categoryLower.includes("development")
+    ) {
+      return <BookOpen className="h-8 w-8 text-white" />;
+    }
+    if (
+      categoryLower.includes("数据") ||
+      categoryLower.includes("分析") ||
+      categoryLower.includes("data") ||
+      categoryLower.includes("analytics")
+    ) {
+      return <BarChart3 className="h-8 w-8 text-white" />;
+    }
+    if (
+      categoryLower.includes("用户") ||
+      categoryLower.includes("ui") ||
+      categoryLower.includes("ux") ||
+      categoryLower.includes("设计")
+    ) {
+      return <Users className="h-8 w-8 text-white" />;
+    }
+
+    // 默认图标
+    return <BookOpen className="h-8 w-8 text-white" />;
+  };
+
   // 难度级别映射
   const getDifficultyLabel = (difficulty?: string) => {
     switch (difficulty) {
@@ -100,45 +193,10 @@ export const CourseCard: React.FC<CourseCardProps> = (props) => {
       }`}
     >
       <div
-        className={`relative h-48 w-full overflow-hidden rounded-2xl bg-gradient-to-br ${course.coverColor || "from-gray-400 to-gray-600"}`}
+        className={`relative h-8 w-full overflow-hidden rounded-2xl bg-gradient-to-br ${
+          course.coverColor || "from-gray-400 to-gray-600"
+        }`}
       >
-        {/* 课程封面图片区域 */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          {/* 主要图标 */}
-          <div className="relative">
-            <BookOpen className="h-16 w-16 text-white/80" strokeWidth={1.5} />
-            <Play
-              className="absolute -bottom-2 -right-2 h-8 w-8 text-white/60"
-              strokeWidth={1.5}
-            />
-          </div>
-
-          {/* 装饰性元素 */}
-          <div className="absolute top-8 left-8">
-            <div className="h-3 w-3 rounded-full bg-white/30"></div>
-          </div>
-          <div className="absolute bottom-8 right-8">
-            <div className="h-2 w-2 rounded-full bg-white/40"></div>
-          </div>
-          <div className="absolute top-16 right-12">
-            <div className="h-1.5 w-1.5 rounded-full bg-white/50"></div>
-          </div>
-
-          {/* 课程相关文字 */}
-          <div className="absolute bottom-4 left-4 right-4">
-            <div className="flex items-center justify-between text-white/70 text-xs">
-              <span className="flex items-center gap-1">
-                <Users className="h-3 w-3" />
-                在线课程
-              </span>
-              <span className="flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                随时学习
-              </span>
-            </div>
-          </div>
-        </div>
-
         <span className="absolute left-4 top-4 inline-flex rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-[#2B2558]">
           {course.category || "未分类"}
         </span>
@@ -150,6 +208,47 @@ export const CourseCard: React.FC<CourseCardProps> = (props) => {
             {difficultyInfo.label}
           </span>
         )}
+      </div>
+
+      {/* 课程封面图片区域 */}
+      <div
+        className={`relative h-48 w-full overflow-hidden rounded-2xl bg-gradient-to-br ${
+          course.coverColor || getCategoryColors(course.category)
+        } flex items-center justify-center`}
+      >
+        {/* 背景装饰图案 */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-4 left-4 h-16 w-16 rounded-full bg-white/20"></div>
+          <div className="absolute top-8 right-8 h-12 w-12 rounded-full bg-white/15"></div>
+          <div className="absolute bottom-6 left-8 h-8 w-8 rounded-full bg-white/25"></div>
+          <div className="absolute bottom-4 right-4 h-20 w-20 rounded-full bg-white/10"></div>
+          {/* 几何图形装饰 */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-32 w-32 rotate-45 border-2 border-white/20 rounded-lg"></div>
+        </div>
+
+        {/* 主要内容区域 */}
+        <div className="relative z-10 text-center text-white px-6">
+          {/* 课程图标 */}
+          <div className="mb-4 h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#FFB347] to-[#FF6B9A] text-3xl font-semibold text-white shadow-[0_20px_45px_rgba(255,133,133,0.3)]">
+            <div className="rounded-2xl bg-white/20 backdrop-blur-sm p-4 shadow-lg">
+              {getCategoryIcon(course.category)}
+            </div>
+          </div>
+
+          {/* 课程标题 */}
+          <h4 className="text-lg font-bold text-white drop-shadow-lg line-clamp-2 leading-tight">
+            {course.title || "未命名课程"}
+          </h4>
+
+          {/* 装饰性标签 */}
+          <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-sm px-3 py-1 text-xs font-medium text-white">
+            <Play className="h-3 w-3" />
+            <span>开始学习</span>
+          </div>
+        </div>
+
+        {/* 光效装饰 */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
       </div>
 
       <div className="flex flex-1 flex-col gap-4 pt-6 text-left">

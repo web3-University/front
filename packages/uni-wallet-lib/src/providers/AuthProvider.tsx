@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useEffect, useMemo } from "react";
-import { useWalletConnection } from "../hooks/wallet/useWalletConnection";
-import { useWalletAuth } from "../hooks/auth/useWalletAuth";
+import type React from "react";
+import { createContext, useContext, useEffect, useMemo } from "react";
 import { AuthModal } from "../components/AuthModal/AuthModal";
+import { useWalletAuth } from "../hooks/auth/useWalletAuth";
+import { useWalletConnection } from "../hooks/wallet/useWalletConnection";
 import type { AuthConfig, AuthContextValue } from "../types/auth";
 
 const AuthContext = createContext<AuthContextValue | null>(null);
