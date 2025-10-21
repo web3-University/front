@@ -54,10 +54,10 @@ export interface Proposal {
 
 /** 创建提案请求 */
 export interface CreateProposalRequest {
-  courseId: number;
+  courseId: number | string;
   reason: string;
   proposerWallet: string;
-  proposalDeposit?: number;
+  proposalDeposit?: number | string;
 }
 
 /** 投票请求 */
