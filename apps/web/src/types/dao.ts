@@ -125,19 +125,16 @@ export interface ApiResponse {
 // 转换函数
 export function convertApiToMockFormat(apiResponse: ApiResponse): Proposal[] {
   return apiResponse.proposals.map((proposal) => {
-    // 格式化钱包地址 (0x1234...5678)
     const formatWallet = (wallet: string): string => {
       if (!wallet || wallet.length < 10) return wallet;
       return `${wallet.slice(0, 6)}...${wallet.slice(-4)}`;
     };
 
-    // 格式化日期 (YYYY-MM-DD)
     const formatDate = (dateString: string): string => {
       const date = new Date(dateString);
       return date.toISOString().split("T")[0];
     };
 
-    // 转换状态，确保返回 ProposalStatus 联合类型
     const convertStatus = (status: string): ProposalStatus => {
       const statusMap: Record<string, ProposalStatus> = {
         Active: "active",
@@ -146,23 +143,23 @@ export function convertApiToMockFormat(apiResponse: ApiResponse): Proposal[] {
         Failed: "rejected",
         Executed: "executed",
         Cancelled: "cancelled",
+        Rejected: "rejected", // 添加这个映射
       };
       if (statusMap[status]) return statusMap[status];
       const lower = status.toLowerCase();
       if (
         lower === "active" ||
-        lower === "succeeded" ||
-        lower === "failed" ||
+        lower === "pending" ||
+        lower === "passed" ||
+        lower === "rejected" ||
         lower === "executed" ||
         lower === "cancelled"
       ) {
         return lower as ProposalStatus;
       }
-      // 默认值，保证类型安全
       return "pending";
     };
 
-    // 根据 reason 推断分类，确保返回 ProposalCategory 联合类型
     const getCategory = (reason: string): ProposalCategory => {
       if (reason.includes("课程") || reason.includes("内容")) {
         return "课程规则";
@@ -179,7 +176,7 @@ export function convertApiToMockFormat(apiResponse: ApiResponse): Proposal[] {
 
     return {
       id: proposal.proposalId,
-      title: `关于"${proposal.course.title}"的争议提案`,
+      title: `关于"${proposal.course?.title || "平台规则"}"的${proposal.courseId ? "争议" : ""}提案`,
       description: proposal.reason,
       author: formatWallet(proposal.proposerWallet),
       startTime: formatDate(proposal.votingStartTime),
@@ -189,6 +186,7 @@ export function convertApiToMockFormat(apiResponse: ApiResponse): Proposal[] {
       votesAgainst: parseInt(proposal.againstVotes) || 0,
       quorum: parseInt(proposal.totalVotingPower) || 100000,
       category: getCategory(proposal.reason),
+      courseId: proposal.courseId, // 保留 courseId 用于分类
     };
   });
 }

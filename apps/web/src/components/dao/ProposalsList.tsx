@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Proposal, DaoTabKey } from "@/types/dao";
+import { Proposal, DaoTabKey, convertApiToMockFormat } from "@/types/dao";
 import { PROPOSAL_TABS_DAO } from "@/lib/dao";
 import ProposalCard from "./ProposalCard";
 import ProposalModal from "./ProposalModal";
@@ -40,7 +40,7 @@ export default function ProposalsList() {
 
   // 提案押金配置
   const PROPOSAL_DEPOSIT = parseUnits("1000", 18); // 普通提案押金: 1000 YD
-  const DISPUTE_DEPOSIT = parseUnits("500", 18); // 争议提案押金: 500 YD
+  const DISPUTE_DEPOSIT = parseUnits("1000", 18); // 争议提案押金: 1000 YD
 
   // YD Token 合约交互
   const {
@@ -77,21 +77,28 @@ export default function ProposalsList() {
       });
 
       if (res?.success && res.data?.proposals) {
-        const proposals = res.data.proposals;
-
+        // const proposals = res.data.proposals;
+        // 先转换所有提案为统一格式
+        const convertedProposals = convertApiToMockFormat(res.data);
         // 根据状态和类型分类提案
-        const activeProposals = proposals.filter(
-          (p: any) => p.status === "Active",
-        );
-        const historyProposals = proposals.filter(
-          (p: any) => p.status === "Executed" || p.status === "Rejected",
+        // 活跃提案
+        const activeProposals = convertedProposals.filter(
+          (p) => p.status === "active" || p.status === "pending",
         );
 
-        // 普通提案：没有关联课程的提案
-        setProposalsList(activeProposals.filter((p: any) => !p.courseId));
+        // 历史提案
+        const historyProposals = convertedProposals.filter(
+          (p) =>
+            p.status === "executed" ||
+            p.status === "rejected" ||
+            p.status === "passed",
+        );
 
-        // 争议提案：有关联课程的提案
-        setDisputesList(activeProposals.filter((p: any) => p.courseId));
+        // 普通提案：没有关联课程
+        setProposalsList(activeProposals.filter((p) => !(p as any).courseId));
+
+        // 争议提案：有关联课程
+        setDisputesList(activeProposals.filter((p) => !!(p as any).courseId));
 
         // 历史记录
         setHistoryList(historyProposals);
