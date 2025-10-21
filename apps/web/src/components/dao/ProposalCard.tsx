@@ -24,6 +24,14 @@ export default function ProposalCard({
     calculateVotePercentages(proposal);
   const { quorumProgress } = calculateQuorumProgress(proposal);
 
+  // 兼容 API 返回的大写状态和转换后的小写状态
+  const status = (proposal as any).status;
+  const isActive = status === "Active" || status === "active";
+  const isPassed = status === "Succeeded" || status === "passed";
+  const isRejected = status === "Failed" || status === "rejected";
+  const isExecuted = status === "Executed" || status === "executed";
+  const isCancelled = status === "Canceled" || status === "cancelled";
+
   return (
     <div
       className={`bg-white/90 backdrop-blur-md rounded-2xl ${
@@ -43,16 +51,32 @@ export default function ProposalCard({
             >
               {proposal.category}
             </span>
-            {proposal.status === "active" && (
+            {isActive && (
               <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
                 进行中
               </span>
             )}
-            {proposal.status === "passed" && (
-              <CheckCircle className="w-5 h-5 text-green-500" />
+            {isPassed && (
+              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 flex items-center gap-1">
+                <CheckCircle className="w-4 h-4" />
+                已通过
+              </span>
             )}
-            {proposal.status === "rejected" && (
-              <XCircle className="w-5 h-5 text-red-500" />
+            {isRejected && (
+              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 flex items-center gap-1">
+                <XCircle className="w-4 h-4" />
+                未通过
+              </span>
+            )}
+            {isExecuted && (
+              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+                已执行
+              </span>
+            )}
+            {isCancelled && (
+              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
+                已取消
+              </span>
             )}
           </div>
           <h3 className="text-xl font-bold text-gray-900 mb-2">
@@ -76,13 +100,13 @@ export default function ProposalCard({
         )}
       </div>
 
-      {proposal.status === "active" && (
+      {isActive && (
         <>
           <div className="space-y-3 mb-4">
             <div>
               <div className="flex justify-between text-sm mb-2">
                 <span className="text-green-600 font-semibold">
-                  赞成 {forPercentage}%
+                  支持 {forPercentage}%
                 </span>
                 <span className="text-gray-600">
                   {proposal.votesFor.toLocaleString()} 票
@@ -129,24 +153,22 @@ export default function ProposalCard({
             </div>
           </div>
 
-          {isDetailed && (
-            <div className="flex gap-3">
-              <button className="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-3 rounded-xl transition-all duration-300 hover:shadow-lg">
-                投赞成票
-              </button>
-              <button className="flex-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold py-3 rounded-xl transition-all duration-300 hover:shadow-lg">
-                投反对票
-              </button>
+          {/* 提示用户点击查看详情进行投票 */}
+          {!isDetailed && (
+            <div className="pt-3 border-t border-gray-200">
+              <p className="text-sm text-gray-500 text-center">
+                点击查看详情并投票 →
+              </p>
             </div>
           )}
         </>
       )}
 
-      {(proposal.status === "passed" || proposal.status === "rejected") && (
+      {(isPassed || isRejected || isExecuted || isCancelled) && (
         <div className="pt-4 border-t border-gray-200">
           <div className="flex justify-between text-sm">
             <span className="text-green-600 font-semibold">
-              赞成: {proposal.votesFor.toLocaleString()} 票
+              支持: {proposal.votesFor.toLocaleString()} 票
             </span>
             <span className="text-red-600 font-semibold">
               反对: {proposal.votesAgainst.toLocaleString()} 票

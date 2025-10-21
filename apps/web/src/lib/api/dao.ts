@@ -307,3 +307,63 @@ export const calculateVoteRate = (
   const total = forNum + againstNum;
   return total > 0 ? (forNum / total) * 100 : 0;
 };
+
+/**
+ * 获取用户对特定提案的投票状态
+ * @param proposalId 提案ID
+ * @param voterWallet 用户钱包地址
+ * @returns 投票信息,如果未投票则返回null
+ */
+export const getUserVote = async (
+  proposalId: number,
+  voterWallet: string,
+): Promise<ApiResponse<Vote | null>> => {
+  try {
+    // 先获取提案详情,包含所有投票记录
+    const proposal = await getProposalById(proposalId);
+
+    if (!proposal?.votes || proposal.votes.length === 0) {
+      return { data: null };
+    }
+
+    // 从投票记录中查找用户的投票
+    const userVote = proposal.votes.find(
+      (vote) => vote.voterWallet.toLowerCase() === voterWallet.toLowerCase(),
+    );
+
+    return { data: userVote || null };
+  } catch (error) {
+    console.error("获取用户投票状态失败:", error);
+    return { data: null };
+  }
+};
+
+/**
+ * 获取提案的所有投票记录
+ * @param proposalId 提案ID
+ * @returns 投票记录列表
+ */
+export const getProposalVotes = async (
+  proposalId: number,
+): Promise<ApiResponse<Vote[]>> => {
+  try {
+    const proposal = await getProposalById(proposalId);
+    return { data: proposal?.votes || [] };
+  } catch (error) {
+    console.error("获取投票记录失败:", error);
+    return { data: [] };
+  }
+};
+
+// 注意: 如果后端有专门的 API 端点来获取投票记录,可以这样实现:
+/*
+export const getUserVote = (proposalId: number, voterWallet: string) =>
+  http<Vote | null>(`/dao/proposals/${proposalId}/votes/${voterWallet}`, {
+    method: "GET",
+  });
+
+export const getProposalVotes = (proposalId: number) =>
+  http<Vote[]>(`/dao/proposals/${proposalId}/votes`, {
+    method: "GET",
+  });
+*/

@@ -14,7 +14,7 @@ import {
 } from "@web3-university/uni-wallet-lib";
 import { formatUnits, parseUnits } from "viem";
 import { CONTRACTS } from "@/config/contracts";
-import { createProposal, getProposals, vote } from "@/lib/api/dao";
+import { createProposal, getProposals, vote, VoteOption } from "@/lib/api/dao";
 
 export default function ProposalsList() {
   const [activeTab, setActiveTab] = useState<DaoTabKey>("dispute");
@@ -35,7 +35,7 @@ export default function ProposalsList() {
   const { signMessage } = useWalletSign();
   const { address: walletAddress, isConnected } = useWalletInfo();
 
-  // DAO 治理合约地址（创建提案的合约）
+  // DAO 治理合约地址(创建提案的合约)
   const DAO_GOVERNANCE_CONTRACT = "0x5E3Ab3256cfa5C89bEb63DbB8e12ba42d63F216f";
 
   // 提案押金配置
@@ -76,36 +76,53 @@ export default function ProposalsList() {
         limit: 100,
       });
 
-      if (res?.success && res.data?.proposals) {
-        // const proposals = res.data.proposals;
+      // API 返回格式: { data: ProposalsResponse }
+      // ProposalsResponse = { proposals: Proposal[], total, page, limit, totalPages }
+      if (res?.data?.proposals) {
+        const apiProposals = res.data.proposals;
+
         // 先转换所有提案为统一格式
-        const convertedProposals = convertApiToMockFormat(res.data);
+        const convertedProposals = convertApiToMockFormat(apiProposals);
+
         // 根据状态和类型分类提案
+        // 注意: API 返回的状态是 "Active", "Succeeded" 等大写形式
         // 活跃提案
         const activeProposals = convertedProposals.filter(
-          (p) => p.status === "active" || p.status === "pending",
+          (p) =>
+            (p as any).status === "active" || (p as any).status === "pending",
         );
 
         // 历史提案
         const historyProposals = convertedProposals.filter(
           (p) =>
-            p.status === "executed" ||
-            p.status === "rejected" ||
-            p.status === "passed",
+            (p as any).status === "executed" ||
+            (p as any).status === "rejected" ||
+            (p as any).status === "passed" ||
+            (p as any).status === "cancelled",
         );
 
-        // 普通提案：没有关联课程
-        setProposalsList(activeProposals.filter((p) => !(p as any).courseId));
+        // 普通提案:没有关联课程 (courseId 为 0 或不存在)
+        setProposalsList(
+          activeProposals.filter((p) => {
+            const courseId = (p as any).courseId;
+            return !courseId || courseId === 0;
+          }),
+        );
 
-        // 争议提案：有关联课程
-        setDisputesList(activeProposals.filter((p) => !!(p as any).courseId));
+        // 争议提案:有关联课程 (courseId > 0)
+        setDisputesList(
+          activeProposals.filter((p) => {
+            const courseId = (p as any).courseId;
+            return courseId && courseId > 0;
+          }),
+        );
 
         // 历史记录
         setHistoryList(historyProposals);
       }
     } catch (error) {
       console.error("获取提案列表失败:", error);
-      alert("获取提案列表失败，请稍后重试");
+      alert("获取提案列表失败,请稍后重试");
     } finally {
       setIsLoading(false);
     }
@@ -119,8 +136,8 @@ export default function ProposalsList() {
     await refetchAllowance();
 
     if (!allowance || allowance < requiredAmount) {
-      console.log("授权不足，开始授权...");
-      // 授权 2 倍金额，避免频繁授权
+      console.log("授权不足,开始授权...");
+      // 授权 2 倍金额,避免频繁授权
       const approveAmount = requiredAmount * BigInt(2);
       const approveAmountStr = formatUnits(approveAmount, 18);
 
@@ -130,12 +147,11 @@ export default function ProposalsList() {
       );
 
       if (!approveResult) {
-        throw new Error("授权失败，未返回交易哈希");
+        throw new Error("授权失败,未返回交易哈希");
       }
 
       // 等待授权交易确认
       console.log("等待授权确认...");
-      // approveReceipt 可能是一个可调用的函数，也可能是 hook 的返回对象（包含 refetch）
       let receipt: any = null;
       if (typeof approveReceipt === "function") {
         receipt = await approveReceipt(approveResult);
@@ -144,10 +160,9 @@ export default function ProposalsList() {
         typeof (approveReceipt as any).refetch === "function"
       ) {
         const r = await (approveReceipt as any).refetch(approveResult);
-        // 有些实现会将回执放在 r.data 中
         receipt = r?.data ?? r;
       } else {
-        console.warn("无法等待交易回执，跳过等待");
+        console.warn("无法等待交易回执,跳过等待");
       }
 
       if (!receipt || receipt?.status !== "success") {
@@ -179,7 +194,7 @@ export default function ProposalsList() {
       // 2. 检查 Token 余额
       if (!tokenBalance || tokenBalance < PROPOSAL_DEPOSIT) {
         throw new Error(
-          `YD Token 余额不足。需要 ${formatUnits(PROPOSAL_DEPOSIT, 18)} YD，当前余额 ${formatUnits(tokenBalance || BigInt(0), 18)} YD`,
+          `YD Token 余额不足。需要 ${formatUnits(PROPOSAL_DEPOSIT, 18)} YD,当前余额 ${formatUnits(tokenBalance || BigInt(0), 18)} YD`,
         );
       }
 
@@ -207,34 +222,36 @@ export default function ProposalsList() {
       // 4. 检查并授权 Token
       await checkAndApproveToken(PROPOSAL_DEPOSIT);
 
-      // 5. 调用后端 API 创建提案（普通提案不关联课程）
+      // 5. 调用后端 API 创建提案(普通提案不关联课程)
       console.log("提交普通提案到后端...");
       const res = await createProposal({
-        courseId: 0, // 普通提案不关联课程，传 0 或不传
+        courseId: 0, // 普通提案不关联课程,传 0
         reason: `【${data.type}】${data.title}\n\n${data.description}`,
         proposerWallet: walletAddress,
         proposalDeposit: formatUnits(PROPOSAL_DEPOSIT, 18),
       });
 
-      // createProposal 返回 Proposal 对象（或 null/undefined），通过 id 判断是否创建成功
-      if (!res || !(res as any).id) {
+      // API 返回格式: { data: Proposal }
+      if (!res?.data || !(res.data as any).proposalId) {
         throw new Error("创建提案失败");
       }
-      alert("提案创建成功！");
+
+      console.log("提案创建成功:", res.data);
+      alert("提案创建成功!");
 
       // 6. 关闭弹窗并刷新列表
       setShowNewProposal(false);
       await getProposalsFn();
     } catch (error: any) {
       console.error("创建提案失败:", error);
-      alert(error.message || "创建提案失败，请稍后重试");
+      alert(error.message || "创建提案失败,请稍后重试");
     } finally {
       setIsCreating(false);
     }
   };
 
   /**
-   * 创建争议提案（课程质量投诉）
+   * 创建争议提案(课程质量投诉)
    */
   const createDisputeProposal = async (data: {
     type: string;
@@ -253,7 +270,7 @@ export default function ProposalsList() {
       // 2. 检查 Token 余额
       if (!tokenBalance || tokenBalance < DISPUTE_DEPOSIT) {
         throw new Error(
-          `YD Token 余额不足。需要 ${formatUnits(DISPUTE_DEPOSIT, 18)} YD，当前余额 ${formatUnits(tokenBalance || BigInt(0), 18)} YD`,
+          `YD Token 余额不足。需要 ${formatUnits(DISPUTE_DEPOSIT, 18)} YD,当前余额 ${formatUnits(tokenBalance || BigInt(0), 18)} YD`,
         );
       }
 
@@ -286,6 +303,7 @@ export default function ProposalsList() {
 
       // 5. 检查并授权 Token
       await checkAndApproveToken(DISPUTE_DEPOSIT);
+
       // 6. 调用后端 API 创建争议提案
       console.log("提交争议提案到后端...");
       const res = await createProposal({
@@ -295,19 +313,20 @@ export default function ProposalsList() {
         proposalDeposit: formatUnits(DISPUTE_DEPOSIT, 18),
       });
 
-      // createProposal 返回 Proposal 对象（或 null/undefined），通过 id 判断是否创建成功
-      if (!res || !(res as any).id) {
+      // API 返回格式: { data: Proposal }
+      if (!res?.data || !(res.data as any).proposalId) {
         throw new Error("创建争议失败");
       }
 
-      alert("争议提交成功！社区将对此进行投票。");
+      console.log("争议创建成功:", res.data);
+      alert("争议提交成功!社区将对此进行投票。");
 
       // 7. 关闭弹窗并刷新列表
       setShowNewDispute(false);
       await getProposalsFn();
     } catch (error: any) {
       console.error("创建争议失败:", error);
-      alert(error.message || "创建争议失败，请稍后重试");
+      alert(error.message || "创建争议失败,请稍后重试");
     } finally {
       setIsCreating(false);
     }
@@ -315,8 +334,10 @@ export default function ProposalsList() {
 
   /**
    * 投票功能
+   * @param proposalId 提案ID
+   * @param option 投票选项: VoteOption.For(0)=支持课程, VoteOption.Against(1)=反对课程
    */
-  const createVoteFn = async (proposalId: number, option: number) => {
+  const createVoteFn = async (proposalId: number, option: VoteOption) => {
     if (isVoting) return;
     setIsVoting(true);
 
@@ -326,16 +347,16 @@ export default function ProposalsList() {
         throw new Error("请先连接钱包");
       }
 
-      // 2. 获取用户的投票权重（基于 YD Token 余额）
+      // 2. 获取用户的投票权重(基于 YD Token 余额)
       if (!tokenBalance || tokenBalance === BigInt(0)) {
-        throw new Error("您没有投票权重，请先获取 YD Token");
+        throw new Error("您没有投票权重,请先获取 YD Token");
       }
 
       const votingPower = formatUnits(tokenBalance, 18);
 
       // 3. 签名认证
       const timestamp = Date.now();
-      const optionText = option === 1 ? "支持" : "反对";
+      const optionText = option === VoteOption.For ? "支持课程" : "反对课程";
       const message = `投票
 提案ID: ${proposalId}
 选项: ${optionText}
@@ -354,26 +375,34 @@ export default function ProposalsList() {
       }
 
       // 4. 调用投票 API
-      console.log("提交投票...");
+      console.log("提交投票...", {
+        proposalId,
+        option,
+        voterWallet: walletAddress,
+        votingPower,
+      });
+
       const res = await vote(proposalId, {
         option,
         voterWallet: walletAddress,
         votingPower,
       });
 
-      if (!res?.success) {
-        throw new Error(res?.message || "投票失败");
+      // API 返回格式: { data: Vote }
+      // Vote = { id, voterWallet, option, votingPower, rewardClaimed, createdAt }
+      if (!res?.data || !(res.data as any).id) {
+        throw new Error("投票失败");
       }
 
       console.log("投票成功:", res.data);
-      alert(`投票成功！您选择了【${optionText}】`);
+      alert(`投票成功!您选择了【${optionText}】`);
 
       // 5. 关闭详情弹窗并刷新列表
       setSelectedProposal(null);
       await getProposalsFn();
     } catch (error: any) {
       console.error("投票失败:", error);
-      alert(error.message || "投票失败，请稍后重试");
+      alert(error.message || "投票失败,请稍后重试");
     } finally {
       setIsVoting(false);
     }
@@ -530,13 +559,12 @@ export default function ProposalsList() {
       {/* Proposal Detail Modal */}
       {selectedProposal && (
         <ProposalModal
-          {...({
-            proposal: selectedProposal,
-            onClose: () => setSelectedProposal(null),
-            onVote: createVoteFn,
-            isVoting,
-            userAddress: walletAddress,
-          } as any)}
+          proposal={selectedProposal}
+          onClose={() => setSelectedProposal(null)}
+          onVote={createVoteFn}
+          isVoting={isVoting}
+          userAddress={walletAddress}
+          userVotingPower={tokenBalance}
         />
       )}
 
