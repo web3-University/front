@@ -14,6 +14,8 @@ interface ProposalModalProps {
   isVoting?: boolean;
   userAddress?: string;
   userVotingPower?: bigint;
+  onClaimReward?: (proposalId: number) => Promise<void>;
+  onFinalize?: (proposalId: number) => Promise<void>;
 }
 
 export default function ProposalModal({

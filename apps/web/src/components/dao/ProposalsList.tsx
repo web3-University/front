@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Proposal, DaoTabKey, convertApiToMockFormat } from "@/types/dao";
 import { PROPOSAL_TABS_DAO } from "@/lib/dao";
 import ProposalCard from "./ProposalCard";
@@ -15,6 +15,10 @@ import {
 import { formatUnits, parseUnits } from "viem";
 import { CONTRACTS } from "@/config/contracts";
 import { createProposal, getProposals, vote, VoteOption } from "@/lib/api/dao";
+import { usePublicClient, useWalletClient } from "wagmi";
+
+// CourseDAO 合约 ABI (核心功能)
+import { DAO_ABI } from "@web3-university/uni-wallet-lib/src/contract";
 
 export default function ProposalsList() {
   const [activeTab, setActiveTab] = useState<DaoTabKey>("dispute");
@@ -26,21 +30,31 @@ export default function ProposalsList() {
   const [isCreating, setIsCreating] = useState(false);
   const [isVoting, setIsVoting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [txStatus, setTxStatus] = useState<string>("");
 
   // 提案列表数据
   const [proposalsList, setProposalsList] = useState<Proposal[]>([]);
   const [disputesList, setDisputesList] = useState<Proposal[]>([]);
   const [historyList, setHistoryList] = useState<Proposal[]>([]);
 
+  // DAO配置
+  const [daoConfig, setDaoConfig] = useState<{
+    proposalDeposit: bigint;
+    minVotingPower: bigint;
+    votingPeriod: bigint;
+    quorumPercentage: bigint;
+    passThreshold: bigint;
+    rewardPoolPercentage: bigint;
+  } | null>(null);
+
   const { signMessage } = useWalletSign();
   const { address: walletAddress, isConnected } = useWalletInfo();
+  const publicClient = usePublicClient();
+  const { data: walletClient } = useWalletClient();
 
-  // DAO 治理合约地址(创建提案的合约)
-  const DAO_GOVERNANCE_CONTRACT = "0x5E3Ab3256cfa5C89bEb63DbB8e12ba42d63F216f";
-
-  // 提案押金配置
-  const PROPOSAL_DEPOSIT = parseUnits("1000", 18); // 普通提案押金: 1000 YD
-  const DISPUTE_DEPOSIT = parseUnits("1000", 18); // 争议提案押金: 1000 YD
+  // CourseDAO 合约地址
+  const COURSE_DAO_CONTRACT =
+    CONTRACTS.COURSE_DAO || "0x5E3Ab3256cfa5C89bEb63DbB8e12ba42d63F216f";
 
   // YD Token 合约交互
   const {
@@ -51,14 +65,144 @@ export default function ProposalsList() {
     balance: tokenBalance,
   } = useSimpleYDToken({
     address: CONTRACTS.YD_TOKEN,
-    spenderAddress: DAO_GOVERNANCE_CONTRACT,
+    spenderAddress: COURSE_DAO_CONTRACT,
     enabled: isConnected,
   });
 
-  // 初始化时获取数据
+  /**
+   * 从合约读取DAO配置
+   */
+  const fetchDAOConfig = useCallback(async () => {
+    if (!publicClient) return;
+
+    try {
+      const config = await publicClient.readContract({
+        address: COURSE_DAO_CONTRACT as `0x${string}`,
+        abi: COURSE_DAO_ABI,
+        functionName: "getDAOConfig",
+      });
+
+      setDaoConfig({
+        proposalDeposit: config.proposalDeposit,
+        minVotingPower: config.minVotingPower,
+        votingPeriod: config.votingPeriod,
+        quorumPercentage: config.quorumPercentage,
+        passThreshold: config.passThreshold,
+        rewardPoolPercentage: config.rewardPoolPercentage,
+      });
+
+      console.log("DAO配置:", {
+        proposalDeposit: formatUnits(config.proposalDeposit, 18),
+        minVotingPower: formatUnits(config.minVotingPower, 18),
+        votingPeriod: config.votingPeriod.toString(),
+        quorumPercentage: config.quorumPercentage.toString(),
+        passThreshold: config.passThreshold.toString(),
+        rewardPoolPercentage: config.rewardPoolPercentage.toString(),
+      });
+    } catch (error) {
+      console.error("获取DAO配置失败:", error);
+    }
+  }, [publicClient, COURSE_DAO_CONTRACT]);
+
+  /**
+   * 从合约读取提案详情
+   */
+  const fetchProposalFromContract = useCallback(
+    async (proposalId: number) => {
+      if (!publicClient) return null;
+
+      try {
+        const proposal = await publicClient.readContract({
+          address: COURSE_DAO_CONTRACT as `0x${string}`,
+          abi: COURSE_DAO_ABI,
+          functionName: "getProposal",
+          args: [BigInt(proposalId)],
+        });
+
+        return proposal;
+      } catch (error) {
+        console.error(`获取提案 ${proposalId} 详情失败:`, error);
+        return null;
+      }
+    },
+    [publicClient, COURSE_DAO_CONTRACT],
+  );
+
+  /**
+   * 从合约读取所有提案ID
+   */
+  const fetchAllProposalIds = useCallback(async () => {
+    if (!publicClient) return [];
+
+    try {
+      const proposalIds = await publicClient.readContract({
+        address: COURSE_DAO_CONTRACT as `0x${string}`,
+        abi: COURSE_DAO_ABI,
+        functionName: "getAllProposals",
+      });
+
+      return proposalIds.map((id) => Number(id));
+    } catch (error) {
+      console.error("获取提案ID列表失败:", error);
+      return [];
+    }
+  }, [publicClient, COURSE_DAO_CONTRACT]);
+
+  /**
+   * 检查用户是否可以投票
+   */
+  const checkCanVote = useCallback(
+    async (proposalId: number): Promise<boolean> => {
+      if (!publicClient || !walletAddress) return false;
+
+      try {
+        const canVote = await publicClient.readContract({
+          address: COURSE_DAO_CONTRACT as `0x${string}`,
+          abi: COURSE_DAO_ABI,
+          functionName: "canVote",
+          args: [walletAddress as `0x${string}`, BigInt(proposalId)],
+        });
+
+        return canVote;
+      } catch (error) {
+        console.error("检查投票权限失败:", error);
+        return false;
+      }
+    },
+    [publicClient, walletAddress, COURSE_DAO_CONTRACT],
+  );
+
+  /**
+   * 计算用户可领取的奖励
+   */
+  const calculateUserReward = useCallback(
+    async (proposalId: number): Promise<bigint> => {
+      if (!publicClient || !walletAddress) return BigInt(0);
+
+      try {
+        const reward = await publicClient.readContract({
+          address: COURSE_DAO_CONTRACT as `0x${string}`,
+          abi: COURSE_DAO_ABI,
+          functionName: "calculateReward",
+          args: [walletAddress as `0x${string}`, BigInt(proposalId)],
+        });
+
+        return reward;
+      } catch (error) {
+        console.error("计算奖励失败:", error);
+        return BigInt(0);
+      }
+    },
+    [publicClient, walletAddress, COURSE_DAO_CONTRACT],
+  );
+
+  // 初始化时获取DAO配置和提案数据
   useEffect(() => {
-    getProposalsFn();
-  }, []);
+    if (isConnected && publicClient) {
+      fetchDAOConfig();
+      getProposalsFn();
+    }
+  }, [isConnected, publicClient]);
 
   // 当 activeTab 切换时重新获取数据
   useEffect(() => {
@@ -66,33 +210,27 @@ export default function ProposalsList() {
   }, [activeTab]);
 
   /**
-   * 获取提案列表
+   * 获取提案列表(结合API和链上数据)
    */
   const getProposalsFn = async () => {
     setIsLoading(true);
     try {
+      // 方案1: 优先从API获取(如果后端已同步链上数据)
       const res: any = await getProposals({
         page: 1,
         limit: 100,
       });
 
-      // API 返回格式: { data: ProposalsResponse }
-      // ProposalsResponse = { proposals: Proposal[], total, page, limit, totalPages }
       if (res?.data?.proposals) {
         const apiProposals = res.data.proposals;
-
-        // 先转换所有提案为统一格式
         const convertedProposals = convertApiToMockFormat(apiProposals);
 
-        // 根据状态和类型分类提案
-        // 注意: API 返回的状态是 "Active", "Succeeded" 等大写形式
-        // 活跃提案
+        // 分类提案
         const activeProposals = convertedProposals.filter(
           (p) =>
             (p as any).status === "active" || (p as any).status === "pending",
         );
 
-        // 历史提案
         const historyProposals = convertedProposals.filter(
           (p) =>
             (p as any).status === "executed" ||
@@ -101,7 +239,6 @@ export default function ProposalsList() {
             (p as any).status === "cancelled",
         );
 
-        // 普通提案:没有关联课程 (courseId 为 0 或不存在)
         setProposalsList(
           activeProposals.filter((p) => {
             const courseId = (p as any).courseId;
@@ -109,7 +246,6 @@ export default function ProposalsList() {
           }),
         );
 
-        // 争议提案:有关联课程 (courseId > 0)
         setDisputesList(
           activeProposals.filter((p) => {
             const courseId = (p as any).courseId;
@@ -117,14 +253,97 @@ export default function ProposalsList() {
           }),
         );
 
-        // 历史记录
         setHistoryList(historyProposals);
+
+        // 方案2: 可选地从链上获取最新状态并更新(双向同步)
+        // await syncProposalsWithChain(convertedProposals);
       }
     } catch (error) {
       console.error("获取提案列表失败:", error);
-      alert("获取提案列表失败,请稍后重试");
+
+      // 如果API失败,尝试直接从链上读取
+      if (publicClient) {
+        console.log("尝试从链上直接读取提案...");
+        await fetchProposalsFromChain();
+      } else {
+        alert("获取提案列表失败,请稍后重试");
+      }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  /**
+   * 直接从链上获取提案(作为备用方案)
+   */
+  const fetchProposalsFromChain = async () => {
+    if (!publicClient) return;
+
+    try {
+      const proposalIds = await fetchAllProposalIds();
+      console.log("链上提案ID列表:", proposalIds);
+
+      // 获取每个提案的详细信息
+      const proposals = await Promise.all(
+        proposalIds.map((id) => fetchProposalFromContract(id)),
+      );
+
+      // 转换为前端格式
+      const formattedProposals = proposals
+        .filter((p) => p !== null)
+        .map((p: any) => ({
+          id: Number(p.id),
+          courseId: Number(p.courseId),
+          proposer: p.proposer,
+          reason: p.reason,
+          proposalDeposit: formatUnits(p.proposalDeposit, 18),
+          createdAt: new Date(Number(p.createdAt) * 1000).toISOString(),
+          votingStartTime: new Date(
+            Number(p.votingStartTime) * 1000,
+          ).toISOString(),
+          votingEndTime: new Date(Number(p.votingEndTime) * 1000).toISOString(),
+          forVotes: formatUnits(p.forVotes, 18),
+          againstVotes: formatUnits(p.againstVotes, 18),
+          totalVotingPower: formatUnits(p.totalVotingPower, 18),
+          status: [
+            "Pending",
+            "Active",
+            "Succeeded",
+            "Failed",
+            "Executed",
+            "Canceled",
+          ][p.status].toLowerCase(),
+          executed: p.executed,
+        }));
+
+      // 分类
+      const activeProposals = formattedProposals.filter(
+        (p) => p.status === "active" || p.status === "pending",
+      );
+
+      const historyProposals = formattedProposals.filter(
+        (p) =>
+          p.status === "executed" ||
+          p.status === "failed" ||
+          p.status === "succeeded" ||
+          p.status === "canceled",
+      );
+
+      setProposalsList(
+        activeProposals.filter((p) => !p.courseId || p.courseId === 0),
+      );
+      setDisputesList(
+        activeProposals.filter((p) => p.courseId && p.courseId > 0),
+      );
+      setHistoryList(historyProposals);
+
+      console.log("从链上获取到提案:", {
+        proposals: formattedProposals.length,
+        active: activeProposals.length,
+        history: historyProposals.length,
+      });
+    } catch (error) {
+      console.error("从链上获取提案失败:", error);
     }
   };
 
@@ -132,17 +351,24 @@ export default function ProposalsList() {
    * 检查并授权 Token
    */
   const checkAndApproveToken = async (requiredAmount: bigint) => {
-    console.log("检查授权额度...");
+    console.log("检查授权额度...", {
+      required: formatUnits(requiredAmount, 18),
+      current: allowance ? formatUnits(allowance, 18) : "0",
+    });
+
+    setTxStatus("检查授权额度...");
     await refetchAllowance();
 
     if (!allowance || allowance < requiredAmount) {
       console.log("授权不足,开始授权...");
-      // 授权 2 倍金额,避免频繁授权
+      setTxStatus("等待授权确认...");
+
+      // 授权充足金额
       const approveAmount = requiredAmount * BigInt(2);
       const approveAmountStr = formatUnits(approveAmount, 18);
 
       const approveResult = await approve(
-        DAO_GOVERNANCE_CONTRACT,
+        COURSE_DAO_CONTRACT,
         approveAmountStr,
       );
 
@@ -151,7 +377,9 @@ export default function ProposalsList() {
       }
 
       // 等待授权交易确认
-      console.log("等待授权确认...");
+      console.log("等待授权交易确认...", approveResult);
+      setTxStatus("授权交易已提交,等待确认...");
+
       let receipt: any = null;
       if (typeof approveReceipt === "function") {
         receipt = await approveReceipt(approveResult);
@@ -161,21 +389,25 @@ export default function ProposalsList() {
       ) {
         const r = await (approveReceipt as any).refetch(approveResult);
         receipt = r?.data ?? r;
-      } else {
-        console.warn("无法等待交易回执,跳过等待");
       }
 
       if (!receipt || receipt?.status !== "success") {
         throw new Error("授权交易失败");
       }
-      console.log("授权成功");
+
+      console.log("授权成功,交易哈希:", approveResult);
+      setTxStatus("授权成功!");
+
+      // 刷新授权额度
+      await refetchAllowance();
     } else {
       console.log("授权额度充足");
+      setTxStatus("授权额度充足");
     }
   };
 
   /**
-   * 创建普通提案
+   * 创建普通提案(通过合约)
    */
   const createNormalProposal = async (data: {
     title: string;
@@ -184,28 +416,35 @@ export default function ProposalsList() {
   }) => {
     if (isCreating) return;
     setIsCreating(true);
+    setTxStatus("");
 
     try {
       // 1. 检查钱包连接
-      if (!isConnected || !walletAddress) {
+      if (!isConnected || !walletAddress || !walletClient) {
         throw new Error("请先连接钱包");
       }
 
-      // 2. 检查 Token 余额
-      if (!tokenBalance || tokenBalance < PROPOSAL_DEPOSIT) {
+      // 2. 获取押金配置
+      const depositAmount =
+        daoConfig?.proposalDeposit || parseUnits("1000", 18);
+
+      // 3. 检查 Token 余额
+      if (!tokenBalance || tokenBalance < depositAmount) {
         throw new Error(
-          `YD Token 余额不足。需要 ${formatUnits(PROPOSAL_DEPOSIT, 18)} YD,当前余额 ${formatUnits(tokenBalance || BigInt(0), 18)} YD`,
+          `YD Token 余额不足。需要 ${formatUnits(depositAmount, 18)} YD,当前余额 ${formatUnits(tokenBalance || BigInt(0), 18)} YD`,
         );
       }
 
-      // 3. 签名认证
+      // 4. 签名认证
       console.log("开始签名认证...");
+      setTxStatus("等待签名...");
+
       const timestamp = Date.now();
       const message = `提交提案
 标题: ${data.title}
 类型: ${data.type}
 描述: ${data.description}
-押金: ${formatUnits(PROPOSAL_DEPOSIT, 18)} YD
+押金: ${formatUnits(depositAmount, 18)} YD
 时间戳: ${timestamp}
 钱包地址: ${walletAddress}`;
 
@@ -216,37 +455,90 @@ export default function ProposalsList() {
         console.log("签名成功:", signature);
       } catch (signError) {
         console.log("用户拒绝签名");
+        setTxStatus("");
         return;
       }
 
-      // 4. 检查并授权 Token
-      await checkAndApproveToken(PROPOSAL_DEPOSIT);
+      // 5. 检查并授权 Token
+      await checkAndApproveToken(depositAmount);
 
-      // 5. 调用后端 API 创建提案(普通提案不关联课程)
-      console.log("提交普通提案到后端...");
-      const res = await createProposal({
-        courseId: 0, // 普通提案不关联课程,传 0
-        reason: `【${data.type}】${data.title}\n\n${data.description}`,
-        proposerWallet: walletAddress,
-        proposalDeposit: formatUnits(PROPOSAL_DEPOSIT, 18),
+      // 6. 调用合约创建提案
+      console.log("调用合约创建提案...");
+      setTxStatus("提交提案交易中...");
+
+      const reason = `【${data.type}】${data.title}\n\n${data.description}`;
+
+      // 使用 walletClient 发送交易
+      const hash = await walletClient.writeContract({
+        address: COURSE_DAO_CONTRACT as `0x${string}`,
+        abi: COURSE_DAO_ABI,
+        functionName: "createProposal",
+        args: [BigInt(0), reason], // courseId=0 表示普通提案
+        account: walletAddress as `0x${string}`,
       });
 
-      // API 返回格式: { data: Proposal }
-      if (!res?.data || !(res.data as any).proposalId) {
-        throw new Error("创建提案失败");
+      console.log("交易已提交,哈希:", hash);
+      setTxStatus("交易已提交,等待确认...");
+
+      // 等待交易确认
+      if (publicClient) {
+        const receipt = await publicClient.waitForTransactionReceipt({
+          hash,
+        });
+
+        if (receipt.status === "success") {
+          console.log("提案创建成功,交易回执:", receipt);
+          setTxStatus("提案创建成功!");
+
+          // 从事件日志中获取 proposalId
+          const logs = receipt.logs;
+          console.log("交易日志:", logs);
+
+          alert("提案创建成功!");
+
+          // 7. 同步到后端(可选)
+          try {
+            await createProposal({
+              courseId: 0,
+              reason,
+              proposerWallet: walletAddress,
+              proposalDeposit: formatUnits(depositAmount, 18),
+            });
+          } catch (apiError) {
+            console.warn("同步到后端失败,但链上交易已成功:", apiError);
+          }
+
+          // 8. 关闭弹窗并刷新列表
+          setShowNewProposal(false);
+          await getProposalsFn();
+        } else {
+          throw new Error("交易失败");
+        }
       }
-
-      console.log("提案创建成功:", res.data);
-      alert("提案创建成功!");
-
-      // 6. 关闭弹窗并刷新列表
-      setShowNewProposal(false);
-      await getProposalsFn();
     } catch (error: any) {
       console.error("创建提案失败:", error);
-      alert(error.message || "创建提案失败,请稍后重试");
+      setTxStatus("创建失败");
+
+      // 解析错误信息
+      let errorMessage = "创建提案失败,请稍后重试";
+      if (error.message) {
+        if (error.message.includes("insufficient")) {
+          errorMessage = "余额不足";
+        } else if (error.message.includes("ProposalAlreadyExists")) {
+          errorMessage = "该课程已有活跃提案";
+        } else if (error.message.includes("InsufficientDeposit")) {
+          errorMessage = "押金不足";
+        } else if (error.message.includes("user rejected")) {
+          errorMessage = "用户拒绝交易";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      alert(errorMessage);
     } finally {
       setIsCreating(false);
+      setTimeout(() => setTxStatus(""), 3000);
     }
   };
 
@@ -260,34 +552,41 @@ export default function ProposalsList() {
   }) => {
     if (isCreating) return;
     setIsCreating(true);
+    setTxStatus("");
 
     try {
       // 1. 检查钱包连接
-      if (!isConnected || !walletAddress) {
+      if (!isConnected || !walletAddress || !walletClient) {
         throw new Error("请先连接钱包");
       }
 
-      // 2. 检查 Token 余额
-      if (!tokenBalance || tokenBalance < DISPUTE_DEPOSIT) {
+      // 2. 解析课程ID
+      const courseId = parseInt(data.target);
+      if (!courseId || courseId <= 0) {
+        throw new Error("请输入有效的课程ID");
+      }
+
+      // 3. 获取押金配置
+      const depositAmount =
+        daoConfig?.proposalDeposit || parseUnits("1000", 18);
+
+      // 4. 检查 Token 余额
+      if (!tokenBalance || tokenBalance < depositAmount) {
         throw new Error(
-          `YD Token 余额不足。需要 ${formatUnits(DISPUTE_DEPOSIT, 18)} YD,当前余额 ${formatUnits(tokenBalance || BigInt(0), 18)} YD`,
+          `YD Token 余额不足。需要 ${formatUnits(depositAmount, 18)} YD,当前余额 ${formatUnits(tokenBalance || BigInt(0), 18)} YD`,
         );
       }
 
-      // 3. 验证课程 ID
-      const courseId = parseInt(data.target);
-      if (!courseId || isNaN(courseId)) {
-        throw new Error("请输入有效的课程 ID");
-      }
-
-      // 4. 签名认证
+      // 5. 签名认证
       console.log("开始签名认证...");
+      setTxStatus("等待签名...");
+
       const timestamp = Date.now();
       const message = `提交课程争议
 争议类型: ${data.type}
 课程ID: ${courseId}
-描述: ${data.description}
-押金: ${formatUnits(DISPUTE_DEPOSIT, 18)} YD
+问题描述: ${data.description}
+押金: ${formatUnits(depositAmount, 18)} YD
 时间戳: ${timestamp}
 钱包地址: ${walletAddress}`;
 
@@ -298,69 +597,133 @@ export default function ProposalsList() {
         console.log("签名成功:", signature);
       } catch (signError) {
         console.log("用户拒绝签名");
+        setTxStatus("");
         return;
       }
 
-      // 5. 检查并授权 Token
-      await checkAndApproveToken(DISPUTE_DEPOSIT);
+      // 6. 检查并授权 Token
+      await checkAndApproveToken(depositAmount);
 
-      // 6. 调用后端 API 创建争议提案
-      console.log("提交争议提案到后端...");
-      const res = await createProposal({
-        courseId: courseId,
-        reason: `【${data.type}】${data.description}`,
-        proposerWallet: walletAddress,
-        proposalDeposit: formatUnits(DISPUTE_DEPOSIT, 18),
+      // 7. 调用合约创建争议提案
+      console.log("调用合约创建争议提案...");
+      setTxStatus("提交争议交易中...");
+
+      const reason = `【${data.type}】课程质量问题\n\n${data.description}`;
+
+      const hash = await walletClient.writeContract({
+        address: COURSE_DAO_CONTRACT as `0x${string}`,
+        abi: COURSE_DAO_ABI,
+        functionName: "createProposal",
+        args: [BigInt(courseId), reason],
+        account: walletAddress as `0x${string}`,
       });
 
-      // API 返回格式: { data: Proposal }
-      if (!res?.data || !(res.data as any).proposalId) {
-        throw new Error("创建争议失败");
+      console.log("交易已提交,哈希:", hash);
+      setTxStatus("交易已提交,等待确认...");
+
+      // 等待交易确认
+      if (publicClient) {
+        const receipt = await publicClient.waitForTransactionReceipt({
+          hash,
+        });
+
+        if (receipt.status === "success") {
+          console.log("争议提案创建成功,交易回执:", receipt);
+          setTxStatus("争议提交成功!");
+
+          alert("争议提交成功!");
+
+          // 8. 同步到后端
+          try {
+            await createProposal({
+              courseId,
+              reason,
+              proposerWallet: walletAddress,
+              proposalDeposit: formatUnits(depositAmount, 18),
+            });
+          } catch (apiError) {
+            console.warn("同步到后端失败,但链上交易已成功:", apiError);
+          }
+
+          // 9. 关闭弹窗并刷新列表
+          setShowNewDispute(false);
+          await getProposalsFn();
+        } else {
+          throw new Error("交易失败");
+        }
       }
-
-      console.log("争议创建成功:", res.data);
-      alert("争议提交成功!社区将对此进行投票。");
-
-      // 7. 关闭弹窗并刷新列表
-      setShowNewDispute(false);
-      await getProposalsFn();
     } catch (error: any) {
       console.error("创建争议失败:", error);
-      alert(error.message || "创建争议失败,请稍后重试");
+      setTxStatus("创建失败");
+
+      let errorMessage = "创建争议失败,请稍后重试";
+      if (error.message) {
+        if (error.message.includes("insufficient")) {
+          errorMessage = "余额不足";
+        } else if (error.message.includes("ProposalAlreadyExists")) {
+          errorMessage = "该课程已有活跃争议提案";
+        } else if (error.message.includes("InvalidCourse")) {
+          errorMessage = "课程不存在";
+        } else if (error.message.includes("InsufficientDeposit")) {
+          errorMessage = "押金不足";
+        } else if (error.message.includes("user rejected")) {
+          errorMessage = "用户拒绝交易";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      alert(errorMessage);
     } finally {
       setIsCreating(false);
+      setTimeout(() => setTxStatus(""), 3000);
     }
   };
 
   /**
-   * 投票功能
+   * 投票功能(通过合约)
    * @param proposalId 提案ID
    * @param option 投票选项: VoteOption.For(0)=支持课程, VoteOption.Against(1)=反对课程
    */
   const createVoteFn = async (proposalId: number, option: VoteOption) => {
     if (isVoting) return;
     setIsVoting(true);
+    setTxStatus("");
 
     try {
       // 1. 检查钱包连接
-      if (!isConnected || !walletAddress) {
+      if (!isConnected || !walletAddress || !walletClient) {
         throw new Error("请先连接钱包");
       }
 
-      // 2. 获取用户的投票权重(基于 YD Token 余额)
+      // 2. 检查是否可以投票
+      const canVote = await checkCanVote(proposalId);
+      if (!canVote) {
+        throw new Error("无法投票:可能已投过票、投票已结束或代币余额不足");
+      }
+
+      // 3. 获取投票权重(用户的全部余额)
       if (!tokenBalance || tokenBalance === BigInt(0)) {
         throw new Error("您没有投票权重,请先获取 YD Token");
       }
 
-      const votingPower = formatUnits(tokenBalance, 18);
+      // 使用最小投票权重和用户余额中的较小值
+      const minVotingPower = daoConfig?.minVotingPower || parseUnits("100", 18);
+      const votingPowerAmount =
+        tokenBalance > minVotingPower ? tokenBalance : minVotingPower;
 
-      // 3. 签名认证
-      const timestamp = Date.now();
+      // 用户可能想投票的金额可以让用户自己输入,这里简化为使用余额
+      // 实际应用中可以添加输入框让用户选择投票金额
+
+      // 4. 签名认证
       const optionText = option === VoteOption.For ? "支持课程" : "反对课程";
+      setTxStatus("等待签名...");
+
+      const timestamp = Date.now();
       const message = `投票
 提案ID: ${proposalId}
 选项: ${optionText}
-投票权重: ${votingPower} YD
+投票权重: ${formatUnits(votingPowerAmount, 18)} YD
 时间戳: ${timestamp}
 钱包地址: ${walletAddress}`;
 
@@ -371,40 +734,220 @@ export default function ProposalsList() {
         console.log("签名成功:", signature);
       } catch (signError) {
         console.log("用户拒绝签名");
+        setTxStatus("");
         return;
       }
 
-      // 4. 调用投票 API
-      console.log("提交投票...", {
-        proposalId,
-        option,
-        voterWallet: walletAddress,
-        votingPower,
+      // 5. 检查并授权 Token
+      await checkAndApproveToken(votingPowerAmount);
+
+      // 6. 调用合约投票
+      console.log("调用合约投票...");
+      setTxStatus("提交投票交易中...");
+
+      const hash = await walletClient.writeContract({
+        address: COURSE_DAO_CONTRACT as `0x${string}`,
+        abi: COURSE_DAO_ABI,
+        functionName: "vote",
+        args: [BigInt(proposalId), option, votingPowerAmount],
+        account: walletAddress as `0x${string}`,
       });
 
-      const res = await vote(proposalId, {
-        option,
-        voterWallet: walletAddress,
-        votingPower,
-      });
+      console.log("投票交易已提交,哈希:", hash);
+      setTxStatus("交易已提交,等待确认...");
 
-      // API 返回格式: { data: Vote }
-      // Vote = { id, voterWallet, option, votingPower, rewardClaimed, createdAt }
-      if (!res?.data || !(res.data as any).id) {
-        throw new Error("投票失败");
+      // 等待交易确认
+      if (publicClient) {
+        const receipt = await publicClient.waitForTransactionReceipt({
+          hash,
+        });
+
+        if (receipt.status === "success") {
+          console.log("投票成功,交易回执:", receipt);
+          setTxStatus("投票成功!");
+
+          alert(`投票成功!您选择了【${optionText}】`);
+
+          // 7. 同步到后端
+          try {
+            await vote(proposalId, {
+              option,
+              voterWallet: walletAddress,
+              votingPower: formatUnits(votingPowerAmount, 18),
+            });
+          } catch (apiError) {
+            console.warn("同步到后端失败,但链上交易已成功:", apiError);
+          }
+
+          // 8. 关闭详情弹窗并刷新列表
+          setSelectedProposal(null);
+          await getProposalsFn();
+        } else {
+          throw new Error("交易失败");
+        }
       }
-
-      console.log("投票成功:", res.data);
-      alert(`投票成功!您选择了【${optionText}】`);
-
-      // 5. 关闭详情弹窗并刷新列表
-      setSelectedProposal(null);
-      await getProposalsFn();
     } catch (error: any) {
       console.error("投票失败:", error);
-      alert(error.message || "投票失败,请稍后重试");
+      setTxStatus("投票失败");
+
+      let errorMessage = "投票失败,请稍后重试";
+      if (error.message) {
+        if (error.message.includes("AlreadyVoted")) {
+          errorMessage = "您已经投过票了";
+        } else if (error.message.includes("VotingNotActive")) {
+          errorMessage = "投票未激活或已结束";
+        } else if (error.message.includes("VotingAlreadyEnded")) {
+          errorMessage = "投票已结束";
+        } else if (error.message.includes("InsufficientVotingPower")) {
+          errorMessage = "投票权重不足";
+        } else if (error.message.includes("user rejected")) {
+          errorMessage = "用户拒绝交易";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      alert(errorMessage);
     } finally {
       setIsVoting(false);
+      setTimeout(() => setTxStatus(""), 3000);
+    }
+  };
+
+  /**
+   * 领取奖励
+   */
+  const claimReward = async (proposalId: number) => {
+    if (!walletClient || !walletAddress) {
+      alert("请先连接钱包");
+      return;
+    }
+
+    try {
+      // 1. 计算可领取奖励
+      setTxStatus("计算奖励中...");
+      const reward = await calculateUserReward(proposalId);
+
+      if (reward === BigInt(0)) {
+        alert("您没有可领取的奖励");
+        return;
+      }
+
+      console.log(
+        `可领取奖励: ${formatUnits(reward, 18)} YD (提案 ${proposalId})`,
+      );
+
+      // 2. 调用合约领取奖励
+      setTxStatus("提交领取奖励交易...");
+
+      const hash = await walletClient.writeContract({
+        address: COURSE_DAO_CONTRACT as `0x${string}`,
+        abi: COURSE_DAO_ABI,
+        functionName: "claimReward",
+        args: [BigInt(proposalId)],
+        account: walletAddress as `0x${string}`,
+      });
+
+      console.log("领取奖励交易已提交,哈希:", hash);
+      setTxStatus("交易已提交,等待确认...");
+
+      // 3. 等待交易确认
+      if (publicClient) {
+        const receipt = await publicClient.waitForTransactionReceipt({
+          hash,
+        });
+
+        if (receipt.status === "success") {
+          console.log("奖励领取成功,交易回执:", receipt);
+          setTxStatus("奖励领取成功!");
+
+          alert(`奖励领取成功!您获得了 ${formatUnits(reward, 18)} YD`);
+
+          // 刷新列表
+          await getProposalsFn();
+        } else {
+          throw new Error("交易失败");
+        }
+      }
+    } catch (error: any) {
+      console.error("领取奖励失败:", error);
+      setTxStatus("领取失败");
+
+      let errorMessage = "领取奖励失败";
+      if (error.message) {
+        if (error.message.includes("NoRewardToClaim")) {
+          errorMessage = "没有可领取的奖励";
+        } else if (error.message.includes("user rejected")) {
+          errorMessage = "用户拒绝交易";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      alert(errorMessage);
+    } finally {
+      setTimeout(() => setTxStatus(""), 3000);
+    }
+  };
+
+  /**
+   * 结束投票
+   */
+  const finalizeProposal = async (proposalId: number) => {
+    if (!walletClient || !walletAddress) {
+      alert("请先连接钱包");
+      return;
+    }
+
+    try {
+      setTxStatus("提交结束投票交易...");
+
+      const hash = await walletClient.writeContract({
+        address: COURSE_DAO_CONTRACT as `0x${string}`,
+        abi: COURSE_DAO_ABI,
+        functionName: "finalizeProposal",
+        args: [BigInt(proposalId)],
+        account: walletAddress as `0x${string}`,
+      });
+
+      console.log("结束投票交易已提交,哈希:", hash);
+      setTxStatus("交易已提交,等待确认...");
+
+      if (publicClient) {
+        const receipt = await publicClient.waitForTransactionReceipt({
+          hash,
+        });
+
+        if (receipt.status === "success") {
+          console.log("投票结束成功,交易回执:", receipt);
+          setTxStatus("投票结束成功!");
+
+          alert("投票已结束,请查看结果");
+
+          // 刷新列表
+          await getProposalsFn();
+        } else {
+          throw new Error("交易失败");
+        }
+      }
+    } catch (error: any) {
+      console.error("结束投票失败:", error);
+      setTxStatus("操作失败");
+
+      let errorMessage = "结束投票失败";
+      if (error.message) {
+        if (error.message.includes("VotingNotEnded")) {
+          errorMessage = "投票期未结束";
+        } else if (error.message.includes("user rejected")) {
+          errorMessage = "用户拒绝交易";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      alert(errorMessage);
+    } finally {
+      setTimeout(() => setTxStatus(""), 3000);
     }
   };
 
@@ -442,6 +985,78 @@ export default function ProposalsList() {
 
   return (
     <section className="relative">
+      {/* Transaction Status Toast */}
+      {txStatus && (
+        <div className="fixed top-4 right-4 z-50 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-lg shadow-lg animate-fade-in">
+          <div className="flex items-center gap-2">
+            {txStatus.includes("等待") || txStatus.includes("中") ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+            ) : txStatus.includes("成功") ? (
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            ) : (
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            )}
+            <span className="font-medium">{txStatus}</span>
+          </div>
+        </div>
+      )}
+
+      {/* DAO Config Info */}
+      {daoConfig && (
+        <div className="mb-6 bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 text-sm">
+            <div>
+              <div className="text-gray-400 mb-1">提案押金</div>
+              <div className="text-white font-semibold">
+                {formatUnits(daoConfig.proposalDeposit, 18)} YD
+              </div>
+            </div>
+            <div>
+              <div className="text-gray-400 mb-1">最小投票</div>
+              <div className="text-white font-semibold">
+                {formatUnits(daoConfig.minVotingPower, 18)} YD
+              </div>
+            </div>
+            <div>
+              <div className="text-gray-400 mb-1">投票期限</div>
+              <div className="text-white font-semibold">
+                {Number(daoConfig.votingPeriod) / 86400} 天
+              </div>
+            </div>
+            <div>
+              <div className="text-gray-400 mb-1">法定人数</div>
+              <div className="text-white font-semibold">
+                {Number(daoConfig.quorumPercentage) / 100}%
+              </div>
+            </div>
+            <div>
+              <div className="text-gray-400 mb-1">通过阈值</div>
+              <div className="text-white font-semibold">
+                {Number(daoConfig.passThreshold) / 100}%
+              </div>
+            </div>
+            <div>
+              <div className="text-gray-400 mb-1">奖励比例</div>
+              <div className="text-white font-semibold">
+                {Number(daoConfig.rewardPoolPercentage) / 100}%
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Tabs */}
       <div className="flex gap-3 mb-8 bg-white/5 backdrop-blur-sm rounded-2xl p-1.5 border border-white/10">
         {PROPOSAL_TABS_DAO.map((tab) => (
@@ -565,6 +1180,9 @@ export default function ProposalsList() {
           isVoting={isVoting}
           userAddress={walletAddress}
           userVotingPower={tokenBalance}
+          // 添加额外操作
+          onClaimReward={() => claimReward(selectedProposal.id)}
+          onFinalize={() => finalizeProposal(selectedProposal.id)}
         />
       )}
 
@@ -574,7 +1192,9 @@ export default function ProposalsList() {
         onClose={() => setShowNewProposal(false)}
         onSubmit={createNormalProposal}
         isSubmitting={isCreating}
-        requiredDeposit={formatUnits(PROPOSAL_DEPOSIT, 18)}
+        requiredDeposit={
+          daoConfig ? formatUnits(daoConfig.proposalDeposit, 18) : "1000"
+        }
         userBalance={tokenBalance ? formatUnits(tokenBalance, 18) : "0"}
       />
 
@@ -584,7 +1204,9 @@ export default function ProposalsList() {
         onClose={() => setShowNewDispute(false)}
         onSubmit={createDisputeProposal}
         isSubmitting={isCreating}
-        requiredDeposit={formatUnits(DISPUTE_DEPOSIT, 18)}
+        requiredDeposit={
+          daoConfig ? formatUnits(daoConfig.proposalDeposit, 18) : "1000"
+        }
         userBalance={tokenBalance ? formatUnits(tokenBalance, 18) : "0"}
       />
     </section>
