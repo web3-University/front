@@ -1,4 +1,7 @@
 @import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* Tailwind v4: 指定要扫描的文件路径 */
 @source "../../**/*.{js,ts,jsx,tsx}";
@@ -34,6 +37,7 @@ body {
     transform: scale(0);
     opacity: 0.35;
   }
+
   to {
     transform: scale(1);
     opacity: 0;
@@ -46,4 +50,84 @@ body {
   pointer-events: none;
   transform: scale(0);
   animation: button-ripple-expand 600ms ease-out forwards;
+}
+
+@layer base {
+  /* 移动端优化 */
+  html {
+    -webkit-tap-highlight-color: transparent;
+    /* 移除点击高亮 */
+    -webkit-text-size-adjust: 100%;
+    /* 防止字体缩放 */
+  }
+
+  body {
+    @apply antialiased;
+    /* 字体平滑 */
+  }
+
+  /* 滚动优化 */
+  * {
+    -webkit-overflow-scrolling: touch;
+    /* iOS 平滑滚动 */
+  }
+
+  /* 安全区域适配（iPhone 刘海屏等） */
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* 链接样式 */
+  a {
+    @apply touch-manipulation;
+    /* 禁用双击缩放 */
+  }
+
+  /* 按钮样式 */
+  button {
+    @apply touch-manipulation;
+  }
+}
+
+@layer utilities {
+  /* 安全区域工具类 */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .pl-safe {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .pr-safe {
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* 触摸优化 */
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+
+  /* 隐藏滚动条 */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* 移动端固定定位修复 */
+  .mobile-fixed {
+    position: -webkit-sticky;
+    position: sticky;
+  }
 }
