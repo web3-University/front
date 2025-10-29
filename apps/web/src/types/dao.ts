@@ -1,7 +1,7 @@
 /**
  * DAO 治理相关类型定义
  */
-
+import { Proposal } from "@/lib/api/dao";
 export type ProposalStatus =
   | "pending"
   | "active"
@@ -19,21 +19,21 @@ export type ProposalCategory =
 
 export type ProposalTabKey = "active" | "passed" | "rejected";
 export type DaoTabKey = "proposal" | "dispute" | "history";
-export interface Proposal {
-  id: number;
-  title: string;
-  description: string;
-  author: string;
-  startTime: string;
-  endTime: string;
-  status: ProposalStatus;
-  votesFor: number;
-  votesAgainst: number;
-  quorum: number;
-  category: ProposalCategory;
-  executed?: boolean;
-  executionTime?: string;
-}
+// export interface Proposal {
+//   id: number;
+//   title: string;
+//   description: string;
+//   author: string;
+//   startTime: string;
+//   endTime: string;
+//   status: ProposalStatus;
+//   votesFor: number;
+//   votesAgainst: number;
+//   quorum: number;
+//   category: ProposalCategory;
+//   executed?: boolean;
+//   executionTime?: string;
+// }
 
 export interface VoteStats {
   forPercentage: number;
@@ -121,72 +121,4 @@ export interface ApiResponse {
   page: number;
   limit: number;
   totalPages: number;
-}
-// 转换函数
-export function convertApiToMockFormat(apiResponse: ApiResponse): Proposal[] {
-  return apiResponse.proposals.map((proposal) => {
-    const formatWallet = (wallet: string): string => {
-      if (!wallet || wallet.length < 10) return wallet;
-      return `${wallet.slice(0, 6)}...${wallet.slice(-4)}`;
-    };
-
-    const formatDate = (dateString: string): string => {
-      const date = new Date(dateString);
-      return date.toISOString().split("T")[0];
-    };
-
-    const convertStatus = (status: string): ProposalStatus => {
-      const statusMap: Record<string, ProposalStatus> = {
-        Active: "active",
-        Pending: "pending",
-        Succeeded: "passed",
-        Failed: "rejected",
-        Executed: "executed",
-        Cancelled: "cancelled",
-        Rejected: "rejected", // 添加这个映射
-      };
-      if (statusMap[status]) return statusMap[status];
-      const lower = status.toLowerCase();
-      if (
-        lower === "active" ||
-        lower === "pending" ||
-        lower === "passed" ||
-        lower === "rejected" ||
-        lower === "executed" ||
-        lower === "cancelled"
-      ) {
-        return lower as ProposalStatus;
-      }
-      return "pending";
-    };
-
-    const getCategory = (reason: string): ProposalCategory => {
-      if (reason.includes("课程") || reason.includes("内容")) {
-        return "课程规则";
-      } else if (reason.includes("奖励") || reason.includes("代币")) {
-        return "奖励分配";
-      } else if (reason.includes("NFT")) {
-        return "NFT规则";
-      } else if (reason.includes("定价") || reason.includes("价格")) {
-        return "定价规则";
-      } else {
-        return "平台规则";
-      }
-    };
-
-    return {
-      id: proposal.proposalId,
-      title: `关于"${proposal.course?.title || "平台规则"}"的${proposal.courseId ? "争议" : ""}提案`,
-      description: proposal.reason,
-      author: formatWallet(proposal.proposerWallet),
-      startTime: formatDate(proposal.votingStartTime),
-      endTime: formatDate(proposal.votingEndTime),
-      status: convertStatus(proposal.status),
-      votesFor: parseInt(proposal.forVotes) || 0,
-      votesAgainst: parseInt(proposal.againstVotes) || 0,
-      quorum: parseInt(proposal.totalVotingPower) || 100000,
-      category: getCategory(proposal.reason),
-      courseId: proposal.courseId, // 保留 courseId 用于分类
-    };
-  });
 }

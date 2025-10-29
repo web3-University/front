@@ -98,6 +98,9 @@ export function useProposalOperations({
 
         // 步骤 4️⃣: 调用后端 API 保存元数据
         await apiCreateProposal({
+          title: data.title,
+          type: data.type,
+          proposer: walletAddress,
           courseId: 0, // 普通提案没有 courseId，使用 0 或根据实际情况调整
           reason: data.description,
           proposerWallet: walletAddress,
@@ -183,6 +186,9 @@ export function useProposalOperations({
 
         // 步骤 3️⃣: 保存争议提案元数据
         await apiCreateProposal({
+          type: data.type,
+          title: `课程[${courseId}]争议提案`,
+          proposer: walletAddress,
           courseId: courseId,
           reason: data.description,
           proposerWallet: walletAddress,

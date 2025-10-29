@@ -35,8 +35,11 @@ export interface Vote {
 
 /** 提案信息 */
 export interface Proposal {
+  title?: string;
+  type: string;
+  proposer: string;
   proposalId: number;
-  courseId: number;
+  courseId?: number;
   proposerWallet: string;
   reason: string;
   proposalDeposit?: number;
@@ -54,6 +57,9 @@ export interface Proposal {
 
 /** 创建提案请求 */
 export interface CreateProposalRequest {
+  title?: string;
+  type: string;
+  proposer: string;
   courseId: number | string;
   reason: string;
   proposerWallet: string;

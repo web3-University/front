@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Proposal, DaoTabKey } from "@/types/dao";
+import { DaoTabKey } from "@/types/dao";
+import { Proposal } from "@/lib/api/dao";
 import ProposalCard from "./ProposalCard";
 import ProposalModal from "./ProposalModal";
 import SubmitProposalModal from "./SubmitProposalModal";
@@ -23,12 +24,11 @@ import { useProposalData } from "@/hooks/useProposalData";
 import { useProposalOperations } from "@/hooks/useProposalOperations";
 
 /**
- * 📋 提案列表主组件（重构版）
- *
- * 职责：
+ * 📋 提案列表主组件
  * - UI 渲染和用户交互
  * - 协调各个子组件和 Hooks
  * - 状态管理（UI 状态）
+ * - 链上数据同步
  */
 export default function ProposalsList() {
   // ==================== UI 状态 ====================
@@ -51,9 +51,9 @@ export default function ProposalsList() {
   // YD Token 合约
   const {
     allowance,
-    approve: tokenApprove, // ✅ 重命名避免冲突
+    approve: tokenApprove,
     approveReceipt,
-    refetchAllowance: tokenRefetchAllowance, // ✅ 重命名避免冲突
+    refetchAllowance: tokenRefetchAllowance,
     balance: tokenBalance,
   } = useSimpleYDToken({
     address: CONTRACTS.YD_TOKEN,
@@ -75,6 +75,7 @@ export default function ProposalsList() {
     historyList,
     fetchProposals,
     refreshProposal,
+    updateProposalWithChainData,
   } = useProposalData(DAO_CONTRACT_ADDRESS);
 
   // 提案操作
@@ -90,7 +91,7 @@ export default function ProposalsList() {
   } = useProposalOperations({
     daoAddress: DAO_CONTRACT_ADDRESS,
     walletAddress,
-    walletClient: undefined, // 不再需要
+    walletClient: undefined,
     tokenBalance,
     createFee,
     allowance,
@@ -102,7 +103,6 @@ export default function ProposalsList() {
     },
     approveReceipt,
     refetchAllowance: async () => {
-      // ✅ 使用重命名后的 tokenRefetchAllowance
       await tokenRefetchAllowance();
     },
     onSuccess: async () => {
@@ -110,7 +110,9 @@ export default function ProposalsList() {
       await fetchProposals();
       // 如果有选中的提案，刷新它
       if (selectedProposal) {
-        const updated = await refreshProposal(selectedProposal.id.toString());
+        const updated = await refreshProposal(
+          selectedProposal.proposalId.toString(),
+        );
         if (updated) {
           setSelectedProposal({ ...selectedProposal, ...updated });
         }
@@ -126,7 +128,7 @@ export default function ProposalsList() {
       fetchProposals();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isConnected, activeTab]); // 移除 fetchProposals 依赖，避免无限循环
+  }, [isConnected, activeTab]);
 
   // ==================== 事件处理 ====================
 
@@ -182,6 +184,24 @@ export default function ProposalsList() {
     await claimReward(proposalId);
   };
 
+  /**
+   * 链上数据更新回调
+   * 当 ProposalCard 从链上获取到新数据时调用
+   */
+  const handleChainDataUpdate = (proposalId: number, chainData: any) => {
+    updateProposalWithChainData(proposalId, chainData);
+
+    // 如果当前选中的提案被更新了，也更新模态框中的数据
+    if (selectedProposal && selectedProposal.proposalId === proposalId) {
+      setSelectedProposal({
+        ...selectedProposal,
+        votesFor: chainData.forVotes,
+        votesAgainst: chainData.againstVotes,
+        status: chainData.status,
+      } as any);
+    }
+  };
+
   // ==================== 辅助方法 ====================
 
   /**
@@ -203,7 +223,7 @@ export default function ProposalsList() {
   // ==================== 渲染 ====================
 
   return (
-    <section className="relative">
+    <section className="relative min-h-screen">
       {/* 交易状态提示 */}
       <TransactionStatus status={txStatus} />
 
@@ -235,18 +255,20 @@ export default function ProposalsList() {
       {isLoading ? (
         <div className="flex flex-col justify-center items-center py-20">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500 mb-4"></div>
-          <p className="text-gray-400">加载中...</p>
+          <p className="text-gray-400">加载提案中...</p>
         </div>
       ) : (
         <>
           {/* 提案列表 */}
           {getCurrentProposals().length > 0 ? (
-            <div className="space-y-6">
+            <div className="space-y-6 animate-fadeIn">
               {getCurrentProposals().map((proposal) => (
                 <ProposalCard
-                  key={proposal.id}
+                  key={proposal.proposalId}
                   proposal={proposal}
                   onClick={() => setSelectedProposal(proposal)}
+                  daoAddress={DAO_CONTRACT_ADDRESS}
+                  onChainDataUpdate={handleChainDataUpdate}
                 />
               ))}
             </div>
@@ -265,8 +287,13 @@ export default function ProposalsList() {
           isVoting={isVoting}
           userAddress={walletAddress}
           userVotingPower={tokenBalance}
-          onClaimReward={() => handleClaimReward(Number(selectedProposal.id))}
-          onFinalize={() => handleExecuteProposal(Number(selectedProposal.id))}
+          onClaimReward={() =>
+            handleClaimReward(Number(selectedProposal.proposalId))
+          }
+          onFinalize={() =>
+            handleExecuteProposal(Number(selectedProposal.proposalId))
+          }
+          daoAddress={DAO_CONTRACT_ADDRESS}
         />
       )}
 
