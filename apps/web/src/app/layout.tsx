@@ -2,7 +2,7 @@
 import "./globals.css";
 import type { ReactNode } from "react";
 import type { Metadata, Viewport } from "next";
-
+import { ToastContainer } from "@/components/Toast/Toast";
 import { Providers } from "./providers";
 
 import { PrefetchManager } from "@/components/PrefetchManager";
@@ -65,6 +65,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         </div>
 
         <Providers>{children}</Providers>
+        <ToastContainer />
       </body>
     </html>
   );

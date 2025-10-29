@@ -10,49 +10,64 @@ const stats = {
   proposalsCount: 45,
 };
 
+const STAT_ITEMS = [
+  {
+    icon: Vote,
+    label: "总投票权重",
+    value: stats.totalVotes,
+    gradient: "from-blue-400 to-blue-600",
+  },
+  {
+    icon: Users,
+    label: "活跃提案",
+    value: stats.holders,
+    gradient: "from-green-400 to-green-600",
+  },
+  {
+    icon: TrendingUp,
+    label: "国库资金",
+    value: `$${stats.treasury}`,
+    gradient: "from-purple-400 to-purple-600",
+  },
+  {
+    icon: Award,
+    label: "提案总数",
+    value: stats.proposalsCount,
+    gradient: "from-orange-400 to-pink-600",
+  },
+];
+
 export default function Stats() {
   return (
     <section className="relative">
-      {/* Stats */}
-      <div className="grid grid-cols-4 gap-6 mb-12">
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-300">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-              <Vote className="w-6 h-6 text-white" />
+      {/* ⭐ 响应式网格：移动端1列，平板2列，桌面4列 */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-12">
+        {STAT_ITEMS.map((item, index) => {
+          const Icon = item.icon;
+          return (
+            <div
+              key={index}
+              className="bg-white/10 backdrop-blur-md rounded-2xl p-4 sm:p-6 border border-white/20 hover:bg-white/15 transition-all duration-300"
+            >
+              {/* 图标和标签 */}
+              <div className="flex items-center gap-3 mb-3">
+                <div
+                  className={`w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br ${item.gradient} rounded-xl flex items-center justify-center shadow-lg`}
+                >
+                  <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                </div>
+                <span className="text-xs sm:text-sm text-gray-300">
+                  {item.label}
+                </span>
+              </div>
+
+              {/* 数值 */}
+              <p className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                {item.value}
+              </p>
             </div>
-            <span className="text-sm text-gray-300">总投票权重</span>
-          </div>
-          <p className="text-4xl font-bold text-white">{stats.totalVotes}</p>
-        </div>
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-300">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
-              <Users className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-sm text-gray-300">活跃提案</span>
-          </div>
-          <p className="text-4xl font-bold text-white">{stats.holders}</p>
-        </div>
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-300">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-              <TrendingUp className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-sm text-gray-300">国库资金</span>
-          </div>
-          <p className="text-4xl font-bold text-white">${stats.treasury}</p>
-        </div>
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-300">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-pink-600 rounded-xl flex items-center justify-center shadow-lg">
-              <Award className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-sm text-gray-300">提案总数</span>
-          </div>
-          <p className="text-4xl font-bold text-white">
-            {stats.proposalsCount}
-          </p>
-        </div>
+          );
+        })}
       </div>
     </section>
   );

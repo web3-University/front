@@ -15,6 +15,7 @@ import {
 import { formatUnits, parseUnits } from "viem";
 import { CONTRACTS } from "@/config/contracts";
 import { createProposal, getProposals, vote, VoteOption } from "@/lib/api/dao";
+import { showToast } from "@/components/Toast/Toast";
 
 export default function ProposalsList() {
   const [activeTab, setActiveTab] = useState<DaoTabKey>("dispute");
@@ -69,6 +70,7 @@ export default function ProposalsList() {
    * 获取提案列表
    */
   const getProposalsFn = async () => {
+    // alert(8)
     setIsLoading(true);
     try {
       const res: any = await getProposals({
@@ -121,8 +123,8 @@ export default function ProposalsList() {
         setHistoryList(historyProposals);
       }
     } catch (error) {
+      showToast("error", "获取提案列表失败，请稍后重试");
       console.error("获取提案列表失败:", error);
-      alert("获取提案列表失败,请稍后重试");
     } finally {
       setIsLoading(false);
     }
@@ -216,6 +218,7 @@ export default function ProposalsList() {
         console.log("签名成功:", signature);
       } catch (signError) {
         console.log("用户拒绝签名");
+        showToast("info", "您已取消签名操作");
         return;
       }
 
@@ -237,14 +240,14 @@ export default function ProposalsList() {
       }
 
       console.log("提案创建成功:", res.data);
-      alert("提案创建成功!");
+      showToast("success", "提案创建成功！");
 
       // 6. 关闭弹窗并刷新列表
       setShowNewProposal(false);
       await getProposalsFn();
     } catch (error: any) {
       console.error("创建提案失败:", error);
-      alert(error.message || "创建提案失败,请稍后重试");
+      showToast("error", error.message || "创建提案失败，请稍后重试");
     } finally {
       setIsCreating(false);
     }
@@ -298,6 +301,7 @@ export default function ProposalsList() {
         console.log("签名成功:", signature);
       } catch (signError) {
         console.log("用户拒绝签名");
+        showToast("info", "您已取消签名操作");
         return;
       }
 
@@ -319,14 +323,14 @@ export default function ProposalsList() {
       }
 
       console.log("争议创建成功:", res.data);
-      alert("争议提交成功!社区将对此进行投票。");
+      showToast("success", "争议提交成功！社区将对此进行投票。");
 
       // 7. 关闭弹窗并刷新列表
       setShowNewDispute(false);
       await getProposalsFn();
     } catch (error: any) {
       console.error("创建争议失败:", error);
-      alert(error.message || "创建争议失败,请稍后重试");
+      showToast("error", error.message || "创建争议失败，请稍后重试");
     } finally {
       setIsCreating(false);
     }
@@ -371,6 +375,7 @@ export default function ProposalsList() {
         console.log("签名成功:", signature);
       } catch (signError) {
         console.log("用户拒绝签名");
+        showToast("info", "您已取消签名操作");
         return;
       }
 
@@ -394,15 +399,15 @@ export default function ProposalsList() {
         throw new Error("投票失败");
       }
 
-      console.log("投票成功:", res.data);
-      alert(`投票成功!您选择了【${optionText}】`);
+      console.log("投票成功:", res?.data);
+      showToast("success", `投票成功！您选择了【${optionText}】`);
 
       // 5. 关闭详情弹窗并刷新列表
       setSelectedProposal(null);
       await getProposalsFn();
     } catch (error: any) {
       console.error("投票失败:", error);
-      alert(error.message || "投票失败,请稍后重试");
+      showToast("error", error.message || "投票失败，请稍后重试");
     } finally {
       setIsVoting(false);
     }
