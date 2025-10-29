@@ -243,7 +243,7 @@ export default function UserInfoSection() {
             url: string;
             uploadedAt: string;
           };
-        }>("/storage/upload", {
+        }>("/api/storage/upload", {
           method: "POST",
           body: formData,
         });
