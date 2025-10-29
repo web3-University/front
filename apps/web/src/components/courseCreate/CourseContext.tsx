@@ -341,6 +341,7 @@ export const CourseProvider: React.FC<CourseProviderProps> = ({ children }) => {
     id: string,
     updatedData: Partial<CourseContentItem>,
   ) => {
+    console.log(updatedData, "___updatedData");
     setFormData((prev) => ({
       ...prev,
       courseContent: prev.courseContent.map((ch) =>

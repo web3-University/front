@@ -1,11 +1,64 @@
 "use client";
 
-import { FileType } from "lucide-react";
-import { useState } from "react";
-import { type UploadImageParams, uploadCouseImage } from "@/lib/api/course";
+import { useState, useCallback, useRef } from "react";
+import { uploadCouseImage, uploadCouseVideo } from "@/lib/api/course";
+import SparkMD5 from "spark-md5";
 
 // 文件类型定义
 type FileType = "avatar" | "video" | "image" | "file";
+
+// 分片配置
+const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB per chunk
+const MAX_CONCURRENT = 3; // 最大并发上传数
+const LARGE_FILE_THRESHOLD = 10 * 1024 * 1024; // 10MB 以上启用分片
+
+const MIME_TYPE_MAP: Record<string, string> = {
+  // 视频类型
+  video: "video/mp4",
+  mp4: "video/mp4",
+  webm: "video/webm",
+  avi: "video/x-msvideo",
+  mov: "video/quicktime",
+
+  // 图片类型
+  image: "image/jpeg",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  gif: "image/gif",
+  webp: "image/webp",
+
+  // 文档类型
+  pdf: "application/pdf",
+  txt: "text/plain",
+  json: "application/json",
+
+  // 默认
+  file: "application/octet-stream",
+};
+const getMimeType = (file: File | Blob, fileType: FileType): string => {
+  // 1. 优先使用文件本身的 type
+  if (
+    file.type &&
+    file.type !== "" &&
+    file.type !== "application/octet-stream"
+  ) {
+    console.log("使用文件原始MIME类型:", file.type);
+    return file.type;
+  }
+
+  // 2. 如果文件是 File 对象，从扩展名推断
+  if (file instanceof File && file.name) {
+    const extension = file.name.split(".").pop()?.toLowerCase();
+    if (extension && MIME_TYPE_MAP[extension]) {
+      console.log("从文件扩展名推断MIME类型:", MIME_TYPE_MAP[extension]);
+      return MIME_TYPE_MAP[extension];
+    }
+  }
+  const defaultType = MIME_TYPE_MAP[fileType] || "application/octet-stream";
+  console.log("使用默认MIME类型:", defaultType);
+  return defaultType;
+};
 
 // 上传状态
 interface UploadState {
@@ -13,160 +66,459 @@ interface UploadState {
   progress: number;
   error: string | null;
   url: string | null;
-  previousUrl: string | null; // 新增：保存上传前的 URL
+  previousUrl: string | null;
+  currentChunk: number;
+  totalChunks: number;
+  uploadSpeed: number;
+  isChunked: boolean;
 }
 
-// Hook 返回类型
-interface UseUploadReturn {
-  uploadFile: (
-    file: File | Blob,
-    fileType: FileType,
-    currentUrl?: string, // 新增：当前已有的 URL
-  ) => Promise<string | null>;
-  isUploading: boolean;
-  progress: number;
-  error: string | null;
-  url: string | null;
-  previousUrl: string | null; // 新增
-  reset: () => void;
+// 分片信息
+interface ChunkInfo {
+  chunk: Blob;
+  index: number;
+  start: number;
+  end: number;
 }
 
-export const useUpload = (): UseUploadReturn => {
+export const useUpload = () => {
   const [state, setState] = useState<UploadState>({
     isUploading: false,
     progress: 0,
     error: null,
     url: null,
     previousUrl: null,
+    currentChunk: 0,
+    totalChunks: 0,
+    uploadSpeed: 0,
+    isChunked: false,
   });
 
-  // 获取上传 URL（预签名 URL 或直接上传地址）
-  const getUploadUrl = async (file: Blob | File, fileType: string) => {
-    console.log(file, fileType, "__fileType");
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  /**
+   * 计算文件 Hash
+   */
+  const calculateFileHash = useCallback(
+    (file: File | Blob): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        const spark = new SparkMD5.ArrayBuffer();
+        const fileReader = new FileReader();
+        const chunkSize = 2 * 1024 * 1024;
+        let currentChunk = 0;
+        const chunks = Math.ceil(file.size / chunkSize);
+
+        fileReader.onload = (e) => {
+          if (e.target?.result) {
+            spark.append(e.target.result as ArrayBuffer);
+            currentChunk++;
+
+            if (currentChunk < chunks) {
+              loadNext();
+            } else {
+              resolve(spark.end());
+            }
+          }
+        };
+
+        fileReader.onerror = () => {
+          reject(new Error("文件读取失败"));
+        };
+
+        const loadNext = () => {
+          const start = currentChunk * chunkSize;
+          const end = Math.min(start + chunkSize, file.size);
+          fileReader.readAsArrayBuffer(file.slice(start, end));
+        };
+
+        loadNext();
+      });
+    },
+    [],
+  );
+
+  /**
+   * 切分文件为多个分片
+   */
+  const createChunks = useCallback(
+    (file: File | Blob, mimeType: string): ChunkInfo[] => {
+      const chunks: ChunkInfo[] = [];
+
+      const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+
+      for (let i = 0; i < totalChunks; i++) {
+        const start = i * CHUNK_SIZE;
+        const end = Math.min(start + CHUNK_SIZE, file.size);
+        const chunk = file.slice(start, end, mimeType);
+        chunks.push({
+          chunk,
+          index: i,
+          start,
+          end,
+        });
+      }
+
+      return chunks;
+    },
+    [],
+  );
+
+  /**
+   * 上传单个分片
+   */
+  const uploadChunk = async (
+    chunkInfo: ChunkInfo,
+    fileHash: string,
+    fileType: FileType,
+    mimeType: string,
+    fileName?: string,
+  ): Promise<any> => {
+    const chunkFile = new File(
+      [chunkInfo.chunk],
+      fileName || `chunk_${chunkInfo.index}`,
+      { type: mimeType },
+    );
+    const params = {
+      file: chunkFile,
+      fileType: fileType,
+      hashId: fileHash,
+      contentType: mimeType,
+    };
+
+    console.log(`📤 上传分片 ${chunkInfo.index + 1}:`, {
+      chunkSize: chunkInfo.chunk.size,
+      hashId: fileHash,
+      fileType,
+      mimeType,
+    });
+
+    const response = await uploadCouseVideo(params);
+
+    console.log(`📥 分片 ${chunkInfo.index + 1} 响应:`, response);
+
+    if (!response || !response.data) {
+      console.error(`❌ 分片 ${chunkInfo.index + 1} 响应异常:`, response);
+      throw new Error(`分片 ${chunkInfo.index + 1} 上传失败: 响应数据为空`);
+    }
+
+    return response.data;
+  };
+
+  /**
+   * 普通上传（无分片）
+   */
+  const normalUpload = async (
+    file: File | Blob,
+    fileType: FileType,
+    mimeType: string,
+  ): Promise<string> => {
+    let uploadFile: File;
+    if (file instanceof File) {
+      // 如果文件的 type 不正确，重新创建一个 File 对象
+      if (!file.type || file.type === "application/octet-stream") {
+        uploadFile = new File([file], file.name, { type: mimeType });
+      } else {
+        uploadFile = file;
+      }
+    } else {
+      // Blob 转 File
+      uploadFile = new File([file], "upload", { type: mimeType });
+    }
     const params = {
       file: file,
       fileType: fileType,
     };
-    const response = await uploadCouseImage(params);
-    console.log("response", response);
 
-    if (!response.data) {
-      throw new Error("获取上传地址失败");
+    console.log("📤 普通上传参数:", {
+      fileSize: file.size,
+      fileType,
+      fileName: (file as File).name || "unknown",
+      mimeType,
+      actualFileType: uploadFile.type,
+    });
+
+    const progressInterval = setInterval(() => {
+      setState((prev) => ({
+        ...prev,
+        progress: Math.min(prev.progress + 10, 90),
+      }));
+    }, 200);
+
+    try {
+      const response = await uploadCouseImage(params);
+
+      clearInterval(progressInterval);
+
+      console.log("📥 普通上传响应:", response);
+
+      // 详细检查响应结构
+      if (!response) {
+        throw new Error("上传失败: 无响应");
+      }
+
+      if (!response.data) {
+        console.error("❌ 响应缺少 data 字段:", response);
+        throw new Error("上传失败: 响应格式错误 - 缺少 data 字段");
+      }
+
+      if (!response.data.url) {
+        console.error("❌ 响应缺少 url 字段:", response.data);
+        throw new Error("上传失败: 响应格式错误 - 缺少 url 字段");
+      }
+
+      console.log("✅ 获取到URL:", response.data.url);
+      return response.data.url;
+    } catch (error) {
+      clearInterval(progressInterval);
+      console.error("❌ 普通上传错误:", error);
+      throw error;
+    }
+  };
+
+  /**
+   * 并发上传分片
+   */
+  const uploadChunksWithConcurrency = async (
+    chunks: ChunkInfo[],
+    fileHash: string,
+    fileType: FileType,
+    mimeType: string,
+    fileName?: string,
+  ): Promise<string> => {
+    const totalChunks = chunks.length;
+    let uploadedChunks = 0;
+    const startTime = Date.now();
+    let uploadedBytes = 0;
+    let finalUrl = "";
+
+    console.log(`🎯 开始分片上传: ${totalChunks} 个分片`);
+
+    const queue = [...chunks];
+    const executing: Promise<void>[] = [];
+
+    const uploadNext = async (): Promise<void> => {
+      if (queue.length === 0) return;
+
+      const chunkInfo = queue.shift()!;
+      const chunkSize = chunkInfo.chunk.size;
+
+      try {
+        const result = await retryUpload(
+          () => uploadChunk(chunkInfo, fileHash, fileType, mimeType, fileName),
+          3,
+        );
+
+        // 检查是否返回了最终URL
+        if (result?.url) {
+          console.log(`✅ 分片 ${chunkInfo.index + 1} 返回URL:`, result.url);
+          finalUrl = result.url;
+        }
+
+        uploadedChunks++;
+        uploadedBytes += chunkSize;
+
+        const elapsedTime = (Date.now() - startTime) / 1000;
+        const speed = uploadedBytes / elapsedTime;
+        const progress = Math.round((uploadedChunks / totalChunks) * 100);
+
+        setState((prev) => ({
+          ...prev,
+          currentChunk: uploadedChunks,
+          progress,
+          uploadSpeed: speed,
+        }));
+
+        console.log(
+          `✅ 分片进度: ${uploadedChunks}/${totalChunks} (${progress}%)`,
+        );
+      } catch (error) {
+        console.error(`❌ 分片 ${chunkInfo.index + 1} 失败:`, error);
+        throw new Error(
+          `分片 ${chunkInfo.index + 1}/${totalChunks} 上传失败: ${error}`,
+        );
+      }
+    };
+
+    while (queue.length > 0 || executing.length > 0) {
+      while (executing.length < MAX_CONCURRENT && queue.length > 0) {
+        const promise = uploadNext().then(() => {
+          executing.splice(executing.indexOf(promise), 1);
+        });
+        executing.push(promise);
+      }
+
+      if (executing.length > 0) {
+        await Promise.race(executing);
+      }
     }
 
-    return response.data; // { uploadUrl: string, fileUrl: string }
+    if (!finalUrl) {
+      console.error("❌ 分片上传完成但未获取到URL");
+      throw new Error("分片上传完成，但未获取到文件 URL");
+    }
+
+    console.log("✅ 分片上传完成，最终URL:", finalUrl);
+    return finalUrl;
   };
 
-  // 上传文件到服务器或云存储
-  const uploadToStorage = async (
-    file: File | Blob,
-    uploadUrl: string,
-    onProgress?: (progress: number) => void,
-  ) => {
-    return new Promise<void>((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-
-      // 监听上传进度
-      xhr.upload.addEventListener("progress", (e) => {
-        if (e.lengthComputable) {
-          const progress = Math.round((e.loaded / e.total) * 100);
-          onProgress?.(progress);
-        }
-      });
-
-      // 上传完成
-      xhr.addEventListener("load", () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          resolve();
-        } else {
-          reject(new Error(`上传失败: ${xhr.statusText}`));
-        }
-      });
-
-      // 上传错误
-      xhr.addEventListener("error", () => {
-        reject(new Error("网络错误"));
-      });
-
-      // 上传超时
-      xhr.addEventListener("timeout", () => {
-        reject(new Error("上传超时"));
-      });
-
-      xhr.open("PUT", uploadUrl);
-      xhr.setRequestHeader(
-        "Content-Type",
-        file.type || "application/octet-stream",
-      );
-      xhr.send(file);
-    });
+  /**
+   * 重试机制
+   */
+  const retryUpload = async <T>(
+    fn: () => Promise<T>,
+    maxRetries: number,
+  ): Promise<T> => {
+    for (let i = 0; i < maxRetries; i++) {
+      try {
+        return await fn();
+      } catch (error) {
+        if (i === maxRetries - 1) throw error;
+        const delay = Math.pow(2, i) * 1000;
+        console.log(`⚠️ 重试 ${i + 1}/${maxRetries}，等待 ${delay}ms...`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+    }
+    throw new Error("重试次数耗尽");
   };
 
-  // 主上传函数
+  /**
+   * 主上传函数
+   */
   const uploadFile = async (
     file: File | Blob,
     fileType: FileType,
-    currentUrl?: string, // 新增参数：当前已有的 URL
+    currentUrl?: string,
   ): Promise<string | null> => {
     try {
-      // 保存当前 URL，并重置状态
+      console.log("========== 开始上传 ==========");
+      console.log("文件信息:", {
+        size: file.size,
+        type: fileType,
+        name: (file as File).name || "unknown",
+        isLargeFile: file.size >= LARGE_FILE_THRESHOLD,
+      });
+
+      if (!file) {
+        throw new Error("请选择文件");
+      }
+      const mimeType = getMimeType(file, fileType);
+      const fileName = file instanceof File ? file.name : undefined;
+      abortControllerRef.current = new AbortController();
+      console.log("文件信息:", {
+        name: fileName,
+        size: file.size,
+        originalType: file.type,
+        detectedMimeType: mimeType,
+        fileType: fileType,
+        isLargeFile: file.size >= LARGE_FILE_THRESHOLD,
+      });
+      const isLargeFile = file.size >= LARGE_FILE_THRESHOLD;
+
       setState({
         isUploading: true,
         progress: 0,
         error: null,
-        url: currentUrl || null, // 保持当前 URL 显示
-        previousUrl: currentUrl || null, // 保存原始 URL
+        url: currentUrl || null,
+        previousUrl: currentUrl || null,
+        currentChunk: 0,
+        totalChunks: 0,
+        uploadSpeed: 0,
+        isChunked: isLargeFile,
       });
 
-      // 验证文件
-      if (!file) {
-        throw new Error("请选择文件");
+      let finalUrl: string;
+
+      if (isLargeFile) {
+        console.log("📦 使用分片上传模式");
+        const fileHash = await calculateFileHash(file);
+        console.log("✅ 文件Hash:", fileHash);
+
+        const chunks = createChunks(file, mimeType);
+        console.log(`📦 切分为 ${chunks.length} 个分片`);
+
+        setState((prev) => ({
+          ...prev,
+          totalChunks: chunks.length,
+        }));
+
+        finalUrl = await uploadChunksWithConcurrency(
+          chunks,
+          fileHash,
+          fileType,
+        );
+      } else {
+        console.log("📤 使用普通上传模式");
+        finalUrl = await normalUpload(file, fileType);
       }
 
-      // 获取文件名
-      // 1. 获取上传地址
-      const { url: fileUrl } = (await getUploadUrl(file, fileType)) as any;
+      console.log("✅ 上传成功！最终URL:", finalUrl);
 
-      console.log(fileUrl, "__uploadUrl, fileUrl");
-      // 2. 上传文件
-      // await uploadToStorage(file, uploadUrl, (progress) => {
-      //   setState((prev) => ({ ...prev, progress }));
-      // });
-
-      // 3. 上传成功 - 更新为新 URL
       setState({
         isUploading: false,
         progress: 100,
         error: null,
-        url: fileUrl,
+        url: finalUrl,
         previousUrl: currentUrl || null,
+        currentChunk: state.totalChunks,
+        totalChunks: state.totalChunks,
+        uploadSpeed: 0,
+        isChunked: isLargeFile,
       });
 
-      return fileUrl;
+      console.log("========== 上传完成 ==========");
+      return finalUrl;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "上传失败";
-      // 上传失败 - 恢复到原始 URL
+      console.error("❌ 上传失败:", err);
+      console.error("========== 上传失败 ==========");
+
       setState((prev) => ({
         isUploading: false,
         progress: 0,
         error: errorMessage,
-        url: prev.previousUrl, // 恢复原始 URL
+        url: prev.previousUrl,
         previousUrl: prev.previousUrl,
+        currentChunk: 0,
+        totalChunks: 0,
+        uploadSpeed: 0,
+        isChunked: false,
       }));
+
       return null;
     }
   };
 
-  // 重置状态
-  const reset = () => {
+  const cancelUpload = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    setState((prev) => ({
+      isUploading: false,
+      progress: 0,
+      error: "上传已取消",
+      url: prev.previousUrl,
+      previousUrl: prev.previousUrl,
+      currentChunk: 0,
+      totalChunks: 0,
+      uploadSpeed: 0,
+      isChunked: false,
+    }));
+  }, []);
+
+  const reset = useCallback(() => {
     setState({
       isUploading: false,
       progress: 0,
       error: null,
       url: null,
       previousUrl: null,
+      currentChunk: 0,
+      totalChunks: 0,
+      uploadSpeed: 0,
+      isChunked: false,
     });
-  };
+  }, []);
 
   return {
     uploadFile,
@@ -175,6 +527,26 @@ export const useUpload = (): UseUploadReturn => {
     error: state.error,
     url: state.url,
     previousUrl: state.previousUrl,
+    currentChunk: state.currentChunk,
+    totalChunks: state.totalChunks,
+    uploadSpeed: state.uploadSpeed,
+    isChunked: state.isChunked,
     reset,
+    cancelUpload,
   };
+};
+
+export const formatFileSize = (bytes: number): string => {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`;
+  if (bytes < 1024 * 1024 * 1024)
+    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+  return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+};
+
+export const formatSpeed = (bytesPerSecond: number): string => {
+  if (bytesPerSecond < 1024) return `${bytesPerSecond.toFixed(0)} B/s`;
+  if (bytesPerSecond < 1024 * 1024)
+    return `${(bytesPerSecond / 1024).toFixed(2)} KB/s`;
+  return `${(bytesPerSecond / (1024 * 1024)).toFixed(2)} MB/s`;
 };

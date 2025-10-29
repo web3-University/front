@@ -79,7 +79,11 @@ export interface CreateLessonDto {
   duration?: number;
   videoUrl: string | null;
 }
-
+export interface UploadVideoParams {
+  file: File | Blob;
+  fileType: string;
+  hashId: string;
+}
 export interface ApiResponse<T> {
   data: T;
   message?: string;
@@ -120,7 +124,19 @@ export const uploadCouseImage = (data: UploadImageParams) => {
   formData.append("file", data.file);
   formData.append("fileType", data.fileType);
 
-  return http<ApiResponse<string>>("/storage/upload", {
+  return http<ApiResponse<string>>("/api/storage/upload", {
+    method: "POST",
+    body: formData, // 使用 FormData 而不是直接传递 data
+  });
+};
+
+export const uploadCouseVideo = (data: UploadVideoParams) => {
+  const formData = new FormData();
+  formData.append("file", data.file);
+  console.log(data.fileType, "__fileTYPE");
+  formData.append("fileType", data.fileType);
+  formData.append("hashId", data.hashId);
+  return http<ApiResponse<string>>("/api/storage/upload", {
     method: "POST",
     body: formData, // 使用 FormData 而不是直接传递 data
   });
