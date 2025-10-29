@@ -35,7 +35,7 @@ export interface Proposal {
  *
  * @example
  * ```tsx
- * const dao = useDAO('0x...')
+ * const dao = useDao('0x...')
  *
  * // 读取提案
  * const { data: proposal } = dao.getProposal('proposal-1')
@@ -49,7 +49,7 @@ export interface Proposal {
  * await vote.send('proposal-1', true)
  * ```
  */
-export function useDAO(daoAddress: Address) {
+export function useDao(daoAddress: Address) {
   const factory = contractFactory(daoAddress, DAO_ABI);
 
   return {
