@@ -22,6 +22,7 @@ import { CONTRACTS } from "@/config/contracts";
 import { VoteOption } from "@/lib/api/dao";
 import { useProposalData } from "@/hooks/useProposalData";
 import { useProposalOperations } from "@/hooks/useProposalOperations";
+import { showToast } from "@/components/Toast/Toast";
 
 /**
  * 📋 提案列表主组件

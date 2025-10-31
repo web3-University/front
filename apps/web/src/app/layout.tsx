@@ -1,10 +1,29 @@
+// apps/web/src/app/layout.tsx
 import "./globals.css";
 import type { ReactNode } from "react";
-
+import type { Metadata, Viewport } from "next";
+import { ToastContainer } from "@/components/Toast/Toast";
 import { Providers } from "./providers";
 
 import { PrefetchManager } from "@/components/PrefetchManager";
 import { PrefetchMonitor } from "@/components/PrefetchMonitor";
+
+// ⭐ 移动端适配：Viewport 配置
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false, // 防止双击缩放
+  viewportFit: "cover", // 适配刘海屏
+  themeColor: "#FDFBFF",
+};
+
+// SEO 元数据
+export const metadata: Metadata = {
+  title: "WEB3大学 - 去中心化教育平台",
+  description: "去中心化学习，获得 NFT 证书",
+  keywords: ["Web3", "区块链", "在线教育", "NFT", "去中心化"],
+};
 
 // 根布局组件，定义HTML结构和全局样式
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -27,19 +46,26 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         suppressHydrationWarning
         className="relative min-h-screen bg-[#FDFBFF] text-[#2A2742] antialiased"
       >
-        {/* 预加载管理器 - 智能预加载页面 与 Next.js Link prefetch  选一； <front/apps/web/src/components/layout/Header.tsx>  */}
+        {/* 预加载管理器 */}
         <PrefetchManager />
 
         {/* 预加载监控器 - 仅在开发环境显示 */}
         {process.env.NODE_ENV === "development" && <PrefetchMonitor />}
 
-        {/* 全局柔光背景 */}
+        {/* 全局柔光背景 - 响应式调整 */}
         <div className="pointer-events-none fixed inset-0 -z-10">
-          <div className="absolute -left-[15%] top-[-10%] h-[34rem] w-[34rem] rounded-full bg-[#E6D8FF] opacity-80 blur-[140px]" />
-          <div className="absolute right-[-12%] bottom-[-18%] h-[32rem] w-[32rem] rounded-full bg-[#FFE6CF] opacity-80 blur-[140px]" />
-          <div className="absolute left-[35%] top-[12%] h-[26rem] w-[26rem] rounded-full bg-[#E0F2FF] opacity-60 blur-[120px]" />
+          {/* 左上角光晕 - 移动端缩小 */}
+          <div className="absolute -left-[15%] top-[-10%] h-[20rem] w-[20rem] rounded-full bg-[#E6D8FF] opacity-80 blur-[100px] md:h-[34rem] md:w-[34rem] md:blur-[140px]" />
+
+          {/* 右下角光晕 - 移动端缩小 */}
+          <div className="absolute right-[-12%] bottom-[-18%] h-[18rem] w-[18rem] rounded-full bg-[#FFE6CF] opacity-80 blur-[100px] md:h-[32rem] md:w-[32rem] md:blur-[140px]" />
+
+          {/* 中间光晕 - 移动端缩小 */}
+          <div className="absolute left-[35%] top-[12%] h-[16rem] w-[16rem] rounded-full bg-[#E0F2FF] opacity-60 blur-[80px] md:h-[26rem] md:w-[26rem] md:blur-[120px]" />
         </div>
+
         <Providers>{children}</Providers>
+        <ToastContainer />
       </body>
     </html>
   );

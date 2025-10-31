@@ -170,7 +170,7 @@ export interface ApiResponse<T> {
  * @returns 创建的提案
  */
 export const createProposal = (data: CreateProposalRequest) =>
-  http<Proposal>("/dao/proposals", {
+  http<ApiResponse<Proposal>>("/dao/proposals", {
     method: "POST",
     body: data,
   });
@@ -182,7 +182,7 @@ export const createProposal = (data: CreateProposalRequest) =>
  * @returns 投票记录
  */
 export const vote = (proposalId: number, data: VoteRequest) =>
-  http<Vote>(`/dao/proposals/${proposalId}/vote`, {
+  http<ApiResponse<Vote>>(`/dao/proposals/${proposalId}/vote`, {
     method: "POST",
     body: data,
   });
