@@ -171,6 +171,7 @@ export const useUpload = () => {
     fileHash: string,
     fileType: FileType,
     mimeType: string,
+    totalChunks: number,
     fileName?: string,
   ): Promise<any> => {
     const chunkFile = new File(
@@ -178,15 +179,20 @@ export const useUpload = () => {
       fileName || `chunk_${chunkInfo.index}`,
       { type: mimeType },
     );
+
     const params = {
       file: chunkFile,
       fileType: fileType,
       hashId: fileHash,
       contentType: mimeType,
+      chunkIndex: chunkInfo.index, // ✅ 添加 chunkIndex - 当前分片的下标
+      totalChunks: totalChunks, // ✅ 总分片数
     };
 
-    console.log(`📤 上传分片 ${chunkInfo.index + 1}:`, {
+    console.log(`📤 上传分片 ${chunkInfo.index + 1}/${totalChunks}:`, {
       chunkSize: chunkInfo.chunk.size,
+      chunkIndex: chunkInfo.index, // 当前分片下标
+      totalChunks: totalChunks, // 总分片数
       hashId: fileHash,
       fileType,
       mimeType,
@@ -194,7 +200,10 @@ export const useUpload = () => {
 
     const response = await uploadCouseVideo(params);
 
-    console.log(`📥 分片 ${chunkInfo.index + 1} 响应:`, response);
+    console.log(
+      `📥 分片 ${chunkInfo.index + 1}/${totalChunks} 响应:`,
+      response,
+    );
 
     if (!response || !response.data) {
       console.error(`❌ 分片 ${chunkInfo.index + 1} 响应异常:`, response);
@@ -225,7 +234,7 @@ export const useUpload = () => {
       uploadFile = new File([file], "upload", { type: mimeType });
     }
     const params = {
-      file: file,
+      file: uploadFile,
       fileType: fileType,
     };
 
@@ -304,7 +313,15 @@ export const useUpload = () => {
 
       try {
         const result = await retryUpload(
-          () => uploadChunk(chunkInfo, fileHash, fileType, mimeType, fileName),
+          () =>
+            uploadChunk(
+              chunkInfo,
+              fileHash,
+              fileType,
+              mimeType,
+              totalChunks, // 传递总分片数
+              fileName,
+            ),
           3,
         );
 
@@ -445,10 +462,12 @@ export const useUpload = () => {
           chunks,
           fileHash,
           fileType,
+          mimeType,
+          fileName,
         );
       } else {
         console.log("📤 使用普通上传模式");
-        finalUrl = await normalUpload(file, fileType);
+        finalUrl = await normalUpload(file, fileType, mimeType);
       }
 
       console.log("✅ 上传成功！最终URL:", finalUrl);
