@@ -83,6 +83,8 @@ export interface UploadVideoParams {
   file: File | Blob;
   fileType: string;
   hashId: string;
+  chunkIndex: number;
+  totalChunks: number;
 }
 export interface ApiResponse<T> {
   data: T;
@@ -131,11 +133,15 @@ export const uploadCouseImage = (data: UploadImageParams) => {
 };
 
 export const uploadCouseVideo = (data: UploadVideoParams) => {
+  console.info("enen");
   const formData = new FormData();
+  console.log(data, "___上传视频的参数。 ，，，，，，");
   formData.append("file", data.file);
   console.log(data.fileType, "__fileTYPE");
   formData.append("fileType", data.fileType);
   formData.append("hashId", data.hashId);
+  formData.append("chunkIndex", String(data.chunkIndex)); // 当前分片索引
+  formData.append("totalChunks", String(data.totalChunks));
   return http<ApiResponse<string>>("/api/storage/upload", {
     method: "POST",
     body: formData, // 使用 FormData 而不是直接传递 data
