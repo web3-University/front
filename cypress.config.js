@@ -1,30 +1,30 @@
-const { defineConfig } = require('cypress')
+const { defineConfig } = require("cypress");
 
 module.exports = defineConfig({
   e2e: {
-    baseUrl: 'http://localhost:3000',
-    supportFile: 'apps/web/e2e/support/e2e.js',
-    specPattern: 'apps/web/e2e/**/*.cy.{js,jsx,ts,tsx}',
-    fixturesFolder: 'apps/web/e2e/fixtures',
-    screenshotsFolder: 'apps/web/e2e/screenshots',
-    videosFolder: 'apps/web/e2e/videos',
+    baseUrl: "http://localhost:3000",
+    supportFile: "e2e/support/e2e.js",
+    specPattern: "e2e/**/*.cy.{js,jsx,ts,tsx}",
+    fixturesFolder: "e2e/fixtures",
+    screenshotsFolder: "e2e/screenshots",
+    videosFolder: "e2e/videos",
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },
   },
   component: {
     devServer: {
-      framework: 'next',
-      bundler: 'webpack',
+      framework: "next",
+      bundler: "webpack",
       webpackConfig: {
         resolve: {
           alias: {
-            '@': './apps/web/src',
+            "@": "./src",
           },
         },
       },
     },
-    specPattern: 'apps/web/src/**/*.cy.{js,jsx,ts,tsx}',
-    supportFile: 'apps/web/e2e/support/component.js',
+    specPattern: "src/**/*.cy.{js,jsx,ts,tsx}",
+    supportFile: "e2e/support/component.js",
   },
-})
+});
