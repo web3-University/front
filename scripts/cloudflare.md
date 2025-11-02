@@ -36,3 +36,6 @@ pnpm run cf:deploy -- --branch dev   # 构建 + 部署到指定 Pages 分支
 - 部署成功后，CLI 会输出访问链接，打开确认页面是否正常渲染。
 - 若遇到权限错误，请检查 API Token 是否拥有 `Pages · Edit` 权限，以及 Account ID 是否正确。
 - 构建失败时，可先在本地运行 `pnpm run cf:build` 或 `pnpm run type-check` 排查，修复后再重新部署。
+
+
+## 目前next build 有阻塞还未提交到cloudflare
