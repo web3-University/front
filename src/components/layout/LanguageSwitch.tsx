@@ -45,11 +45,11 @@ export default function LanguageSwitch() {
 				type="button"
 				onClick={handleToggle}
 				className={clsx(
-					"group flex items-center gap-2 rounded-l-full bg-[#2B2558] px-2 py-2 text-white shadow-[0_10px_30px_rgba(62,56,120,0.25)] transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF6B9A]/70 hover:bg-[#3A3380]",
+					"group flex items-center gap-2 rounded-l-full border border-white/60 bg-gradient-to-br from-[#C3F9FF] via-[#FDF5FF] to-[#FFE4EF] px-2 py-2 text-[#3D5570] shadow-[0_12px_30px_rgba(178,214,255,0.45)] transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C9EBFF]/70 hover:from-[#B1F1FF] hover:to-[#FFD6E6]",
 				)}
 				aria-label={fullLabel}
 			>
-				<span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-sm font-semibold uppercase tracking-wide">
+				<span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-sm font-semibold uppercase tracking-wide text-[#3AA6B9] shadow-sm ring-1 ring-white/70 transition-colors duration-300 group-hover:bg-white">
 					{compactLabel}
 				</span>
 				<span className="max-w-0 overflow-hidden whitespace-nowrap text-sm font-medium opacity-0 transition-all duration-300 group-hover:max-w-[120px] group-hover:opacity-100">
