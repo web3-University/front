@@ -1,11 +1,7 @@
-import HomeView from "@/components/home/HomeView";
+import { redirect } from "next/navigation";
 
-// 根路由：复用首页组件
-export default function Page() {
-  return (
-    <>
-      {/* <Header /> */}
-      <HomeView />
-    </>
-  );
+import { defaultLocale } from "@/i18n/config";
+
+export default function RootPage() {
+	redirect(`/${defaultLocale}`);
 }
