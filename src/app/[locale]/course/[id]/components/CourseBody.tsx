@@ -257,7 +257,7 @@ export default function CourseBody({ course, lessons }: CourseBodyProps) {
 												</div>
 											) : (
 												<ReactPlayer
-													url={lesson.videoUrl || mockVideoUrl}
+													src={lesson.videoUrl || mockVideoUrl}
 													width="100%"
 													height="100%"
 													controls={true}

@@ -9,6 +9,9 @@
 		"lint": "biome check",
 		"format": "biome format --write",
 		"type-check": "tsc --noEmit",
+		"cf:build": "pnpm exec next-on-pages",
+		"cf:dev": "pnpm exec next-on-pages dev",
+		"cf:deploy": "scripts/deploy-cloudflare.sh --branch dev",
 		"lint-staged": "lint-staged"
 	},
 	"dependencies": {
@@ -35,6 +38,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.3.2",
+		"@cloudflare/next-on-pages": "^1.13.16",
 		"@tailwindcss/postcss": "^4",
 		"@types/node": "^20",
 		"@types/react": "^19",
@@ -42,7 +46,8 @@
 		"autoprefixer": "^10.4.21",
 		"lint-staged": "^16.2.6",
 		"tailwindcss": "^4",
-		"typescript": "^5"
+		"typescript": "^5",
+		"wrangler": "^4.45.3"
 	},
 	"lint-staged": {
 		"*.{ts,tsx,js,jsx,json,css,md}": "pnpm exec biome format --write"
