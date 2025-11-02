@@ -50,6 +50,6 @@
 		"wrangler": "^4.45.3"
 	},
 	"lint-staged": {
-		"*.{ts,tsx,js,jsx,json,css,md}": "pnpm exec biome format --write"
+		"*.{ts,tsx,js,jsx,json,css}": "pnpm exec biome format --write"
 	}
 }
