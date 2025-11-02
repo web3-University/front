@@ -5,8 +5,8 @@
 			"tagline": "Decentralized learning platform"
 		},
 		"languageSwitch": {
-			"toEnglish": "Switch to English",
-			"toChinese": "Switch to Chinese"
+			"toEnglish": "English",
+			"toChinese": "Chinese"
 		},
 		"walletButton": {
 			"desktop": "Connect Wallet",

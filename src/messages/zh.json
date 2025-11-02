@@ -5,8 +5,8 @@
 			"tagline": "去中心化教育平台"
 		},
 		"languageSwitch": {
-			"toEnglish": "切换到英文",
-			"toChinese": "切换到中文"
+			"toEnglish": "英文",
+			"toChinese": "中文"
 		},
 		"walletButton": {
 			"desktop": "连接钱包",
