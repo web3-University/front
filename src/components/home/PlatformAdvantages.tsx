@@ -1,25 +1,33 @@
-import { useTranslations } from "next-intl";
+"use client";
+
+import { useMemo } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 export default function PlatformAdvantages() {
+	const locale = useLocale();
 	const t = useTranslations("home.platformAdvantages");
 
-	const advantages = [
-		{
-			icon: "₿",
-			title: t("items.tokenIncentive.title"),
-			description: t("items.tokenIncentive.description"),
-		},
-		{
-			icon: "🛡",
-			title: t("items.blockchainCertificate.title"),
-			description: t("items.blockchainCertificate.description"),
-		},
-		{
-			icon: "🌐",
-			title: t("items.daoGovernance.title"),
-			description: t("items.daoGovernance.description"),
-		},
-	];
+	const advantages = useMemo(
+		() => [
+			{
+				icon: "₿",
+				title: t("items.tokenIncentive.title"),
+				description: t("items.tokenIncentive.description"),
+			},
+			{
+				icon: "🛡",
+				title: t("items.blockchainCertificate.title"),
+				description: t("items.blockchainCertificate.description"),
+			},
+			{
+				icon: "🌐",
+				title: t("items.daoGovernance.title"),
+				description: t("items.daoGovernance.description"),
+			},
+		],
+		// Recompute when locale or translation function changes
+		[locale, t],
+	);
 
 	return (
 		<section className="relative overflow-hidden">
