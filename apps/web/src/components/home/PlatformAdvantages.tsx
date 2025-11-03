@@ -1,31 +1,33 @@
-const advantages = [
-  {
-    title: "代币激励系统",
-    description: "学习获得 YD 代币奖励，教学获得收益分成，完全透明的激励机制",
-    icon: "₿",
-  },
-  {
-    title: "区块链认证",
-    description: "学习成果自动生成 NFT 证书，永久保存在链上，全球认可",
-    icon: "🛡",
-  },
-  {
-    title: "DAO 治理",
-    description: "社区自治决策、争议解决机制，让每个用户都能参与平台治理",
-    icon: "🌐",
-  },
-];
+import { getServerTranslator } from "@/i18n/server";
 
-export default function PlatformAdvantages() {
+export default async function PlatformAdvantages() {
+  const t = await getServerTranslator("platformAdvantages");
+
+  const advantages = [
+    {
+      title: t("items.tokenIncentives.title"),
+      description: t("items.tokenIncentives.description"),
+      icon: "₿",
+    },
+    {
+      title: t("items.blockchainCertification.title"),
+      description: t("items.blockchainCertification.description"),
+      icon: "🛡",
+    },
+    {
+      title: t("items.daoGovernance.title"),
+      description: t("items.daoGovernance.description"),
+      icon: "🌐",
+    },
+  ];
+
   return (
     <section className="relative overflow-hidden">
       <div className="mx-auto max-w-[1200px] px-6 py-24 text-center">
         <h2 className="text-3xl font-bold text-[#2B2558] md:text-4xl">
-          平台核心优势
+          {t("title")}
         </h2>
-        <p className="mt-3 text-base text-[#6A6D94]">
-          结合区块链技术和教育创新，打造全新的去中心化学习体验
-        </p>
+        <p className="mt-3 text-base text-[#6A6D94]">{t("description")}</p>
 
         <div className="mt-16 grid gap-6 md:grid-cols-3">
           {advantages.map((item) => (

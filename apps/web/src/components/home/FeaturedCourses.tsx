@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import CourseItem from "@/components/market/CourseItem";
 import { useCourse } from "@/hooks/useCourse";
 import type { Course } from "@/lib/api/course";
+import { useTranslation } from "@/i18n/hooks";
 
 export type FeaturedCourse = {
   id: string;
@@ -64,6 +65,7 @@ export default function FeaturedCourses({ onBuy }: FeaturedCoursesProps) {
   const { courses: apiCourses, loading, error, fetchCourses } = useCourse();
   // 映射后的课程数据
   const [courses, setCourses] = useState<FeaturedCourse[]>([]);
+  const t = useTranslation("featuredCourses");
 
   useEffect(() => {
     // 获取前3个课程作为精选课程
@@ -76,9 +78,9 @@ export default function FeaturedCourses({ onBuy }: FeaturedCoursesProps) {
       .map((course, index) => ({
         id: course.id?.toString() || `course-${index}`, // 确保每个课程都有有效的id
         title: course.title,
-        description: course.description || "暂无描述", // 提供默认值
-        category: course.categories?.[0] || "未分类",
-        instructor: course.instructorName || "未知讲师",
+        description: course.description || t("noDescription"), // 提供默认值
+        category: course.categories?.[0] || t("noCategory"),
+        instructor: course.instructorName || t("unknownInstructor"),
         rating: course.rating || 0,
         students: course.studentCount || 0,
         duration: course.duration || 0,
@@ -89,7 +91,7 @@ export default function FeaturedCourses({ onBuy }: FeaturedCoursesProps) {
       }))
       .filter((course) => course.id && course.title); // 过滤掉无效的课程数据
     setCourses(mappedCourses);
-  }, [apiCourses]);
+  }, [apiCourses, t]);
 
   // 转换 API 课程数据为 FeaturedCourse 格式
   // 过滤掉无效数据（null）
@@ -103,17 +105,15 @@ export default function FeaturedCourses({ onBuy }: FeaturedCoursesProps) {
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h2 className="text-3xl font-bold text-[#2B2558] md:text-4xl">
-              精选课程
+              {t("title")}
             </h2>
-            <p className="mt-3 text-base text-[#6A6D94]">
-              顶级讲师倾力打造的高质量课程，帮助你快速进入 Web3 世界
-            </p>
+            <p className="mt-3 text-base text-[#6A6D94]">{t("description")}</p>
           </div>
           <Link
             href="/market"
             className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#FFB347] to-[#FF9F50] px-5 py-2 text-sm font-semibold text-white shadow-[0_18px_35px_rgba(255,160,109,0.35)] transition hover:translate-y-[-1px]"
           >
-            查看全部
+            {t("viewAll")}
             <span className="transition group-hover:translate-x-1">→</span>
           </Link>
         </header>
@@ -122,20 +122,20 @@ export default function FeaturedCourses({ onBuy }: FeaturedCoursesProps) {
         {loading && (
           <div className="flex items-center justify-center py-12">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#4B6CFF] border-t-transparent" />
-            <span className="ml-3 text-[#6A6D94]">加载中...</span>
+            <span className="ml-3 text-[#6A6D94]">{t("loading")}</span>
           </div>
         )}
 
         {/* 错误状态 */}
         {error && !loading && (
           <div className="rounded-xl bg-red-50 p-6 text-center">
-            <p className="text-red-600">加载失败: {error}</p>
+            <p className="text-red-600">{t("error", { message: error })}</p>
             <button
               type="button"
               onClick={() => fetchCourses({ page: 1, limit: 3 })}
               className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-700"
             >
-              重试
+              {t("retry")}
             </button>
           </div>
         )}
@@ -152,7 +152,7 @@ export default function FeaturedCourses({ onBuy }: FeaturedCoursesProps) {
         {/* 无数据状态 */}
         {!loading && !error && courses.length === 0 && (
           <div className="rounded-xl bg-gray-50 p-12 text-center">
-            <p className="text-lg text-[#6A6D94]">暂无精选课程</p>
+            <p className="text-lg text-[#6A6D94]">{t("empty")}</p>
           </div>
         )}
       </div>

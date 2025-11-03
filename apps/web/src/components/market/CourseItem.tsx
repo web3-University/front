@@ -1,6 +1,7 @@
 import { CourseCard } from "@web3-university/ui";
 import { useRouter } from "next/navigation";
 import CourseButton from "./CourseButton";
+import { useTranslation } from "@/i18n/hooks";
 
 interface CourseItemProps {
   course: {
@@ -29,6 +30,7 @@ const CourseItem: React.FC<CourseItemProps> = ({
   onPurchaseError,
 }) => {
   const router = useRouter();
+  const t = useTranslation("course");
   const handleCourseDetail = (course: any) => {
     router.push(`/course/${course.id}`);
   };
@@ -36,7 +38,7 @@ const CourseItem: React.FC<CourseItemProps> = ({
     <CourseCard course={course} onDetail={handleCourseDetail}>
       {course.isPurchased ? (
         <div className="flex items-center justify-center px-4 py-2 bg-green-100 text-green-700 rounded-lg font-medium">
-          ✅ 已购买
+          ✅ {t("purchased")}
         </div>
       ) : (
         <CourseButton

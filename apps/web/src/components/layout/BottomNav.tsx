@@ -6,9 +6,11 @@ import Link from "next/link";
 import clsx from "clsx";
 
 import { MAIN_ROUTES } from "@/config/routes";
+import { useTranslation } from "@/i18n/hooks";
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const t = useTranslation();
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-[#E5E5E5] pb-safe lg:hidden">
@@ -26,7 +28,7 @@ export default function BottomNav() {
                 isActive ? "text-[#FF6B9A]" : "text-[#6A6D94]",
               )}
             >
-              <span className="text-xs font-medium">{item.label}</span>
+              <span className="text-xs font-medium">{t(item.labelKey)}</span>
             </Link>
           );
         })}

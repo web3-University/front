@@ -1,9 +1,12 @@
 "use client";
 
+import { useMemo } from "react";
+
 import { Coins, Globe2, ShieldCheck, UserCheck } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/i18n/hooks";
 
 type HighlightItem = {
   icon: typeof ShieldCheck;
@@ -13,47 +16,54 @@ type HighlightItem = {
   eyebrow?: string;
 };
 
-const highlights: HighlightItem[] = [
-  {
-    icon: ShieldCheck,
-    title: "85% 高收益",
-    description: "课程销售收益的85%直接到账，收益透明可查",
-    iconBg: "from-[#34D399] to-[#10B981]",
-  },
-  {
-    icon: Coins,
-    title: "代币激励",
-    description: "发布课程、获得好评、学生完课都有额外奖励",
-    iconBg: "from-[#8B5CF6] to-[#6366F1]",
-  },
-  {
-    icon: Globe2,
-    title: "触达 50,000+ 学员",
-    description: "触达50,000+全球学员，扩大您的影响力",
-    iconBg: "from-[#FF7A50] to-[#F97316]",
-  },
-];
-
-const stats = [
-  { label: "活跃讲师", value: "127" },
-  { label: "讲师总收益", value: "Ƀ 1.2M", highlight: true },
-  { label: "平均评分", value: "4.8" },
-  { label: "学员总数", value: "15,000+" },
-];
-
 export default function InstructorInvitation() {
+  const t = useTranslation("instructorInvitation");
+
+  const highlights: HighlightItem[] = useMemo(
+    () => [
+      {
+        icon: ShieldCheck,
+        title: t("highlights.highEarnings.title"),
+        description: t("highlights.highEarnings.description"),
+        iconBg: "from-[#34D399] to-[#10B981]",
+      },
+      {
+        icon: Coins,
+        title: t("highlights.tokenRewards.title"),
+        description: t("highlights.tokenRewards.description"),
+        iconBg: "from-[#8B5CF6] to-[#6366F1]",
+      },
+      {
+        icon: Globe2,
+        title: t("highlights.globalReach.title"),
+        description: t("highlights.globalReach.description"),
+        iconBg: "from-[#FF7A50] to-[#F97316]",
+      },
+    ],
+    [t],
+  );
+
+  const stats = useMemo(
+    () => [
+      { label: t("stats.activeInstructors"), value: "127" },
+      { label: t("stats.totalRevenue"), value: "Ƀ 1.2M", highlight: true },
+      { label: t("stats.averageRating"), value: "4.8" },
+      { label: t("stats.totalStudents"), value: "15,000+" },
+    ],
+    [t],
+  );
+
   return (
     <section className="relative overflow-hidden">
       <div className="mx-auto max-w-[1200px] px-6 py-24 text-center text-white">
         <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1 text-sm font-medium backdrop-blur-md ring-1 ring-white/20">
           <UserCheck className="h-4 w-4" />
-          成为讲师，开始收益之旅
+          {t("badge")}
         </div>
 
-        <h2 className="text-3xl font-bold md:text-4xl">分享知识，获得价值</h2>
+        <h2 className="text-3xl font-bold md:text-4xl">{t("title")}</h2>
         <p className="mx-auto mt-3 max-w-3xl text-base text-white/80">
-          加入 Web3 大学讲师团队，通过区块链技术确保公平透明的收益分配。
-          每发布一门课程即可获得 10 YD 代币，课程销售收益的 85% 归您所有。
+          {t("description")}
         </p>
 
         <div className="mt-14 grid gap-6 md:grid-cols-3">
@@ -83,12 +93,12 @@ export default function InstructorInvitation() {
         <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <Link href="/teacher">
             <Button variant="primary" size="lg">
-              立即成为讲师
+              {t("ctaPrimary")}
             </Button>
           </Link>
           <Link href="/course-create">
             <Button variant="secondary" size="lg">
-              创建课程
+              {t("ctaSecondary")}
             </Button>
           </Link>
         </div>

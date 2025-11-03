@@ -11,6 +11,8 @@ import { Menu, X } from "lucide-react"; // 需要安装: pnpm add lucide-react
 
 import { MAIN_ROUTES } from "@/config/routes";
 import { checkUserRegistered, registerUser } from "@/lib/api/user";
+import { LOCALE_LABELS, SUPPORTED_LOCALES, type Locale } from "@/i18n/config";
+import { useChangeLocale, useTranslation } from "@/i18n/hooks";
 
 function isRouteActive(href: string, pathname: string, aliases: string[] = []) {
   if (pathname === href) return true;
@@ -24,6 +26,8 @@ export default function Header() {
   const { isAuthenticated, address } = useAuth();
   const hasRegistered = useRef(false);
   const router = useRouter();
+  const t = useTranslation();
+  const [setLocale, currentLocale] = useChangeLocale();
 
   // 移动端菜单状态
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -71,6 +75,10 @@ export default function Header() {
     router.push("/profile");
   };
 
+  const handleLocaleChange = (nextLocale: Locale) => {
+    setLocale(nextLocale);
+  };
+
   return (
     <>
       {/* 桌面端 Header */}
@@ -85,8 +93,10 @@ export default function Header() {
               WEB
             </div>
             <div className="hidden leading-tight sm:block">
-              <div className="text-sm font-semibold">WEB3大学</div>
-              <div className="text-[11px] text-[#6F6B93]">去中心化教育平台</div>
+              <div className="text-sm font-semibold">{t("common.appName")}</div>
+              <div className="text-[11px] text-[#6F6B93]">
+                {t("common.appTagline")}
+              </div>
             </div>
           </Link>
 
@@ -105,7 +115,7 @@ export default function Header() {
                       : "text-[#6A6D94] hover:bg-[#F6F6FF]",
                   )}
                 >
-                  {route.label}
+                  {t(route.labelKey)}
                 </Link>
               );
             })}
@@ -113,10 +123,31 @@ export default function Header() {
 
           {/* 右侧按钮组 */}
           <div className="flex items-center gap-2 md:gap-3">
+            {/* 桌面端语言切换 */}
+            <div className="hidden items-center sm:flex">
+              <label htmlFor="desktop-language-select" className="sr-only">
+                {t("common.language")}
+              </label>
+              <select
+                id="desktop-language-select"
+                value={currentLocale}
+                onChange={(event) =>
+                  handleLocaleChange(event.target.value as Locale)
+                }
+                className="rounded-full border border-[#E8E7FF] bg-white px-3 py-1 text-sm font-medium text-[#2B2558] shadow-sm transition-colors hover:border-[#D1D0FF] focus:outline-none focus:ring-2 focus:ring-[#B5B3FF]"
+              >
+                {SUPPORTED_LOCALES.map((locale) => (
+                  <option key={locale} value={locale}>
+                    {LOCALE_LABELS[locale]}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {/* 钱包按钮 - 响应式调整 */}
             <div className="hidden sm:block">
               <WalletButton
-                label="连接钱包"
+                label={t("common.connectWallet")}
                 showBalance
                 showChainName
                 onOpenProfile={routeToProfile}
@@ -126,7 +157,7 @@ export default function Header() {
             {/* 移动端简化版钱包按钮 */}
             <div className="sm:hidden">
               <WalletButton
-                label="连接"
+                label={t("common.connectShort")}
                 showBalance={false}
                 showChainName={false}
                 onOpenProfile={routeToProfile}
@@ -137,7 +168,7 @@ export default function Header() {
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="flex h-9 w-9 items-center justify-center rounded-lg text-[#2B2558] transition-colors hover:bg-[#F6F6FF] lg:hidden"
-              aria-label="菜单"
+              aria-label={t("common.menu")}
             >
               {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
@@ -148,7 +179,7 @@ export default function Header() {
       {/* 移动端菜单 - 全屏抽屉 */}
       <div
         className={clsx(
-          "fixed inset-0 z-40 bg-white transition-transform duration-300 lg:hidden",
+          "fixed inset-0 z-40 flex h-full flex-col bg-white transition-transform duration-300 lg:hidden",
           isMobileMenuOpen ? "translate-x-0" : "translate-x-full",
         )}
       >
@@ -171,16 +202,41 @@ export default function Header() {
                     : "text-[#6A6D94] hover:bg-[#F6F6FF]",
                 )}
               >
-                {route.label}
+                {t(route.labelKey)}
               </Link>
             );
           })}
         </nav>
 
+        {/* 语言切换入口 */}
+        <div className="mx-6 mb-4 flex flex-col gap-3 rounded-xl border border-[#ECEBFF] bg-white/80 p-4 shadow-sm">
+          <span className="text-xs font-semibold uppercase tracking-wide text-[#6A6D94]">
+            {t("common.language")}
+          </span>
+          <select
+            id="mobile-language-select"
+            value={currentLocale}
+            onChange={(event) => {
+              handleLocaleChange(event.target.value as Locale);
+              setIsMobileMenuOpen(false);
+            }}
+            className="rounded-xl border border-[#E8E7FF] bg-white px-4 py-2 text-sm font-medium text-[#2B2558] focus:outline-none focus:ring-2 focus:ring-[#B5B3FF]"
+            aria-label={t("common.language")}
+          >
+            {SUPPORTED_LOCALES.map((locale) => (
+              <option key={locale} value={locale}>
+                {LOCALE_LABELS[locale]}
+              </option>
+            ))}
+          </select>
+        </div>
+
         {/* 底部信息 */}
-        <div className="absolute bottom-6 left-6 right-6 rounded-xl bg-gradient-to-br from-[#FFB347]/10 to-[#FF6B9A]/10 p-4">
-          <div className="text-sm font-semibold text-[#2B2558]">WEB3大学</div>
-          <div className="text-xs text-[#6F6B93]">去中心化教育平台</div>
+        <div className="mx-6 mb-6 mt-auto rounded-xl bg-gradient-to-br from-[#FFB347]/10 to-[#FF6B9A]/10 p-4">
+          <div className="text-sm font-semibold text-[#2B2558]">
+            {t("common.appName")}
+          </div>
+          <div className="text-xs text-[#6F6B93]">{t("common.appTagline")}</div>
         </div>
       </div>
 
