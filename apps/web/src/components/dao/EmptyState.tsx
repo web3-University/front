@@ -1,6 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
+
+import { useTranslation } from "@/i18n/hooks";
 import { DaoTabKey } from "@/types/dao";
 
 interface EmptyStateProps {
@@ -12,34 +14,33 @@ interface EmptyStateProps {
  * 📭 空状态组件
  */
 export function EmptyState({ activeTab, isConnected }: EmptyStateProps) {
-  const getTabName = () => {
+  const t = useTranslation("daoEmpty");
+
+  const tabLabel = useMemo(() => {
     switch (activeTab) {
       case "proposal":
-        return "治理提案";
+        return t("tabs.proposal");
       case "dispute":
-        return "课程争议";
+        return t("tabs.dispute");
       case "history":
-        return "历史记录";
+        return t("tabs.history");
       default:
-        return "提案";
+        return t("tabs.default");
     }
-  };
+  }, [activeTab, t]);
 
-  const getEmptyMessage = () => {
+  const helperMessage = useMemo(() => {
     if (!isConnected) {
-      return "请先连接钱包查看提案";
+      return t("messages.connectWallet");
     }
-
     if (activeTab === "proposal") {
-      return "点击上方按钮创建第一个提案";
+      return t("messages.createProposal");
     }
-
     if (activeTab === "dispute") {
-      return "点击上方按钮提交课程争议";
+      return t("messages.submitDispute");
     }
-
     return null;
-  };
+  }, [activeTab, isConnected, t]);
 
   return (
     <div className="text-center py-20 text-gray-400">
@@ -57,10 +58,10 @@ export function EmptyState({ activeTab, isConnected }: EmptyStateProps) {
         />
       </svg>
 
-      <p className="text-lg mb-2">暂无{getTabName()}</p>
+      <p className="text-lg mb-2">{t("title", { tab: tabLabel })}</p>
 
-      {getEmptyMessage() && (
-        <p className="text-sm text-gray-500">{getEmptyMessage()}</p>
+      {helperMessage && (
+        <p className="text-sm text-gray-500">{helperMessage}</p>
       )}
     </div>
   );

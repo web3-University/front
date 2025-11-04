@@ -64,6 +64,7 @@ export const WalletButton: React.FC<WalletButtonProps> = ({
                       onClick={openConnectModal}
                       type="button"
                       className="wallet-button__connect"
+                      title={label}
                     >
                       {label}
                     </button>
@@ -73,7 +74,10 @@ export const WalletButton: React.FC<WalletButtonProps> = ({
                 return (
                   <div className="wallet-button__connected">
                     {showChainName && (
-                      <div className="wallet-button__chain">
+                      <div
+                        className="wallet-button__chain"
+                        title={currentChain.name ?? "Chain"}
+                      >
                         {currentChain.iconUrl && (
                           <div className="wallet-button__chain-icon">
                             <img
@@ -87,7 +91,11 @@ export const WalletButton: React.FC<WalletButtonProps> = ({
                       </div>
                     )}
 
-                    <button type="button" className="wallet-button__account">
+                    <button
+                      type="button"
+                      className="wallet-button__account"
+                      title={account.displayName}
+                    >
                       <span className="wallet-button__status-bot"></span>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"

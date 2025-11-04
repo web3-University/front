@@ -1,12 +1,13 @@
 "use client";
 import { useWalletInfo } from "@web3-university/uni-wallet-lib";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useCourse } from "@/hooks/useCourse";
 import { PurchaseStatus, usePurchaseCourse } from "@/hooks/usePurchaseCourse";
 import type { CourseFilters } from "@/lib/api/course";
 import { getPurchasedCourses } from "@/lib/api/user";
 import CourseItem from "./CourseItem";
 import FilterNav from "./FilterNav";
+import { useTranslation } from "@/i18n/hooks";
 
 export type FeaturedCourse = {
   id: string;
@@ -24,6 +25,8 @@ export type FeaturedCourse = {
 };
 
 const CourseList = () => {
+  const t = useTranslation("courseList");
+  const tCommon = useTranslation("common");
   // 获取钱包信息
   const { address, isConnected } = useWalletInfo();
 
@@ -104,10 +107,10 @@ const CourseList = () => {
       const courseId = course.courseId?.toString() || "";
       return {
         id: courseId,
-        title: course.title || "未知课程",
-        description: course.description || "暂无描述",
-        category: course.categories?.[0] || "未分类",
-        instructor: course.instructorName || "未知讲师",
+        title: course.title || t("fallback.title"),
+        description: course.description || t("fallback.description"),
+        category: course.categories?.[0] || t("fallback.category"),
+        instructor: course.instructorName || t("fallback.instructor"),
         rating: course.rating || 0,
         cover: course.cover || "",
         students: course.studentCount || 0,
@@ -119,7 +122,23 @@ const CourseList = () => {
       };
     });
     setCourses(mappedCourses);
-  }, [apiCourses, purchasedCourseIds]);
+  }, [apiCourses, purchasedCourseIds, t]);
+  const purchaseStatusMessages = useMemo<Record<PurchaseStatus, string>>(
+    () => ({
+      [PurchaseStatus.IDLE]: "",
+      [PurchaseStatus.CHECKING_WALLET]: t("progress.checkingWallet"),
+      [PurchaseStatus.AUTHENTICATING]: t("progress.authenticating"),
+      [PurchaseStatus.CHECKING_ALLOWANCE]: t("progress.checkingAllowance"),
+      [PurchaseStatus.APPROVING_TOKEN]: t("progress.approvingToken"),
+      [PurchaseStatus.WAITING_APPROVE]: t("progress.waitingApprove"),
+      [PurchaseStatus.PURCHASING_COURSE]: t("progress.purchasingCourse"),
+      [PurchaseStatus.WAITING_TRANSACTION]: t("progress.waitingTransaction"),
+      [PurchaseStatus.SAVING_TO_DB]: t("progress.savingToDb"),
+      [PurchaseStatus.SUCCESS]: "",
+      [PurchaseStatus.ERROR]: "",
+    }),
+    [t],
+  );
 
   // 处理筛选条件变化
   const handleFilterChange = useCallback(
@@ -133,7 +152,11 @@ const CourseList = () => {
   // 监听购买错误
   useEffect(() => {
     if (purchaseStatus === PurchaseStatus.ERROR && purchaseError) {
-      alert(`❌ 购买失败：${purchaseError}`);
+      alert(
+        t("alerts.purchaseFailed", {
+          error: purchaseError,
+        }),
+      );
       // 清除购买中的课程 ID
       setPurchasingCourseId(null);
       setPurchasingCourseTitle(null);
@@ -143,7 +166,10 @@ const CourseList = () => {
     } else if (purchaseStatus === PurchaseStatus.SUCCESS) {
       console.log("购买成功！交易哈希:", transactionHash);
       alert(
-        `🎉 购买成功！\n\n课程: ${purchasingCourseTitle}\n交易哈希: ${transactionHash}\n\n即将跳转到学习页面...`,
+        t("alerts.purchaseSuccess", {
+          course: purchasingCourseTitle ?? t("fallback.title"),
+          hash: transactionHash ?? "",
+        }),
       );
       setPurchasingCourseId(null);
       setPurchasingCourseTitle(null);
@@ -156,10 +182,11 @@ const CourseList = () => {
   }, [
     purchaseStatus,
     purchaseError,
-    setPurchasingCourseTitle,
     resetPurchase,
     transactionHash,
     fetchPurchasedCourses,
+    purchasingCourseTitle,
+    t,
   ]);
 
   return (
@@ -172,14 +199,14 @@ const CourseList = () => {
       {loading && (
         <div className="text-center py-8">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-          <p className="mt-2 text-gray-600">加载中...</p>
+          <p className="mt-2 text-gray-600">{tCommon("loading")}</p>
         </div>
       )}
 
       {error && (
         <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded mb-4">
-          <p className="text-sm">⚠️ {error}</p>
-          <p className="text-xs mt-1">正在显示示例数据</p>
+          <p className="text-sm">{t("errors.api", { message: error })}</p>
+          <p className="text-xs mt-1">{t("errors.showingSample")}</p>
         </div>
       )}
 
@@ -188,20 +215,7 @@ const CourseList = () => {
         <div className="fixed top-20 left-1/2 z-50 -translate-x-1/2 rounded-lg bg-blue-500 px-6 py-3 text-white shadow-lg">
           <div className="flex items-center gap-3">
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-            <span>
-              {purchaseStatus === PurchaseStatus.CHECKING_ALLOWANCE &&
-                "检查授权额度..."}
-              {purchaseStatus === PurchaseStatus.APPROVING_TOKEN &&
-                "请在钱包中确认授权..."}
-              {purchaseStatus === PurchaseStatus.WAITING_APPROVE &&
-                "等待授权确认..."}
-              {purchaseStatus === PurchaseStatus.PURCHASING_COURSE &&
-                "请在钱包中确认购买..."}
-              {purchaseStatus === PurchaseStatus.WAITING_TRANSACTION &&
-                "等待交易确认..."}
-              {purchaseStatus === PurchaseStatus.SAVING_TO_DB &&
-                "保存购买记录..."}
-            </span>
+            <span>{purchaseStatusMessages[purchaseStatus]}</span>
           </div>
         </div>
       )}
@@ -226,7 +240,7 @@ const CourseList = () => {
 
       {!loading && courses.length === 0 && (
         <div className="text-center py-12 text-gray-500">
-          <p>暂无课程数据</p>
+          <p>{t("empty.noCourses")}</p>
         </div>
       )}
     </div>

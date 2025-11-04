@@ -50,6 +50,7 @@
   display: flex;
   align-items: center;
   gap: 16px;
+  flex-wrap: nowrap;
 }
 
 .wallet-button__chain {
@@ -65,6 +66,11 @@
   color: #5a4b23;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.6);
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .wallet-button__chain-icon {
@@ -110,6 +116,8 @@
   transition: transform 0.2s;
   cursor: pointer;
   border: none;
+  max-width: 200px;
+  overflow: hidden;
 }
 
 .wallet-button__status-bot {
@@ -134,6 +142,12 @@
   font-size: 0.75rem;
   line-height: 1rem;
   color: #8b8eb5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  min-width: 0;
+  flex-shrink: 1;
 }
 
 /* Notification Bell */

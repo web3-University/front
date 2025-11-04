@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslation } from "@/i18n/hooks";
+
 interface YDTokenVerificationProps {
   isAuthenticated: boolean;
   isVerifying: boolean;
@@ -15,6 +17,8 @@ export default function YDTokenVerification({
   ydBalance,
   minRequired,
 }: YDTokenVerificationProps) {
+  const t = useTranslation("ydVerification");
+
   // 未连接钱包
   if (!isAuthenticated) {
     return (
@@ -38,9 +42,9 @@ export default function YDTokenVerification({
             </div>
             <div>
               <h3 className="mb-1 text-2xl font-bold text-white">
-                请先连接钱包
+                {t("connect.title")}
               </h3>
-              <p className="text-white/90">连接钱包后将自动验证您的YD币余额</p>
+              <p className="text-white/90">{t("connect.subtitle")}</p>
             </div>
           </div>
         </div>
@@ -64,9 +68,11 @@ export default function YDTokenVerification({
               </svg>
             </div>
             <div>
-              <h4 className="mb-1 font-semibold text-white">自动验证</h4>
+              <h4 className="mb-1 font-semibold text-white">
+                {t("connect.features.auto.title")}
+              </h4>
               <p className="text-sm text-white/80">
-                连接钱包后自动检查YD币余额
+                {t("connect.features.auto.description")}
               </p>
             </div>
           </div>
@@ -87,9 +93,13 @@ export default function YDTokenVerification({
               </svg>
             </div>
             <div>
-              <h4 className="mb-1 font-semibold text-white">最低要求</h4>
+              <h4 className="mb-1 font-semibold text-white">
+                {t("connect.features.minimum.title")}
+              </h4>
               <p className="text-sm text-white/80">
-                需持有至少 {minRequired} YD 币
+                {t("connect.features.minimum.description", {
+                  amount: minRequired,
+                })}
               </p>
             </div>
           </div>
@@ -110,8 +120,12 @@ export default function YDTokenVerification({
               </svg>
             </div>
             <div>
-              <h4 className="mb-1 font-semibold text-white">获取奖励</h4>
-              <p className="text-sm text-white/80">完成任务获得YD币奖励</p>
+              <h4 className="mb-1 font-semibold text-white">
+                {t("connect.features.rewards.title")}
+              </h4>
+              <p className="text-sm text-white/80">
+                {t("connect.features.rewards.description")}
+              </p>
             </div>
           </div>
         </div>
@@ -147,9 +161,9 @@ export default function YDTokenVerification({
           </div>
           <div>
             <h3 className="text-xl font-bold text-white">
-              正在自动验证您的YD币余额
+              {t("verifying.title")}
             </h3>
-            <p className="text-white/90">请稍候...</p>
+            <p className="text-white/90">{t("verifying.subtitle")}</p>
           </div>
         </div>
       </div>
@@ -179,14 +193,16 @@ export default function YDTokenVerification({
             </div>
             <div>
               <h3 className="text-xl font-bold text-white">
-                ✨ 已验证优质用户
+                {t("verified.title")}
               </h3>
-              <p className="text-white/90">YD币余额: {ydBalance} YD</p>
+              <p className="text-white/90">
+                {t("verified.balance", { balance: ydBalance })}
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <div className="rounded-xl bg-white/20 px-4 py-2 font-semibold text-white backdrop-blur-sm">
-              ⭐ 可接取任务
+              {t("verified.badge")}
             </div>
           </div>
         </div>
@@ -214,10 +230,14 @@ export default function YDTokenVerification({
           </svg>
         </div>
         <div className="flex-1">
-          <h3 className="text-xl font-bold text-white">YD币余额不足</h3>
+          <h3 className="text-xl font-bold text-white">
+            {t("insufficient.title")}
+          </h3>
           <p className="text-white/90">
-            您当前的YD币余额为 {ydBalance} YD，需要至少 {minRequired} YD
-            才能接取任务
+            {t("insufficient.description", {
+              balance: ydBalance,
+              required: minRequired,
+            })}
           </p>
         </div>
       </div>
@@ -225,12 +245,12 @@ export default function YDTokenVerification({
       {/* 获取YD币提示 */}
       <div className="mt-4 rounded-xl bg-white/10 p-4 backdrop-blur-sm">
         <p className="text-sm font-semibold text-white mb-2">
-          💡 如何获取YD币：
+          {t("insufficient.hintTitle")}
         </p>
         <ul className="space-y-1 text-sm text-white/90">
-          <li>• 参与社区活动获得奖励</li>
-          <li>• 完成学习任务赚取YD币</li>
-          <li>• 在DEX交易所购买YD币</li>
+          <li>• {t("insufficient.steps.step1")}</li>
+          <li>• {t("insufficient.steps.step2")}</li>
+          <li>• {t("insufficient.steps.step3")}</li>
         </ul>
       </div>
     </div>

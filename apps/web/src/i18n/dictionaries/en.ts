@@ -27,6 +27,11 @@ const en: MessageTree = {
     dao: "DAO Governance",
     outsource: "Outsourcing",
   },
+  marketPage: {
+    title: "Course Marketplace",
+    subtitle:
+      "Explore high-quality Web3 learning experiences to level up your skills.",
+  },
   hero: {
     badge: "Web3 Education Revolution",
     titleHighlight: "The future of learning starts here",
@@ -132,6 +137,374 @@ const en: MessageTree = {
       invalidAmount: "Enter a valid ETH amount",
       generic: "Swap failed. Please try again later.",
     },
+  },
+  courseList: {
+    fallback: {
+      title: "Untitled course",
+      description: "No description yet",
+      category: "Uncategorized",
+      instructor: "Unknown instructor",
+    },
+    errors: {
+      api: "⚠️ {message}",
+      showingSample: "Showing sample data.",
+    },
+    alerts: {
+      purchaseFailed: "❌ Purchase failed: {error}",
+      purchaseSuccess:
+        "🎉 Purchase successful!\n\nCourse: {course}\nTransaction hash: {hash}\n\nRedirecting you to the learning page...",
+    },
+    progress: {
+      checkingWallet: "Checking wallet connection...",
+      authenticating: "Completing signature authentication...",
+      checkingAllowance: "Checking allowance...",
+      approvingToken: "Please confirm the approval in your wallet...",
+      waitingApprove: "Waiting for approval confirmation...",
+      purchasingCourse: "Please confirm the purchase in your wallet...",
+      waitingTransaction: "Waiting for transaction confirmation...",
+      savingToDb: "Saving your purchase record...",
+    },
+    empty: {
+      noCourses: "No courses available yet.",
+    },
+  },
+  courseFilter: {
+    search: {
+      placeholder: "Search course titles...",
+      iconLabel: "Search icon",
+    },
+    categories: {
+      all: "All categories",
+      blockchain: "Blockchain",
+      web3: "Web3",
+      defi: "DeFi",
+      nft: "NFT",
+    },
+    sort: {
+      popular: "Most popular",
+      newest: "Newest",
+      priceLowHigh: "Price: low to high",
+      priceHighLow: "Price: high to low",
+    },
+    actions: {
+      advancedFilter: "Advanced filters",
+      advancedFilterIcon: "Filter icon",
+    },
+    price: {
+      label: "Price range (USDT)",
+      maxDisplay: "{value}+",
+      minLabel: "{value}",
+      maxLabel: "{value}+",
+    },
+    summary: {
+      prefix: "Found ",
+      suffix: " courses",
+    },
+  },
+  daoHero: {
+    badge: "🔥 Web3 education revolution",
+    title: "Community governance",
+    description:
+      "Token holders can submit proposals and vote to shape the platform roadmap, course policies, and reward distribution together.",
+  },
+  daoStats: {
+    items: {
+      totalVotes: "Total voting power",
+      activeProposals: "Active proposals",
+      treasury: "Treasury funds",
+      proposals: "Total proposals",
+    },
+  },
+  daoEmpty: {
+    title: "No {tab} yet",
+    tabs: {
+      proposal: "governance proposals",
+      dispute: "course disputes",
+      history: "history records",
+      default: "proposals",
+    },
+    messages: {
+      connectWallet: "Connect your wallet to see proposals.",
+      createProposal: "Use the button above to create the first proposal.",
+      submitDispute: "Use the button above to submit a course dispute.",
+    },
+  },
+  daoProposals: {
+    loading: "Loading proposals...",
+  },
+  daoTabs: {
+    proposal: "Governance proposals",
+    dispute: "Dispute resolution",
+    history: "History",
+    filters: {
+      active: "Active",
+      passed: "Passed",
+      rejected: "Rejected",
+    },
+  },
+  daoCategories: {
+    courseRules: "Course rules",
+    rewardDistribution: "Reward distribution",
+    nftRules: "NFT rules",
+    platformRules: "Platform rules",
+    pricingRules: "Pricing rules",
+  },
+  daoDisputeModal: {
+    title: "Submit dispute",
+    deposit: {
+      prefix: "Submitting a dispute requires staking",
+      amount: "{deposit} YD",
+      suffix: ". If the dispute is rejected, the stake will be forfeited.",
+      balanceLabel: "Current balance:",
+      balanceValue: "{balance} YD",
+    },
+    warnings: {
+      insufficient:
+        "Insufficient YD token balance. Please acquire more tokens.",
+    },
+    fields: {
+      typeLabel: "Dispute type",
+      courseIdLabel: "Course ID",
+      courseIdPlaceholder: "Enter the course ID you want to dispute",
+      courseIdHint: "Tip: The course ID is shown on the course detail page",
+      descriptionLabel: "Dispute description",
+      descriptionPlaceholder:
+        "Describe the dispute in detail and provide any evidence (10-500 characters)",
+      descriptionCounter: "{count}/{max} characters",
+    },
+    types: {
+      contentQuality: "Content quality",
+      teacherAttitude: "Instructor attitude",
+      courseFraud: "Course fraud",
+      other: "Other",
+    },
+    errors: {
+      missingCourseId: "Please enter a course ID.",
+      invalidCourseId: "Please enter a valid course ID (positive integer).",
+      missingDescription: "Please provide a dispute description.",
+      minDescription:
+        "The dispute description must contain at least 10 characters.",
+      maxDescription: "The dispute description cannot exceed 500 characters.",
+      insufficientBalance:
+        "Insufficient balance. {required} YD required, current balance is {balance} YD.",
+    },
+    actions: {
+      cancel: "Cancel",
+      submit: "Submit dispute (stake {deposit} YD)",
+      submitting: "Submitting...",
+    },
+  },
+  projectHero: {
+    badge: "🚀 Smart outsourcing platform is live",
+    title: "Web3 outsourcing marketplace",
+    description: {
+      line1:
+        "Use YD tokens to unlock premium project opportunities and keep every transaction transparent and secure.",
+      line2:
+        "Smart contracts escrow funds so every collaboration is trustworthy.",
+    },
+    actions: {
+      postProject: "Post a project",
+      viewGuide: "View guide",
+    },
+    stats: {
+      activeProjects: "Active projects",
+      developers: "Skilled developers",
+      totalVolume: "Total project volume",
+      completionRate: "Completion rate",
+    },
+  },
+  ydVerification: {
+    connect: {
+      title: "Connect your wallet first",
+      subtitle: "We’ll verify your YD balance automatically after connection.",
+      features: {
+        auto: {
+          title: "Automatic verification",
+          description: "Check your YD balance right after connecting",
+        },
+        minimum: {
+          title: "Minimum requirement",
+          description: "You need at least {amount} YD tokens",
+        },
+        rewards: {
+          title: "Earn rewards",
+          description: "Complete tasks to gain additional YD tokens",
+        },
+      },
+    },
+    verifying: {
+      title: "Verifying your YD balance",
+      subtitle: "Please wait a moment...",
+    },
+    verified: {
+      title: "✨ Premium user verified",
+      balance: "YD balance: {balance} YD",
+      badge: "⭐ Eligible for tasks",
+    },
+    insufficient: {
+      title: "Insufficient YD balance",
+      description:
+        "Your current balance is {balance} YD. You need at least {required} YD to take on tasks.",
+      hintTitle: "💡 How to earn more YD:",
+      steps: {
+        step1: "Join community events for rewards",
+        step2: "Complete learning quests to earn YD",
+        step3: "Purchase YD on a DEX",
+      },
+    },
+  },
+  projectList: {
+    empty: {
+      title: "No matching projects",
+      subtitle: "Adjust your filters or try again later.",
+    },
+    labels: {
+      crawler: "Aggregator",
+      verified: "Verified",
+    },
+    fields: {
+      budget: "Budget",
+      difficulty: "Difficulty",
+      deadline: "Deadline",
+      applicants: "Applicants",
+      applicantsValue: "{count} applicants",
+    },
+    actions: {
+      apply: "Apply now",
+      needsVerification: "YD balance required",
+    },
+    difficulty: {
+      beginner: "Beginner",
+      intermediate: "Intermediate",
+      advanced: "Advanced",
+    },
+    tags: {
+      solidity: "Solidity",
+      defi: "DeFi",
+      smartContract: "Smart contracts",
+      react: "React",
+      web3js: "Web3.js",
+      nft: "NFT",
+      data: "Data analytics",
+      blockchain: "Blockchain",
+      visualization: "Visualization",
+      node: "Node.js",
+      postgresql: "PostgreSQL",
+      dao: "DAO",
+      uiDesign: "UI design",
+      uxDesign: "UX design",
+      mobile: "Mobile",
+    },
+    projects: {
+      defiLending: {
+        title: "Build a DeFi lending protocol smart contract",
+        description:
+          "Create a decentralized lending protocol with multi-asset collateral, optimized interest rate curves, and liquidation mechanisms. Requires proven Solidity experience and familiarity with Aave/Compound.",
+      },
+      nftMarketplace: {
+        title: "NFT marketplace frontend development",
+        description:
+          "Implement a modern NFT marketplace interface with browsing, trading, and wallet integration. Experience with React and Web3.js, plus prior NFT platform work, is preferred.",
+      },
+      analyticsDashboard: {
+        title: "Blockchain analytics dashboard",
+        description:
+          "Develop a real-time analytics dashboard for on-chain data, visualising transactions, gas fees, and DeFi metrics. Strong data visualisation and blockchain querying skills are required.",
+      },
+      daoBackend: {
+        title: "DAO governance backend API",
+        description:
+          "Build backend APIs for a DAO governance platform covering proposals, voting, and notifications. Must be proficient with Node.js, PostgreSQL, and understand DAO governance flows.",
+      },
+      walletDesign: {
+        title: "Web3 wallet UI/UX design",
+        description:
+          "Design a modern Web3 wallet experience including asset management, history, and DApp connection flows. Mobile design experience and knowledge of Web3 user patterns are needed.",
+      },
+    },
+  },
+  projectFilters: {
+    search: {
+      placeholder: "Search by project name, skills, or keywords...",
+    },
+    labels: {
+      category: "Project category",
+      difficulty: "Difficulty",
+      budget: "Budget range",
+      sort: "Sort by",
+    },
+    categories: {
+      all: "All categories",
+      smartContract: "Smart contract development",
+      frontend: "Frontend development",
+      backend: "Backend development",
+      data: "Data analytics",
+      design: "UI/UX design",
+    },
+    difficulty: {
+      all: "All levels",
+      beginner: "Beginner",
+      intermediate: "Intermediate",
+      advanced: "Advanced",
+    },
+    budget: {
+      all: "All budgets",
+      low: "0 - 20,000 YD",
+      mid: "20,000 - 50,000 YD",
+      high: "50,000+ YD",
+    },
+    sort: {
+      latest: "Latest",
+      budgetHigh: "Highest budget",
+      budgetLow: "Lowest budget",
+      deadline: "Nearest deadline",
+      applicants: "Most applicants",
+    },
+    quickFilters: {
+      label: "Quick filters:",
+      highBudget: "High-paying",
+      urgent: "Urgent",
+      beginner: "Beginner friendly",
+    },
+  },
+  daoProposalCard: {
+    status: {
+      active: "Active",
+      succeeded: "Passed",
+      executed: "Executed",
+      failed: "Failed",
+      canceled: "Canceled",
+      unknown: "{status}",
+      syncing: "Syncing",
+      chainSynced: "✓ On-chain data",
+      syncingChain: "Syncing on-chain data...",
+      apiFallback: "Showing cached API data",
+    },
+    titles: {
+      proposal: "Governance proposal",
+      dispute: "Course [{courseId}] dispute",
+    },
+    votes: {
+      support: "✓ For: {count}",
+      against: "✗ Against: {count}",
+      total: "Total votes: {count}",
+      supportShort: "For votes ({percent}%)",
+      againstShort: "Against votes ({percent}%)",
+      totalLabel: "Total votes:",
+      unit: "votes",
+    },
+    meta: {
+      disputeLabel: "Dispute",
+      proposalLabel: "Proposal",
+      typeLabel: "Proposal type",
+      proposerLabel: "Proposer",
+      proposerUnknown: "Unknown",
+    },
+  },
+  daoCreateButtons: {
+    submitProposal: "Submit proposal",
+    submitDispute: "Submit dispute",
   },
   course: {
     purchased: "Purchased",

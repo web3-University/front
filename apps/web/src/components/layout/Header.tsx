@@ -101,7 +101,7 @@ export default function Header() {
           </Link>
 
           {/* 桌面端导航 - 大屏幕显示 */}
-          <nav className="hidden items-center gap-2 lg:flex">
+          <nav className="hidden items-center gap-2 lg:flex lg:flex-nowrap lg:overflow-x-auto">
             {MAIN_ROUTES.map((route) => {
               const active = isRouteActive(route.href, pathname, route.aliases);
               return (
@@ -110,12 +110,14 @@ export default function Header() {
                   href={route.href}
                   className={clsx(
                     "rounded-full px-4 py-2 text-sm font-medium transition-colors",
+                    "inline-flex items-center max-w-[160px] flex-shrink-0 whitespace-nowrap", // 添加 whitespace-nowrap
                     active
                       ? "bg-[#ECEBFF] text-[#312A73] shadow-sm"
                       : "text-[#6A6D94] hover:bg-[#F6F6FF]",
                   )}
+                  title={t(route.labelKey)}
                 >
-                  {t(route.labelKey)}
+                  <span className="truncate">{t(route.labelKey)}</span>
                 </Link>
               );
             })}
@@ -187,22 +189,24 @@ export default function Header() {
         <div className="h-20" />
 
         {/* 菜单内容 */}
-        <nav className="flex flex-col gap-2 px-6 py-4">
+        {/* 桌面端导航 - 大屏幕显示 */}
+        <nav className="hidden items-center gap-2 lg:flex lg:flex-nowrap lg:overflow-x-auto">
           {MAIN_ROUTES.map((route) => {
             const active = isRouteActive(route.href, pathname, route.aliases);
             return (
               <Link
                 key={route.href}
                 href={route.href}
-                onClick={() => setIsMobileMenuOpen(false)}
                 className={clsx(
-                  "rounded-xl px-4 py-3 text-base font-medium transition-colors",
+                  "rounded-full px-4 py-2 text-sm font-medium transition-colors",
+                  "inline-flex items-center max-w-[160px] flex-shrink-0 flex-nowrap", // 添加 flex-shrink-0
                   active
                     ? "bg-[#ECEBFF] text-[#312A73] shadow-sm"
                     : "text-[#6A6D94] hover:bg-[#F6F6FF]",
                 )}
+                title={t(route.labelKey)}
               >
-                {t(route.labelKey)}
+                <span className="truncate">{t(route.labelKey)}</span>
               </Link>
             );
           })}

@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Proposal } from "@/lib/api/dao";
 import { useDao } from "@web3-university/uni-wallet-lib";
+import { useTranslation } from "@/i18n/hooks";
 
 /**
  * 📋 提案卡片组件
@@ -35,6 +36,7 @@ export default function ProposalCard({
 }: ProposalCardProps) {
   // 获取 DAO 合约实例
   const dao = useDao(daoAddress as `0x${string}`);
+  const t = useTranslation("daoProposalCard");
 
   // ✅ 从链上获取提案数据
   const chainProposal = dao.getProposal(proposal.proposalId.toString());
@@ -80,52 +82,52 @@ export default function ProposalCard({
       { label: string; color: string; bgColor: string }
     > = {
       Active: {
-        label: "进行中",
+        label: t("status.active"),
         color: "text-green-600",
         bgColor: "bg-green-100",
       },
       active: {
-        label: "进行中",
+        label: t("status.active"),
         color: "text-green-600",
         bgColor: "bg-green-100",
       },
       Succeeded: {
-        label: "通过",
+        label: t("status.succeeded"),
         color: "text-blue-600",
         bgColor: "bg-blue-100",
       },
       passed: {
-        label: "通过",
+        label: t("status.succeeded"),
         color: "text-blue-600",
         bgColor: "bg-blue-100",
       },
       Executed: {
-        label: "已执行",
+        label: t("status.executed"),
         color: "text-purple-600",
         bgColor: "bg-purple-100",
       },
       executed: {
-        label: "已执行",
+        label: t("status.executed"),
         color: "text-purple-600",
         bgColor: "bg-purple-100",
       },
       Failed: {
-        label: "未通过",
+        label: t("status.failed"),
         color: "text-red-600",
         bgColor: "bg-red-100",
       },
       rejected: {
-        label: "未通过",
+        label: t("status.failed"),
         color: "text-red-600",
         bgColor: "bg-red-100",
       },
       Canceled: {
-        label: "已取消",
+        label: t("status.canceled"),
         color: "text-gray-600",
         bgColor: "bg-gray-100",
       },
       cancelled: {
-        label: "已取消",
+        label: t("status.canceled"),
         color: "text-gray-600",
         bgColor: "bg-gray-100",
       },
@@ -133,14 +135,17 @@ export default function ProposalCard({
 
     return (
       statusMap[status] || {
-        label: status,
+        label: t("status.unknown", { status }),
         color: "text-gray-600",
         bgColor: "bg-gray-100",
       }
     );
   };
 
-  const statusInfo = getStatusInfo(displayData.status);
+  const statusInfo = useMemo(
+    () => getStatusInfo(displayData.status),
+    [displayData.status],
+  );
 
   // 简化版卡片（列表视图）
   if (!isDetailed) {
@@ -168,19 +173,19 @@ export default function ProposalCard({
                 {chainProposal.isLoading && (
                   <span className="text-xs text-gray-400 flex items-center gap-1">
                     <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-gray-400" />
-                    同步中
+                    {t("status.syncing")}
                   </span>
                 )}
                 {chainProposal.data && !chainProposal.isLoading && (
                   <span className="text-xs text-green-600 flex items-center gap-1">
-                    ✓ 链上数据
+                    {t("status.chainSynced")}
                   </span>
                 )}
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-pink-600 transition-colors">
                 {proposal.courseId
-                  ? `课程[${proposal.courseId}]争议`
-                  : proposal.title || "治理提案"}
+                  ? t("titles.dispute", { courseId: proposal.courseId })
+                  : proposal.title || t("titles.proposal")}
               </h3>
               <p className="text-gray-600 text-sm line-clamp-2 mb-4">
                 {proposal.reason}
@@ -206,7 +211,9 @@ export default function ProposalCard({
             <div className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-2">
                 <span className="text-green-600 font-semibold">
-                  ✓ 支持: {displayData.votesFor.toLocaleString()}
+                  {t("votes.support", {
+                    count: displayData.votesFor.toLocaleString(),
+                  })}
                 </span>
                 <span className="text-gray-400">
                   ({forPercentage.toFixed(1)}%)
@@ -214,7 +221,9 @@ export default function ProposalCard({
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-red-600 font-semibold">
-                  ✗ 反对: {displayData.votesAgainst.toLocaleString()}
+                  {t("votes.against", {
+                    count: displayData.votesAgainst.toLocaleString(),
+                  })}
                 </span>
                 <span className="text-gray-400">
                   ({againstPercentage.toFixed(1)}%)
@@ -224,7 +233,7 @@ export default function ProposalCard({
 
             {/* 总票数 */}
             <div className="text-center text-xs text-gray-500 pt-2 border-t border-gray-100">
-              总投票数: {totalVotes.toLocaleString()} 票
+              {t("votes.total", { count: totalVotes.toLocaleString() })}
             </div>
           </div>
         </div>
@@ -258,7 +267,10 @@ export default function ProposalCard({
         <div>
           <div className="flex items-center gap-3 mb-2">
             <span className="text-sm font-medium text-gray-500">
-              {proposal.courseId ? "争议" : "提案"} #{proposal.proposalId}
+              {proposal.courseId
+                ? t("meta.disputeLabel")
+                : t("meta.proposalLabel")}{" "}
+              #{proposal.proposalId}
             </span>
             <span
               className={`px-3 py-1 rounded-full text-xs font-medium ${statusInfo.bgColor} ${statusInfo.color}`}
@@ -268,8 +280,8 @@ export default function ProposalCard({
           </div>
           <h3 className="text-2xl font-bold text-gray-900">
             {proposal.courseId
-              ? `课程[${proposal.courseId}]争议`
-              : proposal.title || "治理提案"}
+              ? t("titles.dispute", { courseId: proposal.courseId })
+              : proposal.title || t("titles.proposal")}
           </h3>
         </div>
 
@@ -301,7 +313,9 @@ export default function ProposalCard({
                 {displayData.votesFor.toLocaleString()}
               </div>
               <div className="text-sm text-gray-600">
-                支持票 ({forPercentage.toFixed(1)}%)
+                {t("votes.supportShort", {
+                  percent: forPercentage.toFixed(1),
+                })}
               </div>
             </div>
             <div className="text-center p-4 bg-red-50 rounded-lg">
@@ -309,16 +323,18 @@ export default function ProposalCard({
                 {displayData.votesAgainst.toLocaleString()}
               </div>
               <div className="text-sm text-gray-600">
-                反对票 ({againstPercentage.toFixed(1)}%)
+                {t("votes.againstShort", {
+                  percent: againstPercentage.toFixed(1),
+                })}
               </div>
             </div>
           </div>
 
           {/* 总计 */}
           <div className="mt-4 pt-4 border-t border-gray-200 text-center">
-            <span className="text-gray-600">总投票数: </span>
+            <span className="text-gray-600">{t("votes.totalLabel")} </span>
             <span className="font-bold text-gray-900">
-              {totalVotes.toLocaleString()} 票
+              {totalVotes.toLocaleString()} {t("votes.unit")}
             </span>
           </div>
 
@@ -327,14 +343,14 @@ export default function ProposalCard({
             {chainProposal.isLoading && (
               <span className="text-gray-400 flex items-center justify-center gap-1">
                 <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-gray-400" />
-                正在同步链上数据...
+                {t("status.syncingChain")}
               </span>
             )}
             {chainProposal.data && !chainProposal.isLoading && (
-              <span className="text-green-600">✓ 链上数据已同步</span>
+              <span className="text-green-600">{t("status.chainSynced")}</span>
             )}
             {!chainProposal.data && !chainProposal.isLoading && (
-              <span className="text-gray-400">显示 API 缓存数据</span>
+              <span className="text-gray-400">{t("status.apiFallback")}</span>
             )}
           </div>
         </div>
@@ -342,15 +358,15 @@ export default function ProposalCard({
         {/* 提案元数据 */}
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div className="p-3 bg-gray-50 rounded-lg">
-            <div className="text-gray-500 mb-1">提案类型</div>
+            <div className="text-gray-500 mb-1">{t("meta.typeLabel")}</div>
             <div className="font-medium text-gray-900">{proposal.type}</div>
           </div>
           <div className="p-3 bg-gray-50 rounded-lg">
-            <div className="text-gray-500 mb-1">提案人</div>
+            <div className="text-gray-500 mb-1">{t("meta.proposerLabel")}</div>
             <div className="font-mono text-xs text-gray-900">
               {proposal.proposer
                 ? `${proposal.proposer.slice(0, 6)}...${proposal.proposer.slice(-4)}`
-                : "未知"}
+                : t("meta.proposerUnknown")}
             </div>
           </div>
         </div>

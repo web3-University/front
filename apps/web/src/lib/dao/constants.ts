@@ -14,20 +14,23 @@ export const PROPOSAL_STATUS = {
 
 // 提案类别
 export const PROPOSAL_CATEGORIES = {
-  COURSE_RULES: "课程规则",
-  REWARD_DISTRIBUTION: "奖励分配",
-  NFT_RULES: "NFT规则",
-  PLATFORM_RULES: "平台规则",
-  PRICING_RULES: "定价规则",
+  COURSE_RULES: "courseRules",
+  REWARD_DISTRIBUTION: "rewardDistribution",
+  NFT_RULES: "nftRules",
+  PLATFORM_RULES: "platformRules",
+  PRICING_RULES: "pricingRules",
 } as const;
 
 // 提案类别颜色映射
-export const CATEGORY_COLORS: Record<string, string> = {
-  课程规则: "bg-blue-500",
-  奖励分配: "bg-green-500",
-  NFT规则: "bg-purple-500",
-  平台规则: "bg-orange-500",
-  定价规则: "bg-pink-500",
+export const CATEGORY_COLORS: Record<
+  (typeof PROPOSAL_CATEGORIES)[keyof typeof PROPOSAL_CATEGORIES],
+  string
+> = {
+  courseRules: "bg-blue-500",
+  rewardDistribution: "bg-green-500",
+  nftRules: "bg-purple-500",
+  platformRules: "bg-orange-500",
+  pricingRules: "bg-pink-500",
 } as const;
 
 // 投票权重计算
@@ -45,14 +48,14 @@ export const TIME_CONFIG = {
 
 // Tab 配置
 export const PROPOSAL_TABS_DAO = [
-  { key: "proposal", label: "治理提案" },
-  { key: "dispute", label: "争议解决" },
-  { key: "history", label: "历史记录" },
+  { key: "proposal", labelKey: "proposal" },
+  { key: "dispute", labelKey: "dispute" },
+  { key: "history", labelKey: "history" },
 ] as const;
 export const PROPOSAL_TABS = [
-  { key: "active", label: "进行中" },
-  { key: "passed", label: "已通过" },
-  { key: "rejected", label: "未通过" },
+  { key: "active", labelKey: "filters.active" },
+  { key: "passed", labelKey: "filters.passed" },
+  { key: "rejected", labelKey: "filters.rejected" },
 ] as const;
 // 合约地址（根据网络动态获取）
 export const DAO_CONTRACTS = {

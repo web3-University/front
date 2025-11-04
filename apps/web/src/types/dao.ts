@@ -11,11 +11,11 @@ export type ProposalStatus =
   | "cancelled";
 
 export type ProposalCategory =
-  | "课程规则"
-  | "奖励分配"
-  | "NFT规则"
-  | "平台规则"
-  | "定价规则";
+  | "courseRules"
+  | "rewardDistribution"
+  | "nftRules"
+  | "platformRules"
+  | "pricingRules";
 
 export type ProposalTabKey = "active" | "passed" | "rejected";
 export type DaoTabKey = "proposal" | "dispute" | "history";

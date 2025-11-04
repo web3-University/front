@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslation } from "@/i18n/hooks";
+
 interface ProjectFiltersProps {
   filters: {
     category: string;
@@ -18,35 +20,37 @@ export default function ProjectFilters({
   searchQuery,
   onSearchChange,
 }: ProjectFiltersProps) {
+  const t = useTranslation("projectFilters");
+
   const categories = [
-    { value: "all", label: "全部类别" },
-    { value: "智能合约开发", label: "智能合约开发" },
-    { value: "前端开发", label: "前端开发" },
-    { value: "后端开发", label: "后端开发" },
-    { value: "数据分析", label: "数据分析" },
-    { value: "UI/UX设计", label: "UI/UX设计" },
+    { value: "all", label: t("categories.all") },
+    { value: "智能合约开发", label: t("categories.smartContract") },
+    { value: "前端开发", label: t("categories.frontend") },
+    { value: "后端开发", label: t("categories.backend") },
+    { value: "数据分析", label: t("categories.data") },
+    { value: "UI/UX设计", label: t("categories.design") },
   ];
 
   const difficulties = [
-    { value: "all", label: "全部难度" },
-    { value: "初级", label: "初级" },
-    { value: "中级", label: "中级" },
-    { value: "高级", label: "高级" },
+    { value: "all", label: t("difficulty.all") },
+    { value: "初级", label: t("difficulty.beginner") },
+    { value: "中级", label: t("difficulty.intermediate") },
+    { value: "高级", label: t("difficulty.advanced") },
   ];
 
   const budgetRanges = [
-    { value: "all", label: "全部预算" },
-    { value: "0-20k", label: "0 - 20,000 YD" },
-    { value: "20k-50k", label: "20,000 - 50,000 YD" },
-    { value: "50k+", label: "50,000+ YD" },
+    { value: "all", label: t("budget.all") },
+    { value: "0-20k", label: t("budget.low") },
+    { value: "20k-50k", label: t("budget.mid") },
+    { value: "50k+", label: t("budget.high") },
   ];
 
   const sortOptions = [
-    { value: "latest", label: "最新发布" },
-    { value: "budget-high", label: "预算最高" },
-    { value: "budget-low", label: "预算最低" },
-    { value: "deadline", label: "截止最近" },
-    { value: "applicants", label: "最多申请" },
+    { value: "latest", label: t("sort.latest") },
+    { value: "budget-high", label: t("sort.budgetHigh") },
+    { value: "budget-low", label: t("sort.budgetLow") },
+    { value: "deadline", label: t("sort.deadline") },
+    { value: "applicants", label: t("sort.applicants") },
   ];
 
   return (
@@ -71,7 +75,7 @@ export default function ProjectFilters({
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="搜索项目名称、技能或关键词..."
+            placeholder={t("search.placeholder")}
             className="w-full rounded-xl border border-[#E5E6F8] bg-[#F9FAFB] py-3 pl-12 pr-4 text-[#2B2558] placeholder:text-[#6A6D94] focus:border-[#8A71FF] focus:outline-none focus:ring-2 focus:ring-[#8A71FF]/20"
           />
         </div>
@@ -82,7 +86,7 @@ export default function ProjectFilters({
         {/* 类别筛选 */}
         <div>
           <label className="mb-2 block text-sm font-medium text-[#2B2558]">
-            项目类别
+            {t("labels.category")}
           </label>
           <select
             value={filters.category}
@@ -102,7 +106,7 @@ export default function ProjectFilters({
         {/* 难度筛选 */}
         <div>
           <label className="mb-2 block text-sm font-medium text-[#2B2558]">
-            难度等级
+            {t("labels.difficulty")}
           </label>
           <select
             value={filters.difficulty}
@@ -122,7 +126,7 @@ export default function ProjectFilters({
         {/* 预算筛选 */}
         <div>
           <label className="mb-2 block text-sm font-medium text-[#2B2558]">
-            预算范围
+            {t("labels.budget")}
           </label>
           <select
             value={filters.budget}
@@ -142,7 +146,7 @@ export default function ProjectFilters({
         {/* 排序 */}
         <div>
           <label className="mb-2 block text-sm font-medium text-[#2B2558]">
-            排序方式
+            {t("labels.sort")}
           </label>
           <select
             value={filters.sort}
@@ -162,26 +166,28 @@ export default function ProjectFilters({
 
       {/* 快速筛选标签 */}
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <span className="text-sm font-medium text-[#6A6D94]">快速筛选:</span>
+        <span className="text-sm font-medium text-[#6A6D94]">
+          {t("quickFilters.label")}
+        </span>
         <button
           onClick={() =>
             onFilterChange({ ...filters, budget: "50k+", sort: "budget-high" })
           }
           className="rounded-full bg-[#F2F3FF] px-4 py-1.5 text-sm font-medium text-[#8A71FF] transition-colors hover:bg-[#8A71FF] hover:text-white"
         >
-          高薪项目
+          {t("quickFilters.highBudget")}
         </button>
         <button
           onClick={() => onFilterChange({ ...filters, sort: "deadline" })}
           className="rounded-full bg-[#F2F3FF] px-4 py-1.5 text-sm font-medium text-[#8A71FF] transition-colors hover:bg-[#8A71FF] hover:text-white"
         >
-          紧急招募
+          {t("quickFilters.urgent")}
         </button>
         <button
           onClick={() => onFilterChange({ ...filters, difficulty: "初级" })}
           className="rounded-full bg-[#F2F3FF] px-4 py-1.5 text-sm font-medium text-[#8A71FF] transition-colors hover:bg-[#8A71FF] hover:text-white"
         >
-          新手友好
+          {t("quickFilters.beginner")}
         </button>
       </div>
     </div>

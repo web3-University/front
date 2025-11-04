@@ -3,6 +3,7 @@
 import React from "react";
 import { DaoTabKey } from "@/types/dao";
 import { PROPOSAL_TABS_DAO } from "@/lib/dao";
+import { useTranslation } from "@/i18n/hooks";
 
 interface ProposalTabsProps {
   activeTab: DaoTabKey;
@@ -18,6 +19,8 @@ export function ProposalTabs({
   isLoading,
   onTabChange,
 }: ProposalTabsProps) {
+  const t = useTranslation("daoTabs");
+
   return (
     <div className="flex gap-3 mb-8 bg-white/5 backdrop-blur-sm rounded-2xl p-1.5 border border-white/10">
       {PROPOSAL_TABS_DAO.map((tab) => (
@@ -31,7 +34,7 @@ export function ProposalTabs({
               : "text-gray-400 hover:text-white hover:bg-white/5"
           } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
         >
-          {tab.label}
+          {t(tab.labelKey)}
         </button>
       ))}
     </div>
