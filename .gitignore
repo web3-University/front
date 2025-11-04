@@ -1,48 +1,51 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Node modules
+node_modules/
+**/node_modules/
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/pluginsƒ
-!.yarn/releases
-!.yarn/versions
+# Build outputs
+.next/
+apps/web/.next/
+apps/*/next/
+**/next/build/
+**/next/cache/
 
-# testing
-/coverage
-/jest-stare
+# Storybook
+apps/storybook/node_modules/
+storybook-static/
+build-storybook.log
 
-# next.js
-/.next/
-/out/
+# Build artifacts
+dist/
+build/
+*.tsbuildinfo
 
-# production
-/build
+# Cache directories
+.turbo/
+.cache/
 
-# misc
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
 .DS_Store
-*.pem
+Thumbs.db
 
-# debug
+# Environment variables
+.env
+.env.local
+.env*.local
+
+# Logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
+pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-
-# swc
-/.swc/
-
-# storybook
-storybook-static/
+# Testing
+coverage/
+.nyc_output/
