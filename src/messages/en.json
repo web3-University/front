@@ -1,0 +1,131 @@
+{
+  "header": {
+    "logo": {
+      "brand": "WEB3 University",
+      "tagline": "Decentralized learning platform"
+    },
+    "languageSwitch": {
+      "toEnglish": "English",
+      "toChinese": "Chinese"
+    },
+    "walletButton": {
+      "desktop": "Connect Wallet",
+      "mobile": "Connect"
+    }
+  },
+  "navigation": {
+    "home": "Home",
+    "market": "Course marketplace",
+    "dao": "DAO governance",
+    "outsource": "Outsource hub"
+  },
+  "home": {
+    "hero": {
+      "badge": "Web3 Education Revolution",
+      "titleHighlight": "The future of learning starts here",
+      "description": "A decentralized university platform powered by blockchain tokens and DAO governance. Build a trustworthy, transparent learning ecosystem where students and educators grow together.",
+      "primaryCta": "Start learning",
+      "secondaryCta": "Become an instructor",
+      "stats": {
+        "registeredUsers": "Registered learners",
+        "courses": "Total courses",
+        "volume": "Transaction volume",
+        "nftCertificates": "NFT certificates"
+      }
+    },
+    "platformAdvantages": {
+      "title": "Why learners choose us",
+      "subtitle": "Blend blockchain technology with education innovation to unlock a new decentralized learning experience",
+      "items": {
+        "tokenIncentive": {
+          "title": "Token incentives",
+          "description": "Earn YD tokens while learning, share revenue while teaching—all fully transparent"
+        },
+        "blockchainCertificate": {
+          "title": "On-chain credentials",
+          "description": "Generate NFT certificates automatically and store them permanently on-chain for global recognition"
+        },
+        "daoGovernance": {
+          "title": "DAO governance",
+          "description": "Participate in community-led decisions and dispute resolution—every voice counts"
+        }
+      }
+    },
+    "featuredCourses": {
+      "title": "Featured courses",
+      "subtitle": "Premium classes from top instructors to help you step into Web3 fast",
+      "viewAll": "View all",
+      "loading": "Loading…",
+      "loadError": "Failed to load: {message}",
+      "retry": "Retry",
+      "empty": "No featured courses yet",
+      "fallback": {
+        "description": "No description",
+        "category": "Uncategorized",
+        "instructor": "Unknown instructor"
+      }
+    },
+    "instructorInvitation": {
+      "badge": "Teach with us and unlock rewards",
+      "title": "Share knowledge, capture value",
+      "description": "Join the Web3 University faculty and enjoy fair, transparent revenue powered by blockchain. Publish a course to earn 10 YD instantly and keep 85% of every sale.",
+      "highlights": {
+        "revenueShare": {
+          "title": "85% revenue share",
+          "description": "Receive 85% of every sale automatically, with full on-chain transparency"
+        },
+        "tokenRewards": {
+          "title": "Token rewards",
+          "description": "Earn extra tokens when learners finish, review, and recommend your courses"
+        },
+        "globalReach": {
+          "title": "Reach 50,000+ learners",
+          "description": "Access a global audience and build your reputation without borders"
+        }
+      },
+      "cta": {
+        "becomeInstructor": "Become an instructor",
+        "createCourse": "Create a course"
+      },
+      "stats": {
+        "instructors": "Active instructors",
+        "revenue": "Total instructor revenue",
+        "rating": "Average rating",
+        "students": "Total learners"
+      }
+    },
+    "tokenExchange": {
+      "title": "Token exchange hub",
+      "subtitle": "Swap YD tokens instantly to purchase courses and fuel your Web3 journey",
+      "formTitle": "Swap for YD tokens",
+      "currentBalance": "Current balance: {balance} YD",
+      "payLabel": "Pay",
+      "receiveLabel": "Receive",
+      "exchangeRate": "Rate: 1 ETH = {rate} YD",
+      "exchangeNow": "Swap now",
+      "exchanging": "Swapping…",
+      "success": "Swap successful! You received {amount} YD",
+      "introTitle": "Web3 Academy swap station",
+      "introDescription": "Use testnet ETH to convert into YD tokens for courses, credentials and governance. Production mainnet support is coming soon.",
+      "stats": {
+        "security": {
+          "label": "Secure contracts",
+          "value": "Multi-sig custody"
+        },
+        "settlement": {
+          "label": "Instant settlement",
+          "value": "< 15s"
+        },
+        "activity": {
+          "label": "Active swaps",
+          "value": "1,200+"
+        }
+      },
+      "errors": {
+        "connectWallet": "Connect your wallet first",
+        "invalidAmount": "Enter a valid ETH amount",
+        "generic": "Swap failed, please try again later"
+      }
+    }
+  }
+}

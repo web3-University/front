@@ -1,7 +1,0 @@
-# 忽略依赖目录
-node_modules
-
-
-# 忽略日志文件
-*.log
-*.tsbuildinfo
