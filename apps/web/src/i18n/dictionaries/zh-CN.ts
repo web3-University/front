@@ -454,6 +454,17 @@ const zhCN: MessageTree = {
       beginner: "新手友好",
     },
   },
+  mobileNav: {
+    openNavigation: "打开导航菜单",
+    closeNavigation: "关闭导航菜单",
+    label: "导航",
+    title: "快速访问",
+    active: "当前",
+    summary: {
+      heading: "提示",
+      body: "浏览上方菜单即可快速跳转到主要页面。",
+    },
+  },
   daoProposalCard: {
     status: {
       active: "进行中",

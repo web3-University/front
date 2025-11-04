@@ -468,6 +468,17 @@ const ja: MessageTree = {
       beginner: "初心者歓迎",
     },
   },
+  mobileNav: {
+    openNavigation: "ナビゲーションを開く",
+    closeNavigation: "ナビゲーションを閉じる",
+    label: "ナビゲーション",
+    title: "クイックアクセス",
+    active: "現在",
+    summary: {
+      heading: "ヒント",
+      body: "上のリンクから主要なセクションへすばやく移動できます。",
+    },
+  },
   daoProposalCard: {
     status: {
       active: "進行中",

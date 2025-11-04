@@ -476,6 +476,17 @@ const de: MessageTree = {
       beginner: "Einsteigerfreundlich",
     },
   },
+  mobileNav: {
+    openNavigation: "Navigation öffnen",
+    closeNavigation: "Navigation schließen",
+    label: "Navigation",
+    title: "Schnellzugriff",
+    active: "Aktiv",
+    summary: {
+      heading: "Hinweis",
+      body: "Nutze die obigen Links, um schnell zwischen den wichtigsten Bereichen zu wechseln.",
+    },
+  },
   daoProposalCard: {
     status: {
       active: "Aktiv",

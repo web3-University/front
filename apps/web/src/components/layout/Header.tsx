@@ -4,10 +4,9 @@
 import { useAuth, WalletButton } from "@web3-university/uni-wallet-lib";
 import clsx from "clsx";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Menu, X } from "lucide-react"; // 需要安装: pnpm add lucide-react
+import { Menu, X } from "lucide-react";
 
 import { MAIN_ROUTES } from "@/config/routes";
 import { checkUserRegistered, registerUser } from "@/lib/api/user";
@@ -27,12 +26,11 @@ export default function Header() {
   const hasRegistered = useRef(false);
   const router = useRouter();
   const t = useTranslation();
+  const tMobileNav = useTranslation("mobileNav");
   const [setLocale, currentLocale] = useChangeLocale();
 
-  // 移动端菜单状态
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // 监听钱包连接状态，连接后自动注册用户
   useEffect(() => {
     const handleUserRegistration = async () => {
       if (!isAuthenticated || !address || hasRegistered.current) return;
@@ -61,12 +59,10 @@ export default function Header() {
     handleUserRegistration();
   }, [isAuthenticated, address]);
 
-  // 当地址变化时重置注册状态
   useEffect(() => {
     hasRegistered.current = false;
   }, [address]);
 
-  // 路由变化时关闭移动端菜单
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [pathname]);
@@ -79,54 +75,75 @@ export default function Header() {
     setLocale(nextLocale);
   };
 
+  const desktopNav = (
+    <nav className="hidden xl:flex flex-1 min-w-0 items-center justify-center gap-2 overflow-x-auto px-3">
+      {MAIN_ROUTES.map((route) => {
+        const active = isRouteActive(route.href, pathname, route.aliases);
+        return (
+          <Link
+            key={route.href}
+            href={route.href}
+            className={clsx(
+              "inline-flex flex-shrink-0 items-center rounded-full px-4 py-2 text-sm font-medium transition-colors",
+              active
+                ? "bg-[#ECEBFF] text-[#312A73] shadow-sm"
+                : "text-[#6A6D94] hover:bg-[#F6F6FF]",
+            )}
+            title={t(route.labelKey)}
+          >
+            <span className="truncate">{t(route.labelKey)}</span>
+          </Link>
+        );
+      })}
+    </nav>
+  );
+
   return (
     <>
-      {/* 桌面端 Header */}
-      <header className="fixed inset-x-0 top-0 z-50 flex justify-center px-4 text-[#2B2558]">
-        <div className="mt-4 flex h-14 w-full max-w-[1280px] items-center justify-between rounded-2xl bg-white/85 px-4 backdrop-blur-xl shadow-[0_24px_60px_rgba(154,161,255,0.18)] ring-1 ring-white/60 md:mt-6 md:h-16 md:px-6">
-          {/* Logo - 响应式调整 */}
+      <header className="fixed inset-x-0 top-0 z-50 flex justify-center px-3 text-[#2B2558] sm:px-4">
+        <div className="mt-4 flex h-14 w-full max-w-[1280px] items-center rounded-2xl bg-white/85 px-4 backdrop-blur-xl shadow-[0_24px_60px_rgba(154,161,255,0.18)] ring-1 ring-white/60 md:mt-6 md:h-16 md:px-6">
           <Link
             href="/home"
-            className="flex items-center gap-2 text-inherit md:gap-3"
+            className="flex min-w-[160px] items-center gap-2 text-inherit sm:min-w-[180px] sm:gap-3"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#FFB347] to-[#FF6B9A] text-xs font-semibold text-white shadow-lg md:h-10 md:w-10 md:rounded-xl md:text-sm">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#FFB347] to-[#FF6B9A] text-xs font-semibold text-white shadow-lg sm:h-10 sm:w-10 sm:rounded-xl sm:text-sm">
               WEB
             </div>
-            <div className="hidden leading-tight sm:block">
-              <div className="text-sm font-semibold">{t("common.appName")}</div>
-              <div className="text-[11px] text-[#6F6B93]">
+            <div className="hidden flex-col leading-tight sm:flex">
+              <span className="text-sm font-semibold">
+                {t("common.appName")}
+              </span>
+              <span className="text-[11px] text-[#6F6B93] hidden xl:block">
                 {t("common.appTagline")}
-              </div>
+              </span>
             </div>
           </Link>
 
-          {/* 桌面端导航 - 大屏幕显示 */}
-          <nav className="hidden items-center gap-2 lg:flex lg:flex-nowrap lg:overflow-x-auto">
-            {MAIN_ROUTES.map((route) => {
-              const active = isRouteActive(route.href, pathname, route.aliases);
-              return (
-                <Link
-                  key={route.href}
-                  href={route.href}
-                  className={clsx(
-                    "rounded-full px-4 py-2 text-sm font-medium transition-colors",
-                    "inline-flex items-center max-w-[160px] flex-shrink-0 whitespace-nowrap", // 添加 whitespace-nowrap
-                    active
-                      ? "bg-[#ECEBFF] text-[#312A73] shadow-sm"
-                      : "text-[#6A6D94] hover:bg-[#F6F6FF]",
-                  )}
-                  title={t(route.labelKey)}
-                >
-                  <span className="truncate">{t(route.labelKey)}</span>
-                </Link>
-              );
-            })}
-          </nav>
+          {desktopNav}
 
-          {/* 右侧按钮组 */}
-          <div className="flex items-center gap-2 md:gap-3">
-            {/* 桌面端语言切换 */}
-            <div className="hidden items-center sm:flex">
+          <div className="ml-auto flex items-center gap-2 sm:gap-3">
+            {/* 移动端语言切换 */}
+            <div className="flex items-center xl:hidden">
+              <label htmlFor="mobile-language-inline" className="sr-only">
+                {t("common.language")}
+              </label>
+              <select
+                id="mobile-language-inline"
+                value={currentLocale}
+                onChange={(event) =>
+                  handleLocaleChange(event.target.value as Locale)
+                }
+                className="rounded-full border border-[#E8E7FF] bg-white px-2.5 py-1 text-xs font-medium text-[#2B2558] shadow-sm transition-colors hover:border-[#D1D0FF] focus:outline-none focus:ring-2 focus:ring-[#B5B3FF]"
+              >
+                {SUPPORTED_LOCALES.map((locale) => (
+                  <option key={locale} value={locale}>
+                    {LOCALE_LABELS[locale]}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="hidden items-center xl:flex">
               <label htmlFor="desktop-language-select" className="sr-only">
                 {t("common.language")}
               </label>
@@ -146,8 +163,7 @@ export default function Header() {
               </select>
             </div>
 
-            {/* 钱包按钮 - 响应式调整 */}
-            <div className="hidden sm:block">
+            <div className="hidden md:block">
               <WalletButton
                 label={t("common.connectWallet")}
                 showBalance
@@ -156,8 +172,7 @@ export default function Header() {
               />
             </div>
 
-            {/* 移动端简化版钱包按钮 */}
-            <div className="sm:hidden">
+            <div className="md:hidden">
               <WalletButton
                 label={t("common.connectShort")}
                 showBalance={false}
@@ -166,10 +181,9 @@ export default function Header() {
               />
             </div>
 
-            {/* 移动端菜单按钮 */}
             <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="flex h-9 w-9 items-center justify-center rounded-lg text-[#2B2558] transition-colors hover:bg-[#F6F6FF] lg:hidden"
+              onClick={() => setIsMobileMenuOpen((open) => !open)}
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-[#2B2558] transition-colors hover:bg-[#F6F6FF] xl:hidden"
               aria-label={t("common.menu")}
             >
               {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -178,79 +192,68 @@ export default function Header() {
         </div>
       </header>
 
-      {/* 移动端菜单 - 全屏抽屉 */}
       <div
         className={clsx(
-          "fixed inset-0 z-40 flex h-full flex-col bg-white transition-transform duration-300 lg:hidden",
+          "fixed inset-0 z-40 flex h-full flex-col bg-white transition-transform duration-300 xl:hidden",
           isMobileMenuOpen ? "translate-x-0" : "translate-x-full",
         )}
       >
-        {/* 顶部占位，避免被 Header 遮挡 */}
         <div className="h-20" />
+        <div className="flex-1 overflow-y-auto px-6 pb-8">
+          <nav className="flex flex-col gap-2">
+            {MAIN_ROUTES.map((route) => {
+              const active = isRouteActive(route.href, pathname, route.aliases);
+              return (
+                <Link
+                  key={route.href}
+                  href={route.href}
+                  className={clsx(
+                    "flex items-center justify-between rounded-2xl px-4 py-3 text-base font-medium transition-colors",
+                    active
+                      ? "bg-[#ECEBFF] text-[#312A73]"
+                      : "text-[#2B2558] hover:bg-[#F6F6FF]",
+                  )}
+                  title={t(route.labelKey)}
+                >
+                  <span>{t(route.labelKey)}</span>
+                  <span className="text-xs font-semibold text-[#8A71FF]">
+                    {active ? tMobileNav("active") : "›"}
+                  </span>
+                </Link>
+              );
+            })}
+          </nav>
 
-        {/* 菜单内容 */}
-        {/* 桌面端导航 - 大屏幕显示 */}
-        <nav className="hidden items-center gap-2 lg:flex lg:flex-nowrap lg:overflow-x-auto">
-          {MAIN_ROUTES.map((route) => {
-            const active = isRouteActive(route.href, pathname, route.aliases);
-            return (
-              <Link
-                key={route.href}
-                href={route.href}
-                className={clsx(
-                  "rounded-full px-4 py-2 text-sm font-medium transition-colors",
-                  "inline-flex items-center max-w-[160px] flex-shrink-0 flex-nowrap", // 添加 flex-shrink-0
-                  active
-                    ? "bg-[#ECEBFF] text-[#312A73] shadow-sm"
-                    : "text-[#6A6D94] hover:bg-[#F6F6FF]",
-                )}
-                title={t(route.labelKey)}
+          <div className="mt-6 space-y-4">
+            <div className="flex flex-col gap-2 rounded-2xl border border-[#ECEBFF] bg-white/80 p-4 shadow-sm">
+              <span className="text-xs font-semibold uppercase tracking-wide text-[#6A6D94]">
+                {t("common.language")}
+              </span>
+              <select
+                id="mobile-language-select"
+                value={currentLocale}
+                onChange={(event) =>
+                  handleLocaleChange(event.target.value as Locale)
+                }
+                className="rounded-xl border border-[#E8E7FF] bg-white px-4 py-2 text-sm font-medium text-[#2B2558] focus:outline-none focus:ring-2 focus:ring-[#B5B3FF]"
               >
-                <span className="truncate">{t(route.labelKey)}</span>
-              </Link>
-            );
-          })}
-        </nav>
+                {SUPPORTED_LOCALES.map((locale) => (
+                  <option key={locale} value={locale}>
+                    {LOCALE_LABELS[locale]}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-        {/* 语言切换入口 */}
-        <div className="mx-6 mb-4 flex flex-col gap-3 rounded-xl border border-[#ECEBFF] bg-white/80 p-4 shadow-sm">
-          <span className="text-xs font-semibold uppercase tracking-wide text-[#6A6D94]">
-            {t("common.language")}
-          </span>
-          <select
-            id="mobile-language-select"
-            value={currentLocale}
-            onChange={(event) => {
-              handleLocaleChange(event.target.value as Locale);
-              setIsMobileMenuOpen(false);
-            }}
-            className="rounded-xl border border-[#E8E7FF] bg-white px-4 py-2 text-sm font-medium text-[#2B2558] focus:outline-none focus:ring-2 focus:ring-[#B5B3FF]"
-            aria-label={t("common.language")}
-          >
-            {SUPPORTED_LOCALES.map((locale) => (
-              <option key={locale} value={locale}>
-                {LOCALE_LABELS[locale]}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* 底部信息 */}
-        <div className="mx-6 mb-6 mt-auto rounded-xl bg-gradient-to-br from-[#FFB347]/10 to-[#FF6B9A]/10 p-4">
-          <div className="text-sm font-semibold text-[#2B2558]">
-            {t("common.appName")}
+            <div className="rounded-2xl bg-[#F6F6FF] px-4 py-3 text-sm text-[#2B2558] shadow-inner">
+              <div className="font-semibold">{t("common.appName")}</div>
+              <div className="text-xs text-[#6F6B93]">
+                {t("common.appTagline")}
+              </div>
+            </div>
           </div>
-          <div className="text-xs text-[#6F6B93]">{t("common.appTagline")}</div>
         </div>
       </div>
-
-      {/* 遮罩层 */}
-      {isMobileMenuOpen && (
-        <div
-          className="fixed inset-0 z-30 bg-black/20 backdrop-blur-sm lg:hidden"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
-      )}
     </>
   );
 }

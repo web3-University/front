@@ -468,6 +468,17 @@ const en: MessageTree = {
       beginner: "Beginner friendly",
     },
   },
+  mobileNav: {
+    openNavigation: "Open navigation",
+    closeNavigation: "Close navigation",
+    label: "Navigation",
+    title: "Quick access",
+    active: "Current",
+    summary: {
+      heading: "Tip",
+      body: "Use the links above to jump quickly between the main sections.",
+    },
+  },
   daoProposalCard: {
     status: {
       active: "Active",
