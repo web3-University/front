@@ -222,36 +222,10 @@ export const useUpload = () => {
     mimeType: string,
   ): Promise<string> => {
     let uploadFile: File;
-
-    const generateSafeFileName = (originalName?: string): string => {
-      const timestamp = Date.now();
-      const randomStr = Math.random().toString(36).substring(2, 8);
-
-      if (originalName) {
-        // 获取文件扩展名
-        const ext = originalName.split(".").pop()?.toLowerCase() || "";
-        // 生成新的文件名：时间戳_随机字符串.扩展名
-        return `${timestamp}_${randomStr}.${ext}`;
-      }
-
-      // 根据 MIME 类型推断扩展名
-      const mimeToExt: Record<string, string> = {
-        "image/jpeg": "jpg",
-        "image/png": "png",
-        "image/gif": "gif",
-        "image/webp": "webp",
-        "video/mp4": "mp4",
-        "application/pdf": "pdf",
-      };
-
-      const ext = mimeToExt[mimeType] || "bin";
-      return `${timestamp}_${randomStr}.${ext}`;
-    };
-    const safeFileName = generateSafeFileName(file?.name);
     if (file instanceof File) {
       // 如果文件的 type 不正确，重新创建一个 File 对象
       if (!file.type || file.type === "application/octet-stream") {
-        uploadFile = new File([file], safeFileName, { type: mimeType });
+        uploadFile = new File([file], file.name, { type: mimeType });
       } else {
         uploadFile = file;
       }
@@ -267,7 +241,7 @@ export const useUpload = () => {
     console.log("📤 普通上传参数:", {
       fileSize: file.size,
       fileType,
-      fileName: safeFileName,
+      fileName: (file as File).name || "unknown",
       mimeType,
       actualFileType: uploadFile.type,
     });

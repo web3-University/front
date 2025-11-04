@@ -1,8 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useMemo } from "react";
-
-import { useTranslation } from "@/i18n/hooks";
+import React, { useState, useRef, useEffect } from "react";
 
 interface SubmitDisputeModalProps {
   isOpen: boolean;
@@ -28,7 +26,7 @@ function CustomSelect({
 }: {
   value: string;
   onChange: (value: string) => void;
-  options: Array<{ value: string; label: string }>;
+  options: string[];
   className?: string;
   color?: "red" | "purple";
   disabled?: boolean;
@@ -64,9 +62,6 @@ function CustomSelect({
       ? "hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50"
       : "hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50";
 
-  const selectedOption =
-    options.find((option) => option.value === value) ?? options[0];
-
   return (
     <div ref={dropdownRef} className={`relative ${className}`}>
       <button
@@ -77,7 +72,7 @@ function CustomSelect({
           disabled ? "opacity-50 cursor-not-allowed" : ""
         }`}
       >
-        <span>{selectedOption ? selectedOption.label : value}</span>
+        <span>{value}</span>
         <svg
           className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
           fill="none"
@@ -97,22 +92,20 @@ function CustomSelect({
         <div className="absolute z-10 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden">
           {options.map((option, index) => (
             <button
-              key={option.value}
+              key={option}
               type="button"
               onClick={() => {
-                onChange(option.value);
+                onChange(option);
                 setIsOpen(false);
               }}
               className={`w-full px-4 py-3 text-left transition-all ${
-                value === option.value
+                value === option
                   ? `${selectedClasses} font-medium`
                   : `text-gray-700 ${hoverClasses}`
               } ${index !== options.length - 1 ? "border-b border-gray-100" : ""}`}
             >
-              {value === option.value && (
-                <span className="inline-block mr-2">✓</span>
-              )}
-              {option.label}
+              {value === option && <span className="inline-block mr-2">✓</span>}
+              {option}
             </button>
           ))}
         </div>
@@ -129,59 +122,47 @@ export default function SubmitDisputeModal({
   requiredDeposit = "500",
   userBalance = "0",
 }: SubmitDisputeModalProps) {
-  const t = useTranslation("daoDisputeModal");
-
-  const disputeOptions = useMemo(
-    () => [
-      { value: "内容质量", label: t("types.contentQuality") },
-      { value: "教师态度", label: t("types.teacherAttitude") },
-      { value: "课程欺诈", label: t("types.courseFraud") },
-      { value: "其他", label: t("types.other") },
-    ],
-    [t],
-  );
-
-  const [type, setType] = useState(disputeOptions[0]?.value ?? "");
+  const [type, setType] = useState("内容质量");
   const [target, setTarget] = useState("");
   const [description, setDescription] = useState("");
 
   // 每次打开模态框时清空输入框
   useEffect(() => {
     if (isOpen) {
-      setType(disputeOptions[0]?.value ?? "");
+      setType("内容质量");
       setTarget("");
       setDescription("");
     }
-  }, [isOpen, disputeOptions]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   const handleSubmit = () => {
     // 验证表单
     if (!target.trim()) {
-      alert(t("errors.missingCourseId"));
+      alert("请输入课程 ID");
       return;
     }
 
     // 验证课程 ID 是否为数字
     const courseId = parseInt(target.trim());
     if (isNaN(courseId) || courseId <= 0) {
-      alert(t("errors.invalidCourseId"));
+      alert("请输入有效的课程 ID（正整数）");
       return;
     }
 
     if (!description.trim()) {
-      alert(t("errors.missingDescription"));
+      alert("请输入争议描述");
       return;
     }
 
     if (description.trim().length < 10) {
-      alert(t("errors.minDescription"));
+      alert("争议描述至少需要 10 个字符");
       return;
     }
 
     if (description.trim().length > 500) {
-      alert(t("errors.maxDescription"));
+      alert("争议描述不能超过 500 个字符");
       return;
     }
 
@@ -189,17 +170,14 @@ export default function SubmitDisputeModal({
     const balance = parseFloat(userBalance);
     const deposit = parseFloat(requiredDeposit);
     if (balance < deposit) {
-      alert(
-        t("errors.insufficientBalance", {
-          required: requiredDeposit,
-          balance: userBalance,
-        }),
-      );
+      alert(`余额不足！需要 ${requiredDeposit} YD，当前余额 ${userBalance} YD`);
       return;
     }
 
     onSubmit({ type, target, description });
   };
+
+  const disputeTypes = ["内容质量", "教师态度", "课程欺诈", "其他"];
 
   // 检查余额是否充足
   const hasEnoughBalance =
@@ -216,7 +194,7 @@ export default function SubmitDisputeModal({
       >
         {/* Header */}
         <div className="flex justify-between items-start mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">{t("title")}</h2>
+          <h2 className="text-2xl font-bold text-gray-900">提交争议</h2>
           <button
             onClick={onClose}
             disabled={isSubmitting}
@@ -244,20 +222,20 @@ export default function SubmitDisputeModal({
             </svg>
             <div className="flex-1">
               <p className="text-sm text-gray-700">
-                {t("deposit.prefix")}{" "}
+                提交争议需要质押{" "}
                 <span className="font-semibold text-red-500">
-                  {t("deposit.amount", { deposit: requiredDeposit })}
-                </span>
-                {t("deposit.suffix")}
+                  {requiredDeposit} YD
+                </span>{" "}
+                代币，如果争议被驳回，质押将被扣除。
               </p>
               <p className="text-xs text-gray-500 mt-2">
-                {t("deposit.balanceLabel")}{" "}
+                当前余额:{" "}
                 <span
                   className={
                     hasEnoughBalance ? "text-green-600" : "text-red-600"
                   }
                 >
-                  {t("deposit.balanceValue", { balance: userBalance })}
+                  {userBalance} YD
                 </span>
               </p>
             </div>
@@ -268,12 +246,12 @@ export default function SubmitDisputeModal({
         <div className="space-y-5">
           <div>
             <label className="block text-gray-700 font-medium mb-2">
-              {t("fields.typeLabel")} <span className="text-red-500">*</span>
+              争议类型 <span className="text-red-500">*</span>
             </label>
             <CustomSelect
               value={type}
-              onChange={(next) => setType(next)}
-              options={disputeOptions}
+              onChange={setType}
+              options={disputeTypes}
               color="red"
               disabled={isSubmitting}
             />
@@ -281,41 +259,36 @@ export default function SubmitDisputeModal({
 
           <div>
             <label className="block text-gray-700 font-medium mb-2">
-              {t("fields.courseIdLabel")}{" "}
-              <span className="text-red-500">*</span>
+              课程 ID <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={target}
               onChange={(e) => setTarget(e.target.value)}
-              placeholder={t("fields.courseIdPlaceholder")}
+              placeholder="请输入被投诉的课程 ID"
               disabled={isSubmitting}
               className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-red-500 focus:outline-none bg-white disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <p className="text-xs text-gray-500 mt-1">
-              {t("fields.courseIdHint")}
+              提示：课程 ID 可在课程详情页面找到
             </p>
           </div>
 
           <div>
             <label className="block text-gray-700 font-medium mb-2">
-              {t("fields.descriptionLabel")}{" "}
-              <span className="text-red-500">*</span>
+              争议描述 <span className="text-red-500">*</span>
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={5}
-              placeholder={t("fields.descriptionPlaceholder")}
+              placeholder="请详细描述争议情况，提供相关证据（10-500字）"
               maxLength={500}
               disabled={isSubmitting}
               className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-red-500 focus:outline-none bg-white resize-none disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <p className="text-xs text-gray-500 mt-1">
-              {t("fields.descriptionCounter", {
-                count: description.length,
-                max: 500,
-              })}
+              {description.length}/500 字符
             </p>
           </div>
         </div>
@@ -336,7 +309,9 @@ export default function SubmitDisputeModal({
                 d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
               />
             </svg>
-            <p className="text-sm text-red-700">{t("warnings.insufficient")}</p>
+            <p className="text-sm text-red-700">
+              YD Token 余额不足，请先获取足够的代币
+            </p>
           </div>
         )}
 
@@ -347,7 +322,7 @@ export default function SubmitDisputeModal({
             disabled={isSubmitting}
             className="px-6 py-2.5 rounded-xl bg-gray-200 text-gray-800 hover:bg-gray-300 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {t("actions.cancel")}
+            取消
           </button>
           <button
             onClick={handleSubmit}
@@ -374,8 +349,8 @@ export default function SubmitDisputeModal({
             )}
             <span>
               {isSubmitting
-                ? t("actions.submitting")
-                : t("actions.submit", { deposit: requiredDeposit })}
+                ? "提交中..."
+                : `提交争议（质押 ${requiredDeposit} YD）`}
             </span>
           </button>
         </div>

@@ -1,21 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useTranslation } from "@/i18n/hooks";
 
 interface ProjectHeroProps {
   onPostProject: () => void;
 }
 
 export default function ProjectHero({ onPostProject }: ProjectHeroProps) {
-  const t = useTranslation("projectHero");
-  const stats = [
-    { value: "2,350+", label: t("stats.activeProjects") },
-    { value: "8,600+", label: t("stats.developers") },
-    { value: "Ƀ 850K", label: t("stats.totalVolume") },
-    { value: "98.5%", label: t("stats.completionRate") },
-  ];
-
   return (
     <section className="relative overflow-hidden pt-32 pb-24">
       {/* 背景效果 */}
@@ -44,21 +35,21 @@ export default function ProjectHero({ onPostProject }: ProjectHeroProps) {
             <span className="relative inline-flex h-3 w-3 rounded-full bg-[#8A71FF]"></span>
           </span>
           <span className="text-sm font-semibold text-[#2B2558]">
-            {t("badge")}
+            🚀 智能外包平台现已上线
           </span>
         </div>
 
         {/* 标题 */}
         <h1 className="text-5xl font-extrabold leading-tight text-[#2B2558] md:text-7xl">
           <span className="bg-gradient-to-r from-[#8A71FF] via-[#FF9D6B] to-[#FF7A7B] bg-clip-text text-transparent">
-            {t("title")}
+            Web3 外包项目市场
           </span>
         </h1>
 
         <p className="mx-auto mt-6 max-w-3xl text-lg text-[#6A6D94]">
-          {t("description.line1")}
+          使用 YD 币解锁优质项目机会，通过区块链技术保障交易透明与安全。
           <br />
-          {t("description.line2")}
+          智能合约托管资金，让每一次合作都值得信赖。
         </p>
 
         {/* CTA 按钮 */}
@@ -81,7 +72,7 @@ export default function ProjectHero({ onPostProject }: ProjectHeroProps) {
                   d="M12 4v16m8-8H4"
                 />
               </svg>
-              {t("actions.postProject")}
+              发布项目
             </span>
             <div className="absolute inset-0 -z-0 bg-gradient-to-r from-[#7A61EF] to-[#EF8D5B] opacity-0 transition-opacity group-hover:opacity-100" />
           </Button>
@@ -101,14 +92,19 @@ export default function ProjectHero({ onPostProject }: ProjectHeroProps) {
                   d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              {t("actions.viewGuide")}
+              查看指南
             </span>
           </button>
         </div>
 
         {/* 统计数据 */}
         <div className="mx-auto mt-16 grid max-w-4xl grid-cols-2 gap-6 md:grid-cols-4">
-          {stats.map((stat, index) => (
+          {[
+            { value: "2,350+", label: "活跃项目" },
+            { value: "8,600+", label: "优质开发者" },
+            { value: "Ƀ 850K", label: "项目总金额" },
+            { value: "98.5%", label: "完成率" },
+          ].map((stat, index) => (
             <div
               key={index}
               className="group rounded-2xl bg-white/60 p-6 shadow-[0_18px_40px_rgba(160,168,255,0.12)] ring-1 ring-white/80 backdrop-blur-sm transition-all hover:-translate-y-1 hover:shadow-[0_24px_50px_rgba(160,168,255,0.20)]"

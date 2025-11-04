@@ -1,62 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { CourseFilters } from "@/lib/api/course";
-import { useTranslation } from "@/i18n/hooks";
 
 interface FilterNavProps {
   onFilterChange?: (filters: CourseFilters) => void;
   totalCount?: number;
 }
 
-const CATEGORY_VALUES = {
-  ALL: "全部分类",
-  BLOCKCHAIN: "区块链",
-  WEB3: "Web3",
-  DEFI: "DeFi",
-  NFT: "NFT",
-} as const;
-
-const SORT_VALUES = {
-  POPULAR: "最受欢迎",
-  NEWEST: "最新上线",
-  PRICE_ASC: "价格从低到高",
-  PRICE_DESC: "价格从高到低",
-} as const;
-
-const PRICE_CAP = 1000;
-
 const FilterNav = ({ onFilterChange, totalCount = 0 }: FilterNavProps) => {
-  const t = useTranslation("courseFilter");
-  const categoryOptions = useMemo(
-    () => [
-      { value: CATEGORY_VALUES.ALL, label: t("categories.all") },
-      { value: CATEGORY_VALUES.BLOCKCHAIN, label: t("categories.blockchain") },
-      { value: CATEGORY_VALUES.WEB3, label: t("categories.web3") },
-      { value: CATEGORY_VALUES.DEFI, label: t("categories.defi") },
-      { value: CATEGORY_VALUES.NFT, label: t("categories.nft") },
-    ],
-    [t],
-  );
-
-  const sortOptions = useMemo(
-    () => [
-      { value: SORT_VALUES.POPULAR, label: t("sort.popular") },
-      { value: SORT_VALUES.NEWEST, label: t("sort.newest") },
-      { value: SORT_VALUES.PRICE_ASC, label: t("sort.priceLowHigh") },
-      { value: SORT_VALUES.PRICE_DESC, label: t("sort.priceHighLow") },
-    ],
-    [t],
-  );
-
   // 状态管理
   const [searchTerm, setSearchTerm] = useState("");
-  const [category, setCategory] = useState<string>(CATEGORY_VALUES.ALL);
-  const [sortBy, setSortBy] = useState<string>(SORT_VALUES.POPULAR);
-  const [priceRange, setPriceRange] = useState<[number, number]>([
-    0,
-    PRICE_CAP,
-  ]);
+  const [category, setCategory] = useState("全部分类");
+  const [sortBy, setSortBy] = useState("最受欢迎");
+  const [priceRange, setPriceRange] = useState([0, 1000]);
   const [sliderValue, setSliderValue] = useState(60);
 
   /**
@@ -67,7 +24,8 @@ const FilterNav = ({ onFilterChange, totalCount = 0 }: FilterNavProps) => {
     const value = parseInt(e.target.value, 10);
     setSliderValue(value);
     // 计算价格范围 (0-1000+)
-    const calculatedPrice = Math.round((value / 100) * PRICE_CAP);
+    const maxPrice = 1000;
+    const calculatedPrice = Math.round((value / 100) * maxPrice);
     setPriceRange([0, calculatedPrice]);
   };
 
@@ -86,12 +44,12 @@ const FilterNav = ({ onFilterChange, totalCount = 0 }: FilterNavProps) => {
     }
 
     // 分类筛选
-    if (category !== CATEGORY_VALUES.ALL) {
+    if (category !== "全部分类") {
       filters.categories = [category];
     }
 
     // 价格范围
-    if (priceRange[1] < PRICE_CAP) {
+    if (priceRange[1] < 1000) {
       filters.priceRange = [priceRange[0].toString(), priceRange[1].toString()];
     }
 
@@ -116,15 +74,6 @@ const FilterNav = ({ onFilterChange, totalCount = 0 }: FilterNavProps) => {
     return () => clearTimeout(debounceTimer);
   }, [searchTerm, category, priceRange, buildFilters, onFilterChange]);
 
-  const summaryPrefix = t("summary.prefix");
-  const summarySuffix = t("summary.suffix");
-  const maxPriceLabel =
-    priceRange[1] >= PRICE_CAP
-      ? t("price.maxDisplay", { value: PRICE_CAP })
-      : priceRange[1].toString();
-  const sliderMinLabel = t("price.minLabel", { value: 0 });
-  const sliderMaxLabel = t("price.maxLabel", { value: PRICE_CAP });
-
   return (
     <div className="flex justify-center w-full mb-8">
       <div className="w-full max-w-[1280px] rounded-2xl bg-white/80 px-6 py-4 backdrop-blur-xl shadow-[0_24px_60px_rgba(154,161,255,0.18)] ring-1 ring-white/60 text-[#2B2558]">
@@ -140,7 +89,7 @@ const FilterNav = ({ onFilterChange, totalCount = 0 }: FilterNavProps) => {
                 xmlns="http://www.w3.org/2000/svg"
                 aria-hidden="true"
               >
-                <title>{t("search.iconLabel")}</title>
+                <title>搜索图标</title>
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -151,7 +100,7 @@ const FilterNav = ({ onFilterChange, totalCount = 0 }: FilterNavProps) => {
             </div>
             <input
               type="text"
-              placeholder={t("search.placeholder")}
+              placeholder="搜索课程名称..."
               className="w-full pl-10 pr-4 py-2 bg-[#F8F8FF] rounded-full text-sm font-medium text-[#2B2558] shadow-sm ring-1 ring-[#E7E5FB] focus:outline-none focus:ring-2 focus:ring-[#ECEBFF]"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -171,11 +120,11 @@ const FilterNav = ({ onFilterChange, totalCount = 0 }: FilterNavProps) => {
                 backgroundSize: "1rem",
               }}
             >
-              {categoryOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
+              <option>全部分类</option>
+              <option>区块链</option>
+              <option>Web3</option>
+              <option>DeFi</option>
+              <option>NFT</option>
             </select>
           </div>
 
@@ -192,11 +141,10 @@ const FilterNav = ({ onFilterChange, totalCount = 0 }: FilterNavProps) => {
                 backgroundSize: "1rem",
               }}
             >
-              {sortOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
+              <option>最受欢迎</option>
+              <option>最新上线</option>
+              <option>价格从低到高</option>
+              <option>价格从高到低</option>
             </select>
           </div>
 
@@ -214,7 +162,7 @@ const FilterNav = ({ onFilterChange, totalCount = 0 }: FilterNavProps) => {
                 xmlns="http://www.w3.org/2000/svg"
                 aria-hidden="true"
               >
-                <title>{t("actions.advancedFilterIcon")}</title>
+                <title>筛选图标</title>
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -222,7 +170,7 @@ const FilterNav = ({ onFilterChange, totalCount = 0 }: FilterNavProps) => {
                   d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
                 ></path>
               </svg>
-              {t("actions.advancedFilter")}
+              高级筛选
             </button>
           </div>
         </div>
@@ -231,10 +179,10 @@ const FilterNav = ({ onFilterChange, totalCount = 0 }: FilterNavProps) => {
         <div className="mb-4 px-2">
           <div className="flex justify-between mb-2">
             <span className="text-xs uppercase tracking-[0.08em] text-[#8B8EB5]">
-              {t("price.label")}
+              价格范围 (USDT币)
             </span>
             <span className="text-xs font-medium text-[#5F6094] rounded-full bg-[#F4F4FF] px-3 py-1">
-              {maxPriceLabel}
+              {priceRange[1] >= 1000 ? "1000+" : priceRange[1]}
             </span>
           </div>
           <div className="px-2">
@@ -250,18 +198,16 @@ const FilterNav = ({ onFilterChange, totalCount = 0 }: FilterNavProps) => {
               }}
             />
             <div className="flex justify-between mt-1">
-              <span className="text-xs text-[#8B8EB5]">{sliderMinLabel}</span>
-              <span className="text-xs text-[#8B8EB5]">{sliderMaxLabel}</span>
+              <span className="text-xs text-[#8B8EB5]">0</span>
+              <span className="text-xs text-[#8B8EB5]">1000+</span>
             </div>
           </div>
         </div>
 
         <div className="text-sm font-medium text-[#6A6D94]">
-          {summaryPrefix}
-          <span className="text-[#4B6CFF] font-semibold px-1">
-            {totalCount}
-          </span>
-          {summarySuffix}
+          共找到{" "}
+          <span className="text-[#4B6CFF] font-semibold">{totalCount}</span>{" "}
+          门课程
         </div>
       </div>
     </div>

@@ -1,8 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
-
-import { useTranslation } from "@/i18n/hooks";
+import { useState } from "react";
 
 interface Project {
   id: number;
@@ -20,16 +18,13 @@ interface Project {
   tags: string[];
 }
 
-type ProjectConfig = Omit<Project, "title" | "description" | "tags"> & {
-  i18nKey: string;
-  tagKeys: string[];
-};
-
 // 模拟项目数据
-const PROJECT_CONFIG: ProjectConfig[] = [
+const MOCK_PROJECTS: Project[] = [
   {
     id: 1,
-    i18nKey: "defiLending",
+    title: "开发DeFi借贷协议智能合约",
+    description:
+      "需要开发一个去中心化借贷协议，支持多种代币抵押、利率算法优化、清算机制等核心功能。要求有Solidity开发经验，熟悉Aave、Compound等借贷协议。",
     budget: "50,000 - 80,000 YD",
     difficulty: "高级",
     category: "智能合约开发",
@@ -39,11 +34,13 @@ const PROJECT_CONFIG: ProjectConfig[] = [
     publisher: "DeFi Labs",
     rating: 4.9,
     source: "manual",
-    tagKeys: ["solidity", "defi", "smartContract"],
+    tags: ["Solidity", "DeFi", "智能合约"],
   },
   {
     id: 2,
-    i18nKey: "nftMarketplace",
+    title: "NFT交易市场前端开发",
+    description:
+      "构建一个现代化的NFT交易平台前端，包括NFT展示、交易、钱包连接等功能。需要熟悉React、Web3.js，有NFT市场开发经验优先。",
     budget: "30,000 - 50,000 YD",
     difficulty: "中级",
     category: "前端开发",
@@ -53,11 +50,13 @@ const PROJECT_CONFIG: ProjectConfig[] = [
     publisher: "NFT Studio",
     rating: 4.6,
     source: "crawler",
-    tagKeys: ["react", "web3js", "nft"],
+    tags: ["React", "Web3.js", "NFT"],
   },
   {
     id: 3,
-    i18nKey: "analyticsDashboard",
+    title: "区块链数据分析Dashboard",
+    description:
+      "开发一个实时区块链数据分析仪表板，展示链上交易、Gas费用、DeFi协议数据等。需要掌握数据可视化和区块链数据查询。",
     budget: "20,000 - 35,000 YD",
     difficulty: "中级",
     category: "数据分析",
@@ -67,11 +66,13 @@ const PROJECT_CONFIG: ProjectConfig[] = [
     publisher: "Chain Analytics",
     rating: 4.3,
     source: "crawler",
-    tagKeys: ["data", "blockchain", "visualization"],
+    tags: ["数据分析", "区块链", "可视化"],
   },
   {
     id: 4,
-    i18nKey: "daoBackend",
+    title: "DAO治理平台后端API开发",
+    description:
+      "为DAO治理平台开发后端API，包括提案管理、投票系统、通知服务等。需要熟悉Node.js、PostgreSQL，了解DAO治理机制。",
     budget: "40,000 - 60,000 YD",
     difficulty: "高级",
     category: "后端开发",
@@ -81,11 +82,13 @@ const PROJECT_CONFIG: ProjectConfig[] = [
     publisher: "Governance DAO",
     rating: 4.8,
     source: "manual",
-    tagKeys: ["node", "postgresql", "dao"],
+    tags: ["Node.js", "PostgreSQL", "DAO"],
   },
   {
     id: 5,
-    i18nKey: "walletDesign",
+    title: "Web3钱包UI/UX设计",
+    description:
+      "设计一款现代化的Web3钱包界面，包括资产管理、交易历史、DApp连接等页面。需要有移动端设计经验，了解Web3用户习惯。",
     budget: "15,000 - 25,000 YD",
     difficulty: "初级",
     category: "UI/UX设计",
@@ -95,7 +98,7 @@ const PROJECT_CONFIG: ProjectConfig[] = [
     publisher: "Wallet Team",
     rating: 4.7,
     source: "manual",
-    tagKeys: ["uiDesign", "uxDesign", "mobile"],
+    tags: ["UI设计", "UX设计", "移动端"],
   },
 ];
 
@@ -115,92 +118,72 @@ export default function ProjectList({
   searchQuery,
   canApply,
 }: ProjectListProps) {
-  const [projectConfigs] = useState<ProjectConfig[]>(PROJECT_CONFIG);
-  const t = useTranslation("projectList");
-
-  const localizedProjects = useMemo<Project[]>(
-    () =>
-      projectConfigs.map(
-        ({ i18nKey, tagKeys, ...rest }): Project => ({
-          ...rest,
-          title: t(`projects.${i18nKey}.title`),
-          description: t(`projects.${i18nKey}.description`),
-          tags: tagKeys.map((tagKey) => t(`tags.${tagKey}`)),
-        }),
-      ),
-    [projectConfigs, t],
-  );
+  const [projects] = useState<Project[]>(MOCK_PROJECTS);
 
   // 筛选和排序逻辑
-  const filteredProjects = useMemo(
-    () =>
-      localizedProjects
-        .filter((project) => {
-          // 类别筛选
-          if (
-            filters.category !== "all" &&
-            project.category !== filters.category
-          )
-            return false;
+  const filteredProjects = projects
+    .filter((project) => {
+      // 类别筛选
+      if (filters.category !== "all" && project.category !== filters.category) {
+        return false;
+      }
 
-          // 难度筛选
-          if (
-            filters.difficulty !== "all" &&
-            project.difficulty !== filters.difficulty
-          ) {
-            return false;
-          }
+      // 难度筛选
+      if (
+        filters.difficulty !== "all" &&
+        project.difficulty !== filters.difficulty
+      ) {
+        return false;
+      }
 
-          // 预算筛选
-          if (filters.budget !== "all") {
-            const budgetNum = parseInt(
-              project.budget.split("-")[0].replace(/,/g, ""),
-            );
-            if (filters.budget === "0-20k" && budgetNum >= 20000) return false;
-            if (
-              filters.budget === "20k-50k" &&
-              (budgetNum < 20000 || budgetNum >= 50000)
-            )
-              return false;
-            if (filters.budget === "50k+" && budgetNum < 50000) return false;
-          }
+      // 预算筛选
+      if (filters.budget !== "all") {
+        const budgetNum = parseInt(
+          project.budget.split("-")[0].replace(/,/g, ""),
+        );
+        if (filters.budget === "0-20k" && budgetNum >= 20000) return false;
+        if (
+          filters.budget === "20k-50k" &&
+          (budgetNum < 20000 || budgetNum >= 50000)
+        )
+          return false;
+        if (filters.budget === "50k+" && budgetNum < 50000) return false;
+      }
 
-          // 搜索筛选
-          if (searchQuery) {
-            const query = searchQuery.toLowerCase();
-            return (
-              project.title.toLowerCase().includes(query) ||
-              project.description.toLowerCase().includes(query) ||
-              project.tags.some((tag) => tag.toLowerCase().includes(query))
-            );
-          }
+      // 搜索筛选
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        return (
+          project.title.toLowerCase().includes(query) ||
+          project.description.toLowerCase().includes(query) ||
+          project.tags.some((tag) => tag.toLowerCase().includes(query))
+        );
+      }
 
-          return true;
-        })
-        .sort((a, b) => {
-          switch (filters.sort) {
-            case "budget-high":
-              return (
-                parseInt(b.budget.split("-")[0].replace(/,/g, "")) -
-                parseInt(a.budget.split("-")[0].replace(/,/g, ""))
-              );
-            case "budget-low":
-              return (
-                parseInt(a.budget.split("-")[0].replace(/,/g, "")) -
-                parseInt(b.budget.split("-")[0].replace(/,/g, ""))
-              );
-            case "deadline":
-              return (
-                new Date(a.deadline).getTime() - new Date(b.deadline).getTime()
-              );
-            case "applicants":
-              return b.applicants - a.applicants;
-            default: // latest
-              return b.id - a.id;
-          }
-        }),
-    [localizedProjects, filters, searchQuery],
-  );
+      return true;
+    })
+    .sort((a, b) => {
+      switch (filters.sort) {
+        case "budget-high":
+          return (
+            parseInt(b.budget.split("-")[0].replace(/,/g, "")) -
+            parseInt(a.budget.split("-")[0].replace(/,/g, ""))
+          );
+        case "budget-low":
+          return (
+            parseInt(a.budget.split("-")[0].replace(/,/g, "")) -
+            parseInt(b.budget.split("-")[0].replace(/,/g, ""))
+          );
+        case "deadline":
+          return (
+            new Date(a.deadline).getTime() - new Date(b.deadline).getTime()
+          );
+        case "applicants":
+          return b.applicants - a.applicants;
+        default: // latest
+          return b.id - a.id;
+      }
+    });
 
   // 难度标签颜色
   const getDifficultyColor = (difficulty: string) => {
@@ -213,19 +196,6 @@ export default function ProjectList({
         return "bg-red-100 text-red-700";
       default:
         return "bg-gray-100 text-gray-700";
-    }
-  };
-
-  const getDifficultyLabel = (difficulty: Project["difficulty"]) => {
-    switch (difficulty) {
-      case "初级":
-        return t("difficulty.beginner");
-      case "中级":
-        return t("difficulty.intermediate");
-      case "高级":
-        return t("difficulty.advanced");
-      default:
-        return difficulty;
     }
   };
 
@@ -246,10 +216,8 @@ export default function ProjectList({
               d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
             />
           </svg>
-          <h3 className="mt-6 text-xl font-bold text-gray-900">
-            {t("empty.title")}
-          </h3>
-          <p className="mt-2 text-gray-600">{t("empty.subtitle")}</p>
+          <h3 className="mt-6 text-xl font-bold text-gray-900">暂无匹配项目</h3>
+          <p className="mt-2 text-gray-600">调整筛选条件或稍后再试</p>
         </div>
       </div>
     );
@@ -278,7 +246,7 @@ export default function ProjectList({
                     clipRule="evenodd"
                   />
                 </svg>
-                {t("labels.crawler")}
+                爬虫
               </span>
             )}
           </div>
@@ -293,7 +261,7 @@ export default function ProjectList({
                   clipRule="evenodd"
                 />
               </svg>
-              {t("labels.verified")}
+              认证
             </div>
           )}
 
@@ -322,29 +290,29 @@ export default function ProjectList({
           {/* 项目信息 */}
           <div className="mb-4 space-y-2 border-t border-gray-100 pt-4">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-500">{t("fields.budget")}</span>
+              <span className="text-gray-500">预算</span>
               <span className="font-semibold text-gray-900">
                 {project.budget}
               </span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-500">{t("fields.difficulty")}</span>
+              <span className="text-gray-500">难度</span>
               <span
                 className={`rounded-full px-2 py-0.5 text-xs font-semibold ${getDifficultyColor(project.difficulty)}`}
               >
-                {getDifficultyLabel(project.difficulty)}
+                {project.difficulty}
               </span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-500">{t("fields.deadline")}</span>
+              <span className="text-gray-500">截止时间</span>
               <span className="font-medium text-gray-900">
                 {project.deadline}
               </span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-500">{t("fields.applicants")}</span>
+              <span className="text-gray-500">申请人数</span>
               <span className="font-medium text-gray-900">
-                {t("fields.applicantsValue", { count: project.applicants })}
+                {project.applicants} 人
               </span>
             </div>
           </div>
@@ -382,7 +350,7 @@ export default function ProjectList({
                 : "cursor-not-allowed bg-gray-300"
             }`}
           >
-            {canApply ? t("actions.apply") : t("actions.needsVerification")}
+            {canApply ? "立即申请" : "需要YD币验证"}
           </button>
         </div>
       ))}

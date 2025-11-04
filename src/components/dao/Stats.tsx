@@ -2,8 +2,6 @@
 
 import { Award, TrendingUp, Users, Vote } from "lucide-react";
 
-import { useTranslation } from "@/i18n/hooks";
-
 // 模拟数据
 const stats = {
   totalVotes: "1,234,567",
@@ -15,33 +13,31 @@ const stats = {
 const STAT_ITEMS = [
   {
     icon: Vote,
-    labelKey: "totalVotes",
+    label: "总投票权重",
     value: stats.totalVotes,
     gradient: "from-blue-400 to-blue-600",
   },
   {
     icon: Users,
-    labelKey: "activeProposals",
+    label: "活跃提案",
     value: stats.holders,
     gradient: "from-green-400 to-green-600",
   },
   {
     icon: TrendingUp,
-    labelKey: "treasury",
+    label: "国库资金",
     value: `$${stats.treasury}`,
     gradient: "from-purple-400 to-purple-600",
   },
   {
     icon: Award,
-    labelKey: "proposals",
+    label: "提案总数",
     value: stats.proposalsCount,
     gradient: "from-orange-400 to-pink-600",
   },
 ];
 
 export default function Stats() {
-  const t = useTranslation("daoStats");
-
   return (
     <section className="relative">
       {/* ⭐ 响应式网格：移动端1列，平板2列，桌面4列 */}
@@ -61,7 +57,7 @@ export default function Stats() {
                   <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
                 <span className="text-xs sm:text-sm text-gray-300">
-                  {t(`items.${item.labelKey}`)}
+                  {item.label}
                 </span>
               </div>
 

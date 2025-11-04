@@ -11,7 +11,6 @@ import { COURSE_CONTRACT_ADDRESS } from "@/config";
 import { PurchaseStatus } from "@/hooks/usePurchaseCourse";
 import { purchaseCourse as purchaseCourseAPI } from "@/lib/api/course";
 import { Button } from "../ui/button";
-import { useTranslation } from "@/i18n/hooks";
 
 interface CourseButtonProps {
   courseId: string;
@@ -33,7 +32,6 @@ const CourseButton = ({
   const [status, setStatus] = useState<PurchaseStatus>(PurchaseStatus.IDLE);
   const [error, setError] = useState<string | null>(null);
   const [transactionHash, setTransactionHash] = useState<string | null>(null);
-  const t = useTranslation("purchase");
 
   // 钱包连接状态
   const { address: walletAddress, isConnected } = useWalletConnection();
@@ -76,11 +74,11 @@ const CourseButton = ({
    */
   const handleApprove = useCallback(async () => {
     if (!isConnected || !walletAddress) {
-      setError(t("connectWalletFirst"));
+      setError("请先连接钱包");
       return;
     }
     if (!hasEnoughBalance) {
-      setError(t("insufficientBalance"));
+      setError(`YD Token 余额不足`);
       return;
     }
     try {
@@ -102,13 +100,13 @@ const CourseButton = ({
       );
 
       if (!approveResult) {
-        throw new Error(t("approvalFailed"));
+        throw new Error("授权失败，未返回交易哈希");
       }
 
       setStatus(PurchaseStatus.WAITING_APPROVE);
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : t("approvalError");
+        err instanceof Error ? err.message : "授权失败，请稍后重试";
       setError(errorMessage);
       setStatus(PurchaseStatus.ERROR);
       onPurchaseError?.(errorMessage);
@@ -123,7 +121,6 @@ const CourseButton = ({
     approve,
     COURSE_CONTRACT_ADDRESS,
     onPurchaseError,
-    t,
   ]);
 
   /**
@@ -131,17 +128,17 @@ const CourseButton = ({
    */
   const handlePurchase = useCallback(async () => {
     if (!isConnected || !walletAddress) {
-      setError(t("connectWalletFirst"));
+      setError("请先连接钱包");
       return;
     }
 
     if (!hasEnoughBalance) {
-      setError(t("insufficientBalance"));
+      setError(`YD Token 余额不足。`);
       return;
     }
 
     if (needsApproval) {
-      setError(t("approveTokenFirst"));
+      setError("请先授权 YD Token");
       return;
     }
 
@@ -149,7 +146,7 @@ const CourseButton = ({
     const courseIdNum = Number(courseId);
 
     if (!courseId || courseIdNum <= 0 || isNaN(courseIdNum)) {
-      setError(t("invalidCourseId"));
+      setError("无效的课程ID");
       return;
     }
 
@@ -162,7 +159,7 @@ const CourseButton = ({
       const contractResult = await purchaseCourseContract(courseId);
 
       if (!contractResult) {
-        throw new Error(t("purchaseFailedNoHash"));
+        throw new Error("合约调用失败，未返回交易哈希");
       }
 
       const txHash = contractResult;
@@ -171,7 +168,7 @@ const CourseButton = ({
     } catch (err) {
       console.error("购买课程失败:", err);
       const errorMessage =
-        err instanceof Error ? err.message : t("purchaseError");
+        err instanceof Error ? err.message : "购买失败，请稍后重试";
       setError(errorMessage);
       setStatus(PurchaseStatus.ERROR);
       onPurchaseError?.(errorMessage);
@@ -185,7 +182,6 @@ const CourseButton = ({
     courseId,
     purchaseCourseContract,
     onPurchaseError,
-    t,
   ]);
 
   /**
@@ -257,7 +253,7 @@ const CourseButton = ({
     return (
       <div className="flex flex-col gap-2 mt-auto">
         <Button variant="secondary" fullWidth disabled>
-          {t("connectWalletFirst")}
+          请先连接钱包
         </Button>
       </div>
     );
@@ -267,7 +263,7 @@ const CourseButton = ({
     return (
       <div className="flex flex-col gap-2 mt-auto">
         <Button variant="secondary" fullWidth disabled>
-          {t("insufficientBalance")}
+          YD Token 余额不足
         </Button>
       </div>
     );
@@ -287,12 +283,10 @@ const CourseButton = ({
           {isApproving ? (
             <span className="flex items-center justify-center gap-2">
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-              {t("approving")}
+              授权中...
             </span>
           ) : (
-            t("approveAmount", {
-              amount: formatUnits(coursePriceBigInt, 18),
-            })
+            `授权 ${formatUnits(coursePriceBigInt, 18)} YD`
           )}
         </Button>
 
@@ -306,24 +300,24 @@ const CourseButton = ({
           {isPurchasing ? (
             <span className="flex items-center justify-center gap-2">
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-              {t("purchasing")}
+              购买中...
             </span>
           ) : needsApproval ? (
-            t("needApproval")
+            "请先授权"
           ) : (
-            t("purchaseNow")
+            "立即购买"
           )}
         </Button>
       </div>
 
       {/* 错误信息 */}
       {error && (
-        <div className="text-red-500 text-sm mt-1">❌ {t("errorRetry")}</div>
+        <div className="text-red-500 text-sm mt-1">❌ 购买失败，请重试</div>
       )}
 
       {/* 成功信息 */}
       {status === PurchaseStatus.SUCCESS && (
-        <div className="text-green-500 text-sm mt-1">🎉 {t("success")}</div>
+        <div className="text-green-500 text-sm mt-1">🎉 购买成功！</div>
       )}
     </div>
   );
