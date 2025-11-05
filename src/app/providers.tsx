@@ -1,9 +1,6 @@
 // apps/web/src/app/providers.tsx
 "use client";
-import {
-  type AuthConfig,
-  WalletProvider,
-} from "@web3-university/uni-wallet-lib";
+import AuthConfigWrapper from "./auth-config-wrapper";
 import type { ReactNode } from "react";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import BottomNav from "@/components/layout/BottomNav"; // ⭐ 新增移动端底部导航
@@ -23,24 +20,9 @@ export function Providers({ children }: { children: ReactNode }) {
     );
   }
 
-  const authConfig: AuthConfig = {
-    domain: "http://localhost:3000",
-    apiBaseUrl: "/api/v1/auth",
-    tokenStorageKey: "AUTH_TOKEN",
-    autoSignOnConnect: true,
-    onSuccess: (token, user) => {
-      console.log("🎉 签名 & 登录成功", { token, user });
-    },
-  };
-
   return (
     <JotaiProvider>
-      <WalletProvider
-        appName="Web3 University"
-        projectId={projectId ?? "demo"}
-        enableAuth={true}
-        authConfig={authConfig}
-      >
+      <AuthConfigWrapper>
         {/* Header - 固定在顶部 */}
         <ErrorBoundary
           fallback={
@@ -90,7 +72,7 @@ export function Providers({ children }: { children: ReactNode }) {
         >
           <BottomNav />
         </ErrorBoundary>
-      </WalletProvider>
+      </AuthConfigWrapper>
     </JotaiProvider>
   );
 }
