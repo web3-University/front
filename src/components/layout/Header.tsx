@@ -5,10 +5,11 @@ import { useAuth, WalletButton } from "@web3-university/uni-wallet-lib";
 import clsx from "clsx";
 import { Menu, X } from "lucide-react"; // 需要安装: pnpm add lucide-react
 import { useTranslations } from "next-intl";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { MAIN_ROUTES } from "@/config/routes";
 import { checkUserRegistered, registerUser } from "@/lib/api/user";
 import { Link, usePathname, useRouter } from "@/navigation";
+import { useNavDrawer } from "@/state/ui/navDrawer"; // 新增
 
 function isRouteActive(href: string, pathname: string, aliases: string[] = []) {
   if (pathname === href) return true;
@@ -18,6 +19,7 @@ function isRouteActive(href: string, pathname: string, aliases: string[] = []) {
 }
 
 export default function Header() {
+  const { isOpen, toggle, close } = useNavDrawer();
   const tHeader = useTranslations("header");
   const tNav = useTranslations("navigation");
   const pathname = usePathname();
@@ -31,9 +33,6 @@ export default function Header() {
       brand: tHeader("logo.brand"),
     });
   }, [pathname, tHeader]);
-
-  // 移动端菜单状态
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // 监听钱包连接状态，连接后自动注册用户
   useEffect(() => {
@@ -71,8 +70,8 @@ export default function Header() {
 
   // 路由变化时关闭移动端菜单
   useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [pathname]);
+    close();
+  }, [pathname, close]);
 
   const routeToProfile = () => {
     router.push("/profile");
@@ -146,11 +145,12 @@ export default function Header() {
 
             {/* 移动端菜单按钮 */}
             <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              onClick={toggle}
               className="flex h-9 w-9 items-center justify-center rounded-lg text-[#2B2558] transition-colors hover:bg-[#F6F6FF] lg:hidden"
               aria-label="菜单"
+              aria-expanded={isOpen}
             >
-              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              {isOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>
@@ -160,7 +160,7 @@ export default function Header() {
       <div
         className={clsx(
           "fixed inset-0 z-40 bg-white transition-transform duration-300 lg:hidden",
-          isMobileMenuOpen ? "translate-x-0" : "translate-x-full",
+          isOpen ? "translate-x-0" : "translate-x-full",
         )}
       >
         {/* 顶部占位，避免被 Header 遮挡 */}
@@ -174,7 +174,7 @@ export default function Header() {
               <Link
                 key={route.href}
                 href={route.href}
-                onClick={() => setIsMobileMenuOpen(false)}
+                onClick={close}
                 className={clsx(
                   "rounded-xl px-4 py-3 text-base font-medium transition-colors",
                   active
@@ -200,10 +200,12 @@ export default function Header() {
       </div>
 
       {/* 遮罩层 */}
-      {isMobileMenuOpen && (
-        <div
+      {isOpen && (
+        <button
+          type="button"
+          aria-label="关闭导航菜单"
           className="fixed inset-0 z-30 bg-black/20 backdrop-blur-sm lg:hidden"
-          onClick={() => setIsMobileMenuOpen(false)}
+          onClick={close}
         />
       )}
     </>
