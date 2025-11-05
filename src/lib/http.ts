@@ -1,15 +1,8 @@
 // src/lib/http.ts
-import {
-  clearAuthTokens,
-  getAuthToken,
-  getRefreshToken,
-  setAuthToken,
-} from "./utils/storage";
+import { clearAuthTokens, getAuthToken } from "./utils/storage";
+import { tokenRefreshManager } from "./token-refresh-manager";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!;
-const AUTH_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api", "/api/v1/auth") ||
-  "http://localhost:3000/api/v1/auth";
 
 type HttpOptions = {
   method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
@@ -21,87 +14,6 @@ type HttpOptions = {
   maxRetries?: number; // 最大重试次数
   retryDelay?: number; // 重试延迟（毫秒）
 };
-
-// 防止并发刷新令牌
-let refreshPromise: Promise<string | null> | null = null;
-
-/**
- * 刷新访问令牌
- */
-async function refreshAccessToken(): Promise<string | null> {
-  // 如果已经有刷新请求在进行中，等待它完成
-  if (refreshPromise) {
-    return refreshPromise;
-  }
-
-  refreshPromise = (async () => {
-    const refreshToken = getRefreshToken();
-    if (!refreshToken) {
-      return null;
-    }
-
-    try {
-      const response = await fetch(`${AUTH_BASE_URL}/refresh`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ refreshToken }),
-      });
-
-      if (!response.ok) {
-        // 刷新令牌也过期了，清除所有令牌
-        clearAuthTokens();
-        return null;
-      }
-
-      const data = await response.json();
-      const newAccessToken = data.data?.accessToken;
-
-      if (newAccessToken) {
-        setAuthToken(newAccessToken);
-        return newAccessToken;
-      }
-
-      return null;
-    } catch (error) {
-      console.error("刷新令牌失败:", error);
-      clearAuthTokens();
-      return null;
-    } finally {
-      // 清除刷新 Promise，允许后续请求重新刷新
-      refreshPromise = null;
-    }
-  })();
-
-  return refreshPromise;
-}
-
-/**
- * 触发重新签名流程
- */
-async function triggerReSignIn(): Promise<string | null> {
-  try {
-    // 检查是否在浏览器环境
-    if (typeof window === "undefined") {
-      return null;
-    }
-
-    // 清除所有认证相关的存储
-    clearAuthTokens();
-
-    // 触发全局事件，通知应用需要重新签名
-    const event = new CustomEvent("auth:re-signin-required", {
-      detail: { reason: "token_expired" },
-    });
-    window.dispatchEvent(event);
-
-    return null;
-  } catch (error) {
-    console.error("触发重新签名失败:", error);
-    return null;
-  }
-}
 
 /**
  * 延迟函数
@@ -166,14 +78,20 @@ export async function http<T>(
       // 处理 401 未授权错误
       console.log("response.status:", response.status);
       if (response.status === 401 && !skipAuth && !hasTriedRefresh) {
-        console.warn("收到 401 响应，尝试刷新令牌...");
+        console.warn(
+          `[HTTP] 收到 401 响应，请求进入 token 刷新队列: ${method} ${path}`,
+        );
         hasTriedRefresh = true;
 
-        // 尝试刷新访问令牌
-        const newToken = await refreshAccessToken();
+        try {
+          // 使用 TokenRefreshManager 获取有效的 token
+          // 如果正在刷新，请求会自动进入队列等待
+          const newToken = await tokenRefreshManager.waitForValidToken(
+            `${method} ${path}`,
+          );
 
-        if (newToken) {
-          console.log("令牌刷新成功，重试请求");
+          console.log(`[HTTP] Token 刷新成功，重试请求: ${method} ${path}`);
+
           // 更新请求头中的令牌
           requestOptions = {
             ...requestOptions,
@@ -182,14 +100,29 @@ export async function http<T>(
               Authorization: `Bearer ${newToken}`,
             },
           };
+
           // 不增加重试计数，因为这是令牌刷新重试
           continue;
-        } else {
-          // 刷新令牌失败，触发重新签名
-          console.warn("刷新令牌失败，需要重新签名");
-          await triggerReSignIn();
+        } catch (refreshError) {
+          // Token 刷新失败
+          const errorMsg =
+            refreshError instanceof Error
+              ? refreshError.message
+              : String(refreshError);
 
-          // 抛出特定的认证错误
+          console.error(`[HTTP] Token 刷新失败: ${errorMsg}`);
+
+          // 检查是否是特定的错误类型
+          if (
+            errorMsg.includes("NO_REFRESH_TOKEN") ||
+            errorMsg.includes("REFRESH_TOKEN_EXPIRED") ||
+            errorMsg.includes("TOKEN_REFRESH_MAX_FAILURES")
+          ) {
+            // 这些错误意味着需要重新登录，TokenRefreshManager 已经触发了事件
+            throw new Error("AUTHENTICATION_REQUIRED");
+          }
+
+          // 其他刷新错误，也抛出认证错误
           throw new Error("AUTHENTICATION_REQUIRED");
         }
       }

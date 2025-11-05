@@ -24,10 +24,13 @@ export function Providers({ children }: { children: ReactNode }) {
   }
 
   const authConfig: AuthConfig = {
-    domain: "http://192.168.6.179:3000",
+    domain: "http://localhost:3000",
     apiBaseUrl: "/api/v1/auth",
     tokenStorageKey: "AUTH_TOKEN",
     autoSignOnConnect: true,
+    onSuccess: (token, user) => {
+      console.log("🎉 签名 & 登录成功", { token, user });
+    },
   };
 
   return (
