@@ -5,7 +5,7 @@ import { useAuth, WalletButton } from "@web3-university/uni-wallet-lib";
 import clsx from "clsx";
 import { Menu, X } from "lucide-react"; // 需要安装: pnpm add lucide-react
 import { useTranslations } from "next-intl";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { MAIN_ROUTES } from "@/config/routes";
 import { checkUserRegistered, registerUser } from "@/lib/api/user";
 import { Link, usePathname, useRouter } from "@/navigation";
@@ -17,7 +17,17 @@ function isRouteActive(href: string, pathname: string, aliases: string[] = []) {
   return false;
 }
 
-export default function Header() {
+type HeaderProps = {
+  isMobileNavOpen: boolean;
+  onToggleMobileNav: () => void;
+  onCloseMobileNav: () => void;
+};
+
+export default function Header({
+  isMobileNavOpen,
+  onToggleMobileNav,
+  onCloseMobileNav,
+}: HeaderProps) {
   const tHeader = useTranslations("header");
   const tNav = useTranslations("navigation");
   const pathname = usePathname();
@@ -31,9 +41,6 @@ export default function Header() {
       brand: tHeader("logo.brand"),
     });
   }, [pathname, tHeader]);
-
-  // 移动端菜单状态
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // 监听钱包连接状态，连接后自动注册用户
   useEffect(() => {
@@ -71,8 +78,8 @@ export default function Header() {
 
   // 路由变化时关闭移动端菜单
   useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [pathname]);
+    onCloseMobileNav();
+  }, [pathname, onCloseMobileNav]);
 
   const routeToProfile = () => {
     router.push("/profile");
@@ -146,66 +153,16 @@ export default function Header() {
 
             {/* 移动端菜单按钮 */}
             <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              onClick={onToggleMobileNav}
               className="flex h-9 w-9 items-center justify-center rounded-lg text-[#2B2558] transition-colors hover:bg-[#F6F6FF] lg:hidden"
               aria-label="菜单"
+              aria-expanded={isMobileNavOpen}
             >
-              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              {isMobileNavOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>
       </header>
-
-      {/* 移动端菜单 - 全屏抽屉 */}
-      <div
-        className={clsx(
-          "fixed inset-0 z-40 bg-white transition-transform duration-300 lg:hidden",
-          isMobileMenuOpen ? "translate-x-0" : "translate-x-full",
-        )}
-      >
-        {/* 顶部占位，避免被 Header 遮挡 */}
-        <div className="h-20" />
-
-        {/* 菜单内容 */}
-        <nav className="flex flex-col gap-2 px-6 py-4">
-          {MAIN_ROUTES.map((route) => {
-            const active = isRouteActive(route.href, pathname, route.aliases);
-            return (
-              <Link
-                key={route.href}
-                href={route.href}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={clsx(
-                  "rounded-xl px-4 py-3 text-base font-medium transition-colors",
-                  active
-                    ? "bg-[#ECEBFF] text-[#312A73] shadow-sm"
-                    : "text-[#6A6D94] hover:bg-[#F6F6FF]",
-                )}
-              >
-                {tNav(route.labelKey)}
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* 底部信息 */}
-        <div className="absolute bottom-6 left-6 right-6 rounded-xl bg-gradient-to-br from-[#FFB347]/10 to-[#FF6B9A]/10 p-4">
-          <div className="text-sm font-semibold text-[#2B2558]">
-            {tHeader("logo.brand")}
-          </div>
-          <div className="text-xs text-[#6F6B93]">
-            {tHeader("logo.tagline")}
-          </div>
-        </div>
-      </div>
-
-      {/* 遮罩层 */}
-      {isMobileMenuOpen && (
-        <div
-          className="fixed inset-0 z-30 bg-black/20 backdrop-blur-sm lg:hidden"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
-      )}
     </>
   );
 }

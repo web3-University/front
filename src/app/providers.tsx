@@ -1,12 +1,14 @@
 // apps/web/src/app/providers.tsx
 "use client";
+
 import {
   type AuthConfig,
   WalletProvider,
 } from "@web3-university/uni-wallet-lib";
 import type { ReactNode } from "react";
+import { useCallback, useState } from "react";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
-import BottomNav from "@/components/layout/BottomNav"; // ⭐ 新增移动端底部导航
+import BottomNav from "@/components/layout/BottomNav"; // ⭐ 移动端侧边导航
 import Header from "@/components/layout/Header";
 import LanguageSwitch from "@/components/layout/LanguageSwitch";
 import { usePathname } from "@/navigation";
@@ -15,6 +17,12 @@ const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
 
 export function Providers({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const [isMobileNavOpen, setMobileNavOpen] = useState<boolean>(false);
+  const toggleMobileNav = useCallback(
+    () => setMobileNavOpen((open) => !open),
+    [],
+  );
+  const closeMobileNav = useCallback(() => setMobileNavOpen(false), []);
 
   if (!projectId) {
     console.warn(
@@ -48,7 +56,11 @@ export function Providers({ children }: { children: ReactNode }) {
           </div>
         }
       >
-        <Header />
+        <Header
+          isMobileNavOpen={isMobileNavOpen}
+          onToggleMobileNav={toggleMobileNav}
+          onCloseMobileNav={closeMobileNav}
+        />
       </ErrorBoundary>
       <ErrorBoundary fallback={null}>
         <LanguageSwitch />
@@ -77,13 +89,13 @@ export function Providers({ children }: { children: ReactNode }) {
           <div className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-4">
             <div className="h-16 w-full max-w-[640px] rounded-2xl bg-white/70 px-6 shadow-[0_-18px_40px_rgba(162,167,255,0.18)] ring-1 ring-white/50 md:hidden">
               <div className="flex h-full items-center justify-center text-sm text-[#6A6D94]">
-                底部导航暂时不可用
+                移动导航暂时不可用
               </div>
             </div>
           </div>
         }
       >
-        <BottomNav />
+        <BottomNav isOpen={isMobileNavOpen} onOpenChange={setMobileNavOpen} />
       </ErrorBoundary>
     </WalletProvider>
   );
