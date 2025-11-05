@@ -151,12 +151,13 @@ export const uploadCouseVideo = (data: UploadVideoParams) => {
  * 获取课程列表（带筛选）
  * POST /courses/list
  */
-export const getCourseList = (filters?: CourseFilters) =>
+export const getCourseList = (filters?: CourseFilters) => {
   http<ApiResponse<Course[]>>("/courses/list", {
     method: "POST",
     body: filters || {},
     token: getAuthToken(),
   });
+};
 
 /**
  * 获取课程详情
