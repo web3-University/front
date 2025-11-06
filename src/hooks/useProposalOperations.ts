@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { formatUnits } from "viem";
-import { useDao } from "@web3-university/uni-wallet-lib";
+import { useDAO } from "@web3-university/uni-wallet-lib";
 import {
   createProposal as apiCreateProposal,
   vote as apiVote,
@@ -37,7 +37,7 @@ export function useProposalOperations({
   refetchAllowance: () => Promise<any>;
   onSuccess?: () => void;
 }) {
-  const dao = useDao(daoAddress as `0x${string}`);
+  const dao = useDAO({ address: daoAddress as `0x${string}` });
   const [isCreating, setIsCreating] = useState(false);
   const [isVoting, setIsVoting] = useState(false);
   const [txStatus, setTxStatus] = useState<string>("");
@@ -83,38 +83,30 @@ export function useProposalOperations({
         await refetchAllowance();
       }
 
-      // 步骤 3️⃣: 调用合约创建提案
-      setTxStatus("等待创建提案确认...");
-      const createProposalTx = dao.createProposal();
-
-      const proposalId = `proposal-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-
-      const txHash = await createProposalTx.send(proposalId);
-
-      setTxStatus("创建交易确认中...");
-
-      if (createProposalTx.receipt.isSuccess) {
-        setTxStatus("提案创建成功，保存元数据...");
-
-        // 步骤 4️⃣: 调用后端 API 保存元数据
-        await apiCreateProposal({
-          title: data.title,
-          type: data.type,
-          proposer: walletAddress,
-          courseId: 0, // 普通提案没有 courseId，使用 0 或根据实际情况调整
-          reason: data.description,
-          proposerWallet: walletAddress,
-          proposalDeposit: formatUnits(createFee, 18),
-        });
-
-        setTxStatus("✅ 提案创建成功！");
-        onSuccess?.();
-
-        setTimeout(() => setTxStatus(""), 3000);
-        return true;
-      } else {
-        throw new Error("创建提案交易失败");
-      }
+      // 步骤 3: 调用后端 API 保存元数据
+      await apiCreateProposal({
+        title: data.title,
+        type: data.type,
+        proposer: walletAddress,
+        courseId: 0, // 普通提案没有 courseId，使用 0 或根据实际情况调整
+        reason: data.description,
+        proposerWallet: walletAddress,
+        proposalDeposit: formatUnits(createFee, 18),
+      }).then((res) => {
+        if (res.data?.proposalId) {
+          const proposalId = res.data?.proposalId;
+          // 步骤 4: 调用合约创建提案
+          setTxStatus("等待创建提案确认...");
+          dao.createProposal(String(proposalId)).then(async () => {
+            setTxStatus("✅ 提案创建成功！");
+            onSuccess?.();
+            setTimeout(() => setTxStatus(""), 3000);
+            return true;
+          });
+        } else {
+          setTxStatus("❌ 创建失败: 提案创建失败");
+        }
+      });
     } catch (error: any) {
       console.error("创建提案失败:", error);
       setTxStatus(`❌ 创建失败: ${error.message}`);
@@ -171,38 +163,30 @@ export function useProposalOperations({
         await refetchAllowance();
       }
 
-      // 步骤 2️⃣: 调用合约创建争议提案
-      setTxStatus("等待创建争议提案确认...");
-      const createProposalTx = dao.createProposal();
-
-      const proposalId = `dispute-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-
-      const txHash = await createProposalTx.send(proposalId);
-
-      setTxStatus("创建交易确认中...");
-
-      if (createProposalTx.receipt.isSuccess) {
-        setTxStatus("争议提案创建成功，保存元数据...");
-
-        // 步骤 3️⃣: 保存争议提案元数据
-        await apiCreateProposal({
-          type: data.type,
-          title: `课程[${courseId}]争议提案`,
-          proposer: walletAddress,
-          courseId: courseId,
-          reason: data.description,
-          proposerWallet: walletAddress,
-          proposalDeposit: formatUnits(createFee, 18),
-        });
-
-        setTxStatus("✅ 争议提案创建成功！");
-        onSuccess?.();
-
-        setTimeout(() => setTxStatus(""), 3000);
-        return true;
-      } else {
-        throw new Error("创建争议提案交易失败");
-      }
+      // 步骤 2️⃣:  调用后端 API 保存元数据
+      await apiCreateProposal({
+        type: data.type,
+        title: `课程[${courseId}]争议提案`,
+        proposer: walletAddress,
+        courseId: courseId,
+        reason: data.description,
+        proposerWallet: walletAddress,
+        proposalDeposit: formatUnits(createFee, 18),
+      }).then((res) => {
+        if (res.data?.proposalId) {
+          const proposalId = res.data?.proposalId;
+          // 步骤 3: 调用合约创建提案
+          setTxStatus("等待创建提案确认...");
+          dao.createProposal(String(proposalId)).then(async () => {
+            setTxStatus("✅ 提案创建成功！");
+            onSuccess?.();
+            setTimeout(() => setTxStatus(""), 3000);
+            return true;
+          });
+        } else {
+          setTxStatus("❌ 创建失败: 提案创建失败");
+        }
+      });
     } catch (error: any) {
       console.error("创建争议提案失败:", error);
       setTxStatus(`❌ 创建失败: ${error.message}`);
@@ -241,31 +225,26 @@ export function useProposalOperations({
 
       // 步骤 2️⃣: 调用合约投票
       setTxStatus("等待投票确认...");
-      const voteTx = dao.vote();
-
       const support = option === VoteOption.For;
-      const txHash = await voteTx.send(proposalId.toString(), support);
-
-      setTxStatus("投票交易确认中...");
-
-      if (voteTx.receipt.isSuccess) {
+      dao.vote(proposalId.toString(), support).then(async (res) => {
         setTxStatus("投票成功，记录投票信息...");
+        if (res) {
+          // 步骤 3️⃣: 调用后端 API 记录投票
+          await apiVote(proposalId, {
+            option,
+            voterWallet: walletAddress,
+            votingPower: formatUnits(tokenBalance, 18),
+          });
 
-        // 步骤 3️⃣: 调用后端 API 记录投票
-        await apiVote(proposalId, {
-          option,
-          voterWallet: walletAddress,
-          votingPower: formatUnits(tokenBalance, 18),
-        });
+          setTxStatus("✅ 投票成功！");
+          onSuccess?.();
 
-        setTxStatus("✅ 投票成功！");
-        onSuccess?.();
-
-        setTimeout(() => setTxStatus(""), 3000);
-        return true;
-      } else {
-        throw new Error("投票交易失败");
-      }
+          setTimeout(() => setTxStatus(""), 3000);
+          return true;
+        } else {
+          throw new Error("投票交易失败");
+        }
+      });
     } catch (error: any) {
       console.error("投票失败:", error);
       setTxStatus(`❌ 投票失败: ${error.message}`);
@@ -279,7 +258,7 @@ export function useProposalOperations({
   /**
    * ⚡ 执行提案
    */
-  const executeProposal = async (proposalId: number) => {
+  const executeProposal = async (proposalId: number, rewardAmount: bigint) => {
     if (!walletAddress) {
       throw new Error("请先连接钱包");
     }
@@ -288,29 +267,30 @@ export function useProposalOperations({
 
     try {
       // 步骤 1️⃣: 检查是否可以执行
-      const canExecuteResult = dao.canExecute(proposalId.toString());
+      // const canExecuteResult = dao.canExecute(proposalId.toString());
 
-      if (!canExecuteResult.data) {
-        throw new Error("提案暂时无法执行");
-      }
+      // if (!canExecuteResult.data) {
+      //   throw new Error("提案暂时无法执行");
+      // }
 
       // 步骤 2️⃣: 调用合约执行提案
       setTxStatus("等待执行确认...");
-      const executeTx = dao.executeProposal();
+      dao
+        .executeProposalAndDistributeRewards(
+          proposalId.toString(),
+          rewardAmount,
+        )
+        .then(async (res) => {
+          if (!res) {
+            throw new Error("执行交易提交失败");
+          } else {
+            setTxStatus("✅ 提案执行成功！");
+            onSuccess?.();
 
-      const txHash = await executeTx.send(proposalId.toString());
-
-      setTxStatus("执行交易确认中...");
-
-      if (executeTx.receipt.isSuccess) {
-        setTxStatus("✅ 提案执行成功！");
-        onSuccess?.();
-
-        setTimeout(() => setTxStatus(""), 3000);
-        return true;
-      } else {
-        throw new Error("执行提案交易失败");
-      }
+            setTimeout(() => setTxStatus(""), 3000);
+            return true;
+          }
+        });
     } catch (error: any) {
       console.error("执行提案失败:", error);
       setTxStatus(`❌ 执行失败: ${error.message}`);

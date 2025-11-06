@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { Proposal } from "@/lib/api/dao";
-import { useDao } from "@web3-university/uni-wallet-lib";
+import { useDAO } from "@web3-university/uni-wallet-lib";
 
 /**
  * 📋 提案卡片组件
@@ -13,7 +13,7 @@ import { useDao } from "@web3-university/uni-wallet-lib";
  * 3. 支持点击查看详情
  *
  * 关键点：
- * - 使用 useDao().getProposal() 获取链上数据
+ * - 使用 useDAO().getProposal() 获取链上数据
  * - 通过 onChainDataUpdate 回调更新全局状态
  * - 优先显示链上数据，降级显示 API 数据
  */
@@ -34,7 +34,7 @@ export default function ProposalCard({
   onChainDataUpdate,
 }: ProposalCardProps) {
   // 获取 DAO 合约实例
-  const dao = useDao(daoAddress as `0x${string}`);
+  const dao = useDAO({ address: daoAddress as `0x${string}` });
 
   // ✅ 从链上获取提案数据
   const chainProposal = dao.getProposal(proposal.proposalId.toString());
@@ -43,12 +43,12 @@ export default function ProposalCard({
   useEffect(() => {
     if (chainProposal.data && onChainDataUpdate) {
       onChainDataUpdate(proposal.proposalId, {
-        votesFor: Number(chainProposal.data.forVotes),
-        votesAgainst: Number(chainProposal.data.againstVotes),
-        status: chainProposal.data.status,
-        startTime: chainProposal.data.startTime,
-        endTime: chainProposal.data.endTime,
-        proposer: chainProposal.data.proposer,
+        votesFor: Number(chainProposal.data.votesFor),
+        votesAgainst: Number(chainProposal.data.votesAgainst),
+        status: chainProposal.data.executed,
+        startTime: chainProposal.data.timestamp,
+        // endTime: chainProposal.data.endTime,
+        // proposer: chainProposal.data.proposer,
       });
     }
   }, [chainProposal.data, proposal.proposalId, onChainDataUpdate]);
@@ -56,9 +56,9 @@ export default function ProposalCard({
   // 决定显示的数据（优先使用链上数据）
   const displayData = chainProposal.data
     ? {
-        votesFor: Number(chainProposal.data.forVotes),
-        votesAgainst: Number(chainProposal.data.againstVotes),
-        status: chainProposal.data.status,
+        votesFor: Number(chainProposal.data.votesFor),
+        votesAgainst: Number(chainProposal.data.votesAgainst),
+        status: chainProposal.data.executed ? "Executed" : "Active",
       }
     : {
         votesFor: Number(proposal.forVotes),

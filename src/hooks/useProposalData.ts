@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { getProposals as apiGetProposals, Proposal } from "@/lib/api/dao";
-import { useDao } from "@web3-university/uni-wallet-lib";
+import { useDAO } from "@web3-university/uni-wallet-lib";
 
 /**
  * 🎯 提案数据管理 Hook
@@ -11,11 +11,11 @@ import { useDao } from "@web3-university/uni-wallet-lib";
  *
  * 数据策略：
  * 1. 先从 API 获取基础数据（快速展示）
- * 2. 组件层面通过 useDao hooks 获取链上数据
+ * 2. 组件层面通过 useDAO hooks 获取链上数据
  * 3. 提供更新方法供组件层使用
  */
 export function useProposalData(daoAddress: string) {
-  const dao = useDao(daoAddress as `0x${string}`);
+  const dao = useDAO({ address: daoAddress as `0x${string}` });
 
   const [isLoading, setIsLoading] = useState(false);
   const [proposalsList, setProposalsList] = useState<Proposal[]>([]);
@@ -102,7 +102,7 @@ export function useProposalData(daoAddress: string) {
   /**
    * 🔄 更新单个提案的链上数据
    *
-   * 供组件层调用，用于更新从 useDao().getProposal() 获取的链上数据
+   * 供组件层调用，用于更新从 useDAO().getProposal() 获取的链上数据
    */
   const updateProposalWithChainData = useCallback(
     (

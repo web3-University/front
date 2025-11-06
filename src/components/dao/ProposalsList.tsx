@@ -15,14 +15,13 @@ import { EmptyState } from "./EmptyState";
 import {
   useSimpleYDToken,
   useWalletInfo,
-  useDao,
+  useDAO,
 } from "@web3-university/uni-wallet-lib";
 import { formatUnits } from "viem";
 import { CONTRACTS } from "@/config/contracts";
 import { VoteOption } from "@/lib/api/dao";
 import { useProposalData } from "@/hooks/useProposalData";
 import { useProposalOperations } from "@/hooks/useProposalOperations";
-import { showToast } from "@/components/Toast/Toast";
 
 /**
  * 📋 提案列表主组件
@@ -47,7 +46,7 @@ export default function ProposalsList() {
     CONTRACTS.COURSE_DAO || "0x5E3Ab3256cfa5C89bEb63DbB8e12ba42d63F216f";
 
   // DAO 合约
-  const dao = useDao(DAO_CONTRACT_ADDRESS as `0x${string}`);
+  const dao = useDAO({ address: DAO_CONTRACT_ADDRESS as `0x${string}` });
 
   // YD Token 合约
   const {
@@ -62,10 +61,12 @@ export default function ProposalsList() {
     enabled: isConnected,
   });
 
-  // DAO 配置数据
-  const { data: createFee } = dao.createProposalFee();
-  const { data: votingPeriod } = dao.votingPeriod();
+  // DAO 配置数据 合约暂未支持读取，这里先用静态值代替
+  // const { data: createFee } = dao.createProposalFee();
+  // const { data: votingPeriod } = dao.votingPeriod();
 
+  const [createFee] = useState(1000);
+  const [votingPeriod] = useState(7);
   // ==================== 业务逻辑 Hooks ====================
 
   // 提案数据管理
@@ -94,7 +95,7 @@ export default function ProposalsList() {
     walletAddress,
     walletClient: undefined,
     tokenBalance,
-    createFee,
+    // createFee,
     allowance,
     approve: async (amount: bigint) => {
       await tokenApprove(
@@ -172,9 +173,12 @@ export default function ProposalsList() {
    * 执行提案
    */
   const handleExecuteProposal = async (proposalId: number) => {
-    const success = await executeProposal(proposalId);
-    if (success) {
-      setSelectedProposal(null);
+    const rewardAmount = selectedProposal?.rewardAmount || 1000; //TODO: 从提案数据获取奖励金额
+    if (rewardAmount > 0) {
+      const success = await executeProposal(proposalId, rewardAmount);
+      if (success) {
+        setSelectedProposal(null);
+      }
     }
   };
 
@@ -304,7 +308,7 @@ export default function ProposalsList() {
         onClose={() => setShowNewProposal(false)}
         onSubmit={handleCreateProposal}
         isSubmitting={isCreating}
-        requiredDeposit={createFee ? formatUnits(createFee, 18) : "1000"}
+        requiredDeposit={createFee ? createFee.toString() : "1000"}
         userBalance={tokenBalance ? formatUnits(tokenBalance, 18) : "0"}
       />
 
@@ -314,7 +318,7 @@ export default function ProposalsList() {
         onClose={() => setShowNewDispute(false)}
         onSubmit={handleCreateDispute}
         isSubmitting={isCreating}
-        requiredDeposit={createFee ? formatUnits(createFee, 18) : "1000"}
+        requiredDeposit={createFee ? createFee.toString() : "1000"}
         userBalance={tokenBalance ? formatUnits(tokenBalance, 18) : "0"}
       />
     </section>

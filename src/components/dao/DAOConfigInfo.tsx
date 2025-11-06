@@ -4,9 +4,9 @@ import React from "react";
 import { formatUnits } from "viem";
 
 interface DAOConfigInfoProps {
-  createFee?: bigint;
+  createFee?: number;
   tokenBalance?: bigint;
-  votingPeriod?: bigint;
+  votingPeriod?: number;
   allowance?: bigint;
 }
 
@@ -33,7 +33,7 @@ export function DAOConfigInfo({
         <div>
           <div className="text-gray-400 mb-1">提案押金</div>
           <div className="text-white font-semibold">
-            {formatUnits(createFee, 18)} YD
+            {formatUnits(BigInt(createFee), 18)} YD
           </div>
         </div>
 
