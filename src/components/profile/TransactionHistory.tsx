@@ -11,7 +11,8 @@ import {
   RefreshCw,
   Wallet,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { http } from "@/lib/http";
 
 // 交易类型
@@ -56,21 +57,18 @@ interface TransactionResponse {
 
 const transactionTypeConfig = {
   swap: {
-    label: "代币兑换",
     icon: RefreshCw,
     color: "text-blue-600",
     bgColor: "bg-blue-50",
     borderColor: "border-blue-200",
   },
   purchase: {
-    label: "购买课程",
     icon: BookOpen,
     color: "text-green-600",
     bgColor: "bg-green-50",
     borderColor: "border-green-200",
   },
   refund: {
-    label: "课程退款",
     icon: CircleDollarSign,
     color: "text-orange-600",
     bgColor: "bg-orange-50",
@@ -79,24 +77,60 @@ const transactionTypeConfig = {
 };
 
 const statusConfig = {
-  completed: { label: "已完成", color: "text-green-600", bg: "bg-green-100" },
-  pending: { label: "进行中", color: "text-yellow-600", bg: "bg-yellow-100" },
-  failed: { label: "失败", color: "text-red-600", bg: "bg-red-100" },
+  completed: { color: "text-green-600", bg: "bg-green-100" },
+  pending: { color: "text-yellow-600", bg: "bg-yellow-100" },
+  failed: { color: "text-red-600", bg: "bg-red-100" },
 };
 
 export default function TransactionHistory() {
   const { address, isConnected } = useWalletInfo();
+  const t = useTranslations("profile.transactions");
+  const locale = useLocale();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filterType, setFilterType] = useState<TransactionType | "all">("all");
 
-  useEffect(() => {
-    if (address) {
-      loadTransactions();
-    }
-  }, [address]);
+  const formatDateTime = useCallback(
+    (value: string) => {
+      const formatterLocale = locale === "en" ? "en-US" : "zh-CN";
+      try {
+        return new Date(value).toLocaleString(formatterLocale, {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      } catch {
+        return value;
+      }
+    },
+    [locale],
+  );
 
-  const loadTransactions = async () => {
+  const transformTransaction = useCallback(
+    (tx: TransactionResponse): Transaction => {
+      const type = tx.transactionType.toLowerCase() as TransactionType;
+      return {
+        id: tx.transactionId,
+        type,
+        amount: tx.amount,
+        tokenSymbol: "YD",
+        status: tx.status.toLowerCase() as Transaction["status"],
+        timestamp: formatDateTime(tx.createdAt),
+        txHash: tx.txHash,
+        fromToken: tx.fromToken,
+        toToken: tx.toToken,
+        fromAmount: tx.fromAmount,
+        toAmount: tx.toAmount,
+        courseName: tx.course?.title,
+        courseId: tx.course?.courseId,
+      };
+    },
+    [formatDateTime],
+  );
+
+  const loadTransactions = useCallback(async () => {
     setIsLoading(true);
     try {
       const response = await http<
@@ -126,26 +160,13 @@ export default function TransactionHistory() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [address, transformTransaction]);
 
-  const transformTransaction = (tx: TransactionResponse): Transaction => {
-    const type = tx.transactionType.toLowerCase() as TransactionType;
-    return {
-      id: tx.transactionId,
-      type,
-      amount: tx.amount,
-      tokenSymbol: "YD",
-      status: tx.status.toLowerCase() as Transaction["status"],
-      timestamp: new Date(tx.createdAt).toLocaleString("zh-CN"),
-      txHash: tx.txHash,
-      fromToken: tx.fromToken,
-      toToken: tx.toToken,
-      fromAmount: tx.fromAmount,
-      toAmount: tx.toAmount,
-      courseName: tx.course?.title,
-      courseId: tx.course?.courseId,
-    };
-  };
+  useEffect(() => {
+    if (address) {
+      loadTransactions();
+    }
+  }, [address, loadTransactions]);
 
   const filteredTransactions =
     filterType === "all"
@@ -161,7 +182,7 @@ export default function TransactionHistory() {
     return (
       <div className="flex min-h-[400px] flex-col items-center justify-center">
         <Wallet className="mb-4 h-16 w-16 text-[#6A6D94]" />
-        <p className="text-lg text-[#6A6D94]">请先连接钱包查看交易记录</p>
+        <p className="text-lg text-[#6A6D94]">{t("states.connectWallet")}</p>
       </div>
     );
   }
@@ -170,7 +191,7 @@ export default function TransactionHistory() {
     return (
       <div className="flex min-h-[400px] flex-col items-center justify-center">
         <Loader2 className="mb-4 h-16 w-16 animate-spin text-[#8A71FF]" />
-        <p className="text-lg text-[#6A6D94]">加载中...</p>
+        <p className="text-lg text-[#6A6D94]">{t("states.loading")}</p>
       </div>
     );
   }
@@ -181,9 +202,11 @@ export default function TransactionHistory() {
       <div className="rounded-2xl bg-white/60 p-6 backdrop-blur-sm shadow-sm ring-1 ring-white/60">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-2xl font-bold text-[#2B2558] mb-1">交易记录</h2>
+            <h2 className="text-2xl font-bold text-[#2B2558] mb-1">
+              {t("header.title")}
+            </h2>
             <p className="text-sm text-[#6A6D94]">
-              共 {filteredTransactions.length} 笔交易
+              {t("header.subtitle", { count: filteredTransactions.length })}
             </p>
           </div>
           <button
@@ -191,13 +214,14 @@ export default function TransactionHistory() {
             className="flex items-center gap-2 rounded-xl bg-[#F5F0FF] px-4 py-2 text-sm font-medium text-[#8A71FF] transition-all hover:bg-[#8A71FF] hover:text-white"
           >
             <RefreshCw className="h-4 w-4" />
-            刷新
+            {t("actions.refresh")}
           </button>
         </div>
 
         {/* 筛选器 */}
         <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-[#6A6D94]" />
+          <Filter className="h-4 w-4 text-[#6A6D94]" aria-hidden="true" />
+          <span className="text-sm text-[#6A6D94]">{t("filters.label")}</span>
           <div className="flex gap-2">
             <button
               onClick={() => setFilterType("all")}
@@ -207,7 +231,7 @@ export default function TransactionHistory() {
                   : "bg-white/50 text-[#6A6D94] hover:bg-white"
               }`}
             >
-              全部
+              {t("filters.options.all")}
             </button>
             <button
               onClick={() => setFilterType("swap")}
@@ -217,7 +241,7 @@ export default function TransactionHistory() {
                   : "bg-white/50 text-[#6A6D94] hover:bg-white"
               }`}
             >
-              代币兑换
+              {t("filters.options.swap")}
             </button>
             <button
               onClick={() => setFilterType("purchase")}
@@ -227,7 +251,7 @@ export default function TransactionHistory() {
                   : "bg-white/50 text-[#6A6D94] hover:bg-white"
               }`}
             >
-              购买课程
+              {t("filters.options.purchase")}
             </button>
             <button
               onClick={() => setFilterType("refund")}
@@ -237,7 +261,7 @@ export default function TransactionHistory() {
                   : "bg-white/50 text-[#6A6D94] hover:bg-white"
               }`}
             >
-              课程退款
+              {t("filters.options.refund")}
             </button>
           </div>
         </div>
@@ -247,7 +271,7 @@ export default function TransactionHistory() {
       {filteredTransactions.length === 0 ? (
         <div className="flex min-h-[300px] flex-col items-center justify-center rounded-2xl bg-white/60 p-12 backdrop-blur-sm shadow-sm ring-1 ring-white/60">
           <CircleDollarSign className="mb-4 h-16 w-16 text-[#6A6D94]" />
-          <p className="text-lg text-[#6A6D94]">暂无交易记录</p>
+          <p className="text-lg text-[#6A6D94]">{t("states.empty")}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -255,6 +279,8 @@ export default function TransactionHistory() {
             const config = transactionTypeConfig[tx.type];
             const Icon = config.icon;
             const statusConf = statusConfig[tx.status];
+            const typeLabel = t(`filters.options.${tx.type}`);
+            const statusLabel = t(`status.${tx.status}`);
 
             return (
               <div
@@ -274,7 +300,7 @@ export default function TransactionHistory() {
                     <div className="flex items-start justify-between gap-4 mb-2">
                       <div>
                         <h4 className="text-lg font-bold text-[#2B2558] mb-1">
-                          {config.label}
+                          {typeLabel}
                         </h4>
                         <p className="text-sm text-[#6A6D94]">{tx.timestamp}</p>
                       </div>
@@ -286,7 +312,7 @@ export default function TransactionHistory() {
                         <span
                           className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${statusConf.bg} ${statusConf.color}`}
                         >
-                          {statusConf.label}
+                          {statusLabel}
                         </span>
                       </div>
                     </div>
@@ -308,7 +334,11 @@ export default function TransactionHistory() {
                         tx.courseName && (
                           <div className="flex items-center gap-2 text-[#6A6D94]">
                             <BookOpen className="h-4 w-4" />
-                            <span className="font-medium">{tx.courseName}</span>
+                            <span className="font-medium">
+                              {t("details.courseLabel", {
+                                name: tx.courseName,
+                              })}
+                            </span>
                           </div>
                         )}
                       {tx.txHash && (
@@ -320,6 +350,7 @@ export default function TransactionHistory() {
                             {tx.txHash.slice(0, 10)}...{tx.txHash.slice(-8)}
                           </span>
                           <ArrowDownLeft className="h-3 w-3" />
+                          <span>{t("details.viewOnChain")}</span>
                         </button>
                       )}
                     </div>

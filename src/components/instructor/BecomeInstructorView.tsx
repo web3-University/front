@@ -14,63 +14,15 @@ import Image from "next/image";
 import type { ChangeEvent, FormEvent } from "react";
 import { useCallback, useMemo, useState } from "react";
 import { registerUser } from "@/lib/api/user";
+import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/navigation";
 
-const benefits: Array<{
-  icon: LucideIcon;
-  title: string;
-  tag: string;
-  tagClassName: string;
-  description: string;
-}> = [
-  {
-    icon: Coins,
-    title: "85% 收益分成",
-    tag: "高收益",
-    tagClassName: "bg-emerald-100 text-emerald-600",
-    description:
-      "每售出一门课程，您将获得 85% 的收益，平台仅收取 15% 的运营费用。",
-  },
-  {
-    icon: Award,
-    title: "代币奖励机制",
-    tag: "持续奖励",
-    tagClassName: "bg-amber-100 text-amber-600",
-    description: "发布课程即刻获得 10 YD 代币，课程被购买、好评都可额外奖励。",
-  },
-  {
-    icon: Globe2,
-    title: "全球学员触达",
-    tag: "广阔市场",
-    tagClassName: "bg-sky-100 text-sky-600",
-    description:
-      "平台覆盖全球 50,000+ 学员，您的知识可以影响到世界各地的学习者。",
-  },
-  {
-    icon: ShieldCheck,
-    title: "区块链保障",
-    tag: "安全可靠",
-    tagClassName: "bg-indigo-100 text-indigo-600",
-    description:
-      "所有交易记录在区块链上，透明公开，收益结算自动化，无需担心欠款。",
-  },
-];
-
-const requirements = [
-  "具备相关专业知识或技能",
-  "能够制作教学内容",
-  "承诺课程内容的原创性",
-];
-
-const specializationOptions = [
-  { value: "blockchain", label: "区块链 · Web3" },
-  { value: "defi", label: "去中心化金融" },
-  { value: "nft", label: "NFT 艺术" },
-  { value: "security", label: "智能合约安全" },
-  { value: "dao", label: "DAO 治理" },
-  { value: "metaverse", label: "元宇宙应用" },
-  { value: "ai", label: "AI + Web3" },
-];
+const benefitIcons: Record<string, LucideIcon> = {
+  coins: Coins,
+  award: Award,
+  globe: Globe2,
+  shield: ShieldCheck,
+};
 
 type InstructorFormData = {
   name: string;
@@ -81,6 +33,7 @@ type InstructorFormData = {
 
 export default function BecomeInstructorView() {
   const { isAuthenticated, address } = useAuth();
+  const t = useTranslations("instructor");
   const router = useRouter();
   const [formData, setFormData] = useState<InstructorFormData>({
     name: "",
@@ -138,7 +91,7 @@ export default function BecomeInstructorView() {
       if (!isAuthenticated || !address) {
         setSubmitState({
           status: "error",
-          message: "请先连接钱包，然后提交注册信息。",
+          message: t("form.errors.connectWallet"),
         });
         return;
       }
@@ -163,14 +116,14 @@ export default function BecomeInstructorView() {
 
         setSubmitState({
           status: "success",
-          message: "注册成功！讲师中心已创建，您可以开始发布课程。",
+          message: t("formMessages.success"),
         });
         router.push("/course-create");
       } catch (error) {
         console.error("instructor registration failed", error);
         setSubmitState({
           status: "error",
-          message: "注册失败，请稍后重试或联系平台支持。",
+          message: t("formMessages.failure"),
         });
       } finally {
         setIsSubmitting(false);
@@ -187,6 +140,62 @@ export default function BecomeInstructorView() {
     ],
   );
 
+  const specializationOptions = useMemo(
+    () => [
+      { value: "blockchain", label: t("specializations.blockchain") },
+      { value: "defi", label: t("specializations.defi") },
+      { value: "nft", label: t("specializations.nft") },
+      { value: "security", label: t("specializations.security") },
+      { value: "dao", label: t("specializations.dao") },
+      { value: "metaverse", label: t("specializations.metaverse") },
+      { value: "ai", label: t("specializations.ai") },
+    ],
+    [t],
+  );
+
+  const benefits = useMemo(
+    () => [
+      {
+        icon: benefitIcons.coins,
+        title: t("benefits.items.0.title"),
+        tag: t("benefits.items.0.tag"),
+        tagClassName: "bg-emerald-100 text-emerald-600",
+        description: t("benefits.items.0.description"),
+      },
+      {
+        icon: benefitIcons.award,
+        title: t("benefits.items.1.title"),
+        tag: t("benefits.items.1.tag"),
+        tagClassName: "bg-amber-100 text-amber-600",
+        description: t("benefits.items.1.description"),
+      },
+      {
+        icon: benefitIcons.globe,
+        title: t("benefits.items.2.title"),
+        tag: t("benefits.items.2.tag"),
+        tagClassName: "bg-sky-100 text-sky-600",
+        description: t("benefits.items.2.description"),
+      },
+      {
+        icon: benefitIcons.shield,
+        title: t("benefits.items.3.title"),
+        tag: t("benefits.items.3.tag"),
+        tagClassName: "bg-indigo-100 text-indigo-600",
+        description: t("benefits.items.3.description"),
+      },
+    ],
+    [t],
+  );
+
+  const requirements = useMemo(
+    () => [
+      t("requirements.items.0"),
+      t("requirements.items.1"),
+      t("requirements.items.2"),
+    ],
+    [t],
+  );
+
   return (
     <main className="relative overflow-hidden bg-gradient-to-br from-[#edf1ff] via-[#f7faff] to-[#fff6f9] text-slate-900">
       <div className="pointer-events-none absolute inset-0">
@@ -200,14 +209,13 @@ export default function BecomeInstructorView() {
           <header className="space-y-6">
             <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-indigo-100/80">
               <Sparkles className="h-4 w-4 text-indigo-500" />
-              成为讲师
+              {t("hero.badge")}
             </div>
             <h1 className="text-4xl font-extrabold leading-tight md:text-5xl">
-              加入 WEB3 大学，开启您的教学旅程
+              {t("hero.title")}
             </h1>
             <p className="max-w-2xl text-base leading-relaxed text-slate-600 md:text-lg">
-              极简注册，立即开课。支持匿名教学，保障隐私，让知识分享更自由。
-              区块链确权与收益分配，让您的教学价值得到充分认同。
+              {t("hero.description")}
             </p>
           </header>
 
@@ -216,9 +224,11 @@ export default function BecomeInstructorView() {
               <div className="rounded-3xl border border-indigo-100/80 bg-white/80 p-8 shadow-[0_30px_80px_-35px_rgba(78,114,225,0.35)] backdrop-blur-xl">
                 <div className="flex items-start justify-between gap-6">
                   <div>
-                    <h2 className="text-xl font-semibold">基本设置</h2>
+                    <h2 className="text-xl font-semibold">
+                      {t("form.sectionTitle")}
+                    </h2>
                     <p className="mt-2 text-sm text-slate-500">
-                      完善您的讲师信息，让学员快速了解您和您的课程。
+                      {t("form.sectionSubtitle")}
                     </p>
                   </div>
                   <ShieldCheck className="h-8 w-8 text-indigo-400" />
@@ -227,11 +237,11 @@ export default function BecomeInstructorView() {
                   <div className="grid gap-6 md:grid-cols-2">
                     <label className="block">
                       <span className="text-sm font-medium text-slate-700">
-                        姓名 / 昵称 *
+                        {t("form.fields.nameLabel")}
                       </span>
                       <input
                         type="text"
-                        placeholder="请输入您的姓名或昵称"
+                        placeholder={t("form.fields.namePlaceholder")}
                         className="mt-2 w-full rounded-xl border border-indigo-100 bg-white px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-200/80"
                         value={formData.name}
                         onChange={updateField("name")}
@@ -239,17 +249,17 @@ export default function BecomeInstructorView() {
                     </label>
                     <label className="block">
                       <span className="text-sm font-medium text-slate-700">
-                        联系邮箱 *
+                        {t("form.fields.emailLabel")}
                       </span>
                       <input
                         type="email"
-                        placeholder="用于接收平台通知和收益结算"
+                        placeholder={t("form.fields.emailPlaceholder")}
                         className="mt-2 w-full rounded-xl border border-indigo-100 bg-white px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-200/80"
                         value={formData.email}
                         onChange={updateField("email")}
                       />
                       <span className="mt-2 block text-xs text-slate-500">
-                        邮箱仅用于平台通知，不会公开显示。
+                        {t("form.fields.emailHint")}
                       </span>
                     </label>
                   </div>
@@ -257,10 +267,10 @@ export default function BecomeInstructorView() {
                   <div className="space-y-3">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <span className="text-sm font-medium text-slate-700">
-                        专业领域 *
+                        {t("form.fields.domainsLabel")}
                       </span>
                       <span className="text-xs text-slate-400">
-                        可多选，选择最能代表您的方向
+                        {t("form.fields.domainsHint")}
                       </span>
                     </div>
                     <div className="flex flex-wrap gap-2">
@@ -287,18 +297,18 @@ export default function BecomeInstructorView() {
                     </div>
                     {formData.domains.length === 0 && (
                       <p className="text-xs text-rose-400">
-                        请至少选择一个专业领域，以便学员快速了解您擅长的方向。
+                        {t("form.fields.domainsWarning")}
                       </p>
                     )}
                   </div>
 
                   <label className="block">
                     <span className="text-sm font-medium text-slate-700">
-                      教学简介
+                      {t("form.fields.bioLabel")}
                     </span>
                     <textarea
                       rows={4}
-                      placeholder="简要介绍您将要教授的内容和教学风格（可选）..."
+                      placeholder={t("form.fields.bioPlaceholder")}
                       className="mt-2 w-full rounded-2xl border border-indigo-100 bg-white px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 focus:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-200/80"
                       value={formData.bio}
                       onChange={updateField("bio")}
@@ -309,16 +319,16 @@ export default function BecomeInstructorView() {
                     <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-indigo-50 bg-indigo-50">
                       <Image
                         src="/window.svg"
-                        alt="讲师注册图示"
+                        alt={t("form.tipImageAlt")}
                         fill
                         className="object-contain p-4"
                         priority
                       />
                     </div>
                     <div className="space-y-1 text-sm text-slate-600">
-                      <p>上传课程资料、设置价格，即可完成课程上线。</p>
+                      <p>{t("form.tipMain")}</p>
                       <p className="text-xs text-slate-500">
-                        平台提供内容审核与上链服务，确保知识版权归属清晰。
+                        {t("form.tipSub")}
                       </p>
                     </div>
                   </div>
@@ -331,40 +341,40 @@ export default function BecomeInstructorView() {
                       className="mt-1 h-5 w-5 shrink-0 cursor-pointer appearance-none rounded-md border border-slate-300 bg-white transition checked:border-indigo-400/80 checked:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200/80"
                     />
                     <span>
-                      我已阅读并同意{" "}
+                      {t("form.agreementPrefix")}{" "}
                       <Link
                         href="#"
                         className="text-indigo-500 underline decoration-indigo-300 decoration-dashed underline-offset-4 hover:text-indigo-400"
                       >
-                        《讲师服务协议》
+                        {t("form.agreementTeacher")}
                       </Link>{" "}
-                      和{" "}
+                      {t("form.agreementConnector")}{" "}
                       <Link
                         href="#"
                         className="text-indigo-500 underline decoration-indigo-300 decoration-dashed underline-offset-4 hover:text-indigo-400"
                       >
-                        《平台使用条款》
+                        {t("form.agreementPlatform")}
                       </Link>
                     </span>
                   </label>
 
                   <div className="flex flex-col gap-3 rounded-2xl bg-indigo-50/70 p-4 text-xs text-slate-600">
                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                      <p>
-                        提交后，平台将为您创建讲师中心，支持课程发布与收益管理。
-                      </p>
+                      <p>{t("form.submitNote")}</p>
                       <button
                         type="submit"
                         disabled={!canSubmit}
                         className="inline-flex items-center justify-center rounded-full border border-transparent bg-indigo-500 px-6 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition hover:bg-indigo-500/90 disabled:cursor-not-allowed disabled:border-indigo-200 disabled:bg-white disabled:text-slate-400 disabled:shadow-none"
                       >
-                        {isSubmitting ? "提交中..." : "提交注册信息"}
+                        {isSubmitting
+                          ? t("form.buttons.submitting")
+                          : t("form.buttons.submit")}
                       </button>
                     </div>
 
                     {(!isAuthenticated || !address) && (
                       <div className="rounded-xl border border-indigo-200 bg-white px-3 py-2 text-xs text-indigo-500">
-                        请先连接钱包，再提交注册信息。
+                        {t("form.connectWalletNotice")}
                       </div>
                     )}
 
@@ -388,7 +398,9 @@ export default function BecomeInstructorView() {
               <div className="rounded-3xl border border-indigo-100/80 bg-gradient-to-br from-[#edf0ff] via-[#e8f4ff] to-[#ffeafd] p-8 shadow-[0_25px_80px_-45px_rgba(78,114,225,0.55)] backdrop-blur-xl">
                 <div className="flex items-center gap-3">
                   <Sparkles className="h-5 w-5 text-indigo-500" />
-                  <h3 className="text-lg font-semibold">讲师专享福利</h3>
+                  <h3 className="text-lg font-semibold">
+                    {t("benefits.title")}
+                  </h3>
                 </div>
                 <div className="mt-6 space-y-5">
                   {benefits.map((benefit) => (
@@ -422,7 +434,9 @@ export default function BecomeInstructorView() {
               <div className="rounded-3xl border border-indigo-100/80 bg-white/80 p-8 backdrop-blur-xl">
                 <div className="flex items-center gap-3">
                   <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-                  <h3 className="text-lg font-semibold">简单要求</h3>
+                  <h3 className="text-lg font-semibold">
+                    {t("requirements.title")}
+                  </h3>
                 </div>
                 <ul className="mt-6 space-y-4">
                   {requirements.map((item) => (
@@ -433,7 +447,7 @@ export default function BecomeInstructorView() {
                   ))}
                 </ul>
                 <div className="mt-6 rounded-2xl bg-emerald-100 px-4 py-3 text-sm text-emerald-600">
-                  支持匿名教学，无需复杂审核，立即开始！
+                  {t("requirements.highlight")}
                 </div>
               </div>
             </div>

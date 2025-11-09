@@ -467,5 +467,237 @@
         "claimSuccess": "✅ Reward claimed successfully!"
       }
     }
+  },
+  "profile": {
+    "view": {
+      "title": "Profile",
+      "subtitle": "Manage your personal information",
+      "learnCard": {
+        "title": "Go to learning hub",
+        "description": "Track course progress, learning insights, and NFT achievements"
+      },
+      "tabs": {
+        "profile": "Profile",
+        "nft": "NFT collection",
+        "transactions": "Transactions"
+      }
+    },
+    "userInfo": {
+      "connectWalletPrompt": "Please connect your wallet first",
+      "sectionTitle": "Profile details",
+      "wallet": {
+        "label": "Wallet address",
+        "note": "Your wallet address cannot be changed and links all profile data"
+      },
+      "fields": {
+        "name": {
+          "label": "Username",
+          "placeholder": "Enter your username"
+        },
+        "email": {
+          "label": "Email",
+          "placeholder": "Enter your email"
+        }
+      },
+      "placeholders": {
+        "missingName": "Name not set",
+        "missingEmail": "Email not set"
+      },
+      "messages": {
+        "invalidImageType": "Please choose an image file",
+        "imageTooLarge": "Images must be smaller than 5 MB",
+        "codeSent": "Verification code sent! Please check your inbox",
+        "codeSendFailed": "Failed to send verification code, please try again",
+        "operationCancelled": "Action cancelled",
+        "connectWallet": "Please connect your wallet first",
+        "saveSuccess": "Saved successfully!",
+        "saveFailed": "Save failed, please try again"
+      },
+      "validation": {
+        "nameRequired": "Enter a username",
+        "emailRequired": "Enter an email address",
+        "emailInvalid": "Enter a valid email address"
+      },
+      "buttons": {
+        "edit": "Edit profile",
+        "save": "Save",
+        "saving": "Saving…",
+        "cancel": "Cancel"
+      },
+      "signatureMessage": "Update profile\\nTimestamp: {timestamp}\\nWallet address: {address}\\nName: {name}\\nEmail: {email}"
+    },
+    "nft": {
+      "states": {
+        "connectWallet": "Connect your wallet to view NFTs",
+        "loading": "Loading…",
+        "empty": {
+          "title": "No NFTs yet",
+          "subtitle": "Complete courses to unlock collectible NFTs"
+        }
+      },
+      "stats": {
+        "title": "My NFT collection",
+        "subtitle": "You own {count} NFTs"
+      },
+      "badge": "Collectibles",
+      "certificateSuffix": "Certificate",
+      "defaultDescription": "Achievement certificate earned after completing a course",
+      "attributes": {
+        "courseName": "Course name",
+        "difficulty": "Difficulty",
+        "difficultyValue": "Level {level}",
+        "duration": "Duration",
+        "durationValue": "{hours} hours",
+        "category": "Category",
+        "categoryFallback": "General",
+        "rating": "Rating",
+        "ratingValue": "{rating}/5"
+      },
+      "fields": {
+        "tokenId": "Token ID: #{id}",
+        "obtainedDate": "Earned on: {date}"
+      },
+      "actions": {
+        "viewOnChain": "View on chain"
+      },
+      "modal": {
+        "close": "Close details",
+        "descriptionTitle": "Description",
+        "attributesTitle": "Attributes",
+        "detailsTitle": "Details",
+        "fields": {
+          "tokenId": "Token ID",
+          "contract": "Contract address",
+          "obtainedDate": "Earned on"
+        },
+        "actions": {
+          "viewOnChain": "View on the block explorer"
+        }
+      },
+      "rarity": {
+        "common": "Common",
+        "rare": "Rare",
+        "epic": "Epic",
+        "legendary": "Legendary"
+      }
+    },
+    "transactions": {
+      "states": {
+        "connectWallet": "Connect your wallet to view transactions",
+        "loading": "Loading…",
+        "empty": "No transactions yet"
+      },
+      "header": {
+        "title": "Transactions",
+        "subtitle": "{count} total transactions"
+      },
+      "actions": {
+        "refresh": "Refresh"
+      },
+      "filters": {
+        "label": "Filter",
+        "options": {
+          "all": "All",
+          "swap": "Token swap",
+          "purchase": "Course purchase",
+          "refund": "Course refund"
+        }
+      },
+      "status": {
+        "completed": "Completed",
+        "pending": "In progress",
+        "failed": "Failed"
+      },
+      "details": {
+        "courseLabel": "Course: {name}",
+        "viewOnChain": "View transaction"
+      }
+    }
+  },
+  "instructor": {
+    "hero": {
+      "badge": "Become an instructor",
+      "title": "Join Web3 University and launch your teaching journey",
+      "description": "Register in minutes and start teaching right away. Anonymous teaching supported to protect privacy, so sharing knowledge stays free. Blockchain-based attribution and revenue sharing ensure your work is fully valued."
+    },
+    "form": {
+      "sectionTitle": "Basic setup",
+      "sectionSubtitle": "Complete your profile so learners can quickly understand you and your courses.",
+      "fields": {
+        "nameLabel": "Name / nickname *",
+        "namePlaceholder": "Enter your name or alias",
+        "emailLabel": "Contact email *",
+        "emailPlaceholder": "Used for platform notifications and payouts",
+        "emailHint": "Your email is only used for platform notifications and will not be public.",
+        "domainsLabel": "Specializations *",
+        "domainsHint": "Select multiple areas that best represent your expertise",
+        "domainsWarning": "Choose at least one specialization so learners know your focus.",
+        "bioLabel": "Teaching bio",
+        "bioPlaceholder": "Introduce the topics you'll teach and your style (optional)…"
+      },
+      "tipImageAlt": "Instructor registration illustration",
+      "tipMain": "Upload course materials, set pricing, and your course can go live.",
+      "tipSub": "We provide content review and on-chain services to protect intellectual property.",
+      "agreementPrefix": "I have read and agree to the",
+      "agreementTeacher": "Instructor Service Agreement",
+      "agreementPlatform": "Platform Terms of Use",
+      "agreementConnector": "and",
+      "submitNote": "After submission, we’ll create your instructor hub for publishing courses and managing revenue.",
+      "buttons": {
+        "submit": "Submit application",
+        "submitting": "Submitting…"
+      },
+      "connectWalletNotice": "Connect your wallet before submitting.",
+      "errors": {
+        "connectWallet": "Connect your wallet before submitting your registration."
+      }
+    },
+    "formMessages": {
+      "success": "Registration successful! Your instructor hub is ready—start publishing courses.",
+      "failure": "Registration failed. Please try again later or contact support."
+    },
+    "benefits": {
+      "title": "Instructor-only perks",
+      "items": [
+        {
+          "title": "85% revenue share",
+          "tag": "High earnings",
+          "description": "Keep 85% of every sale; the platform only charges a 15% operations fee."
+        },
+        {
+          "title": "Token rewards",
+          "tag": "Ongoing bonuses",
+          "description": "Receive 10 YD tokens for each course you publish, plus extra rewards for purchases and ratings."
+        },
+        {
+          "title": "Global reach",
+          "tag": "Wide audience",
+          "description": "Access 50,000+ learners worldwide and amplify your impact."
+        },
+        {
+          "title": "Blockchain protection",
+          "tag": "Secure & transparent",
+          "description": "Every transaction is on-chain, fully transparent, with automated settlement."
+        }
+      ]
+    },
+    "requirements": {
+      "title": "Simple requirements",
+      "items": [
+        "Relevant expertise or skills",
+        "Ability to create course content",
+        "Original content commitment"
+      ],
+      "highlight": "Anonymous teaching supported—no complicated review required!"
+    },
+    "specializations": {
+      "blockchain": "Blockchain · Web3",
+      "defi": "DeFi",
+      "nft": "NFT art",
+      "security": "Smart contract security",
+      "dao": "DAO governance",
+      "metaverse": "Metaverse apps",
+      "ai": "AI + Web3"
+    }
   }
 }

@@ -2,7 +2,8 @@
 
 import { useWalletInfo } from "@web3-university/uni-wallet-lib";
 import { Award, ExternalLink, Loader2, Sparkles } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { http } from "@/lib/http";
 
 type NFTRarity = "common" | "rare" | "epic" | "legendary";
@@ -62,54 +63,26 @@ function getDifficultyRarity(difficulty: string): NFTRarity {
   return "common";
 }
 
-// 将 API 数据转换为展示数据
-function transformCertificateToNFT(cert: CertificateResponse): NFT {
-  return {
-    id: cert.certificateId,
-    tokenId: cert.tokenId,
-    name: `${cert.course.title} - 课程证书`,
-    description: cert.course.description || "完成课程学习获得的成就证书",
-    imageUrl: cert.nftUrl || cert.course.cover || "🏆",
-    rarity: getDifficultyRarity(cert.course.difficulty),
-    contractAddress: cert.contractAddress,
-    obtainedDate: new Date(cert.completionDate).toLocaleDateString("zh-CN"),
-    attributes: [
-      { trait_type: "课程名称", value: cert.course.title },
-      { trait_type: "难度", value: `Level ${cert.course.difficulty}` },
-      { trait_type: "时长", value: `${cert.course.duration} 小时` },
-      {
-        trait_type: "分类",
-        value: cert.course.categories[0] || "General",
-      },
-      { trait_type: "评分", value: `${cert.course.rating}/5` },
-    ],
-  };
-}
-
 const rarityConfig: Record<
   NFTRarity,
-  { label: string; color: string; borderColor: string; bgGradient: string }
+  { color: string; borderColor: string; bgGradient: string }
 > = {
   common: {
-    label: "COMMON",
     color: "text-[#9E9E9E]",
     borderColor: "ring-[#9E9E9E]/30",
     bgGradient: "from-[#9E9E9E]/10 to-[#757575]/5",
   },
   rare: {
-    label: "RARE",
     color: "text-[#5B9EFF]",
     borderColor: "ring-[#5B9EFF]/30",
     bgGradient: "from-[#5B9EFF]/10 to-[#4A8EFF]/5",
   },
   epic: {
-    label: "EPIC",
     color: "text-[#9C27B0]",
     borderColor: "ring-[#9C27B0]/30",
     bgGradient: "from-[#9C27B0]/10 to-[#7B1FA2]/5",
   },
   legendary: {
-    label: "LEGENDARY",
     color: "text-[#FF9800]",
     borderColor: "ring-[#FF9800]/30",
     bgGradient: "from-[#FF9800]/10 to-[#F57C00]/5",
@@ -118,17 +91,68 @@ const rarityConfig: Record<
 
 export default function NFTGallery() {
   const { address, isConnected } = useWalletInfo();
+  const t = useTranslations("profile.nft");
+  const locale = useLocale();
   const [nfts, setNfts] = useState<NFT[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedNFT, setSelectedNFT] = useState<NFT | null>(null);
 
-  useEffect(() => {
-    if (address) {
-      loadNFTs();
-    }
-  }, [address]);
+  const dateFormatter = useCallback(
+    (value: string) => {
+      const formatterLocale = locale === "en" ? "en-US" : "zh-CN";
+      try {
+        return new Date(value).toLocaleDateString(formatterLocale, {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        });
+      } catch {
+        return value;
+      }
+    },
+    [locale],
+  );
 
-  const loadNFTs = async () => {
+  const transformCertificateToNFT = useCallback(
+    (cert: CertificateResponse): NFT => ({
+      id: cert.certificateId,
+      tokenId: cert.tokenId,
+      name: `${cert.course.title} ${t("certificateSuffix")}`,
+      description: cert.course.description || t("defaultDescription"),
+      imageUrl: cert.nftUrl || cert.course.cover || "🏆",
+      rarity: getDifficultyRarity(cert.course.difficulty),
+      contractAddress: cert.contractAddress,
+      obtainedDate: dateFormatter(cert.completionDate),
+      attributes: [
+        { trait_type: t("attributes.courseName"), value: cert.course.title },
+        {
+          trait_type: t("attributes.difficulty"),
+          value: t("attributes.difficultyValue", {
+            level: cert.course.difficulty,
+          }),
+        },
+        {
+          trait_type: t("attributes.duration"),
+          value: t("attributes.durationValue", {
+            hours: cert.course.duration,
+          }),
+        },
+        {
+          trait_type: t("attributes.category"),
+          value: cert.course.categories[0] || t("attributes.categoryFallback"),
+        },
+        {
+          trait_type: t("attributes.rating"),
+          value: t("attributes.ratingValue", {
+            rating: cert.course.rating,
+          }),
+        },
+      ],
+    }),
+    [dateFormatter, t],
+  );
+
+  const loadNFTs = useCallback(async () => {
     setIsLoading(true);
     try {
       const response = await http<
@@ -162,7 +186,13 @@ export default function NFTGallery() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [address, transformCertificateToNFT]);
+
+  useEffect(() => {
+    if (address) {
+      loadNFTs();
+    }
+  }, [address, loadNFTs]);
 
   const openBlockExplorer = (contractAddress: string, tokenId: string) => {
     // 使用 Sepolia 测试网的区块链浏览器
@@ -174,7 +204,7 @@ export default function NFTGallery() {
     return (
       <div className="flex min-h-[400px] flex-col items-center justify-center">
         <Sparkles className="mb-4 h-16 w-16 text-[#6A6D94]" />
-        <p className="text-lg text-[#6A6D94]">请先连接钱包查看NFT</p>
+        <p className="text-lg text-[#6A6D94]">{t("states.connectWallet")}</p>
       </div>
     );
   }
@@ -183,7 +213,7 @@ export default function NFTGallery() {
     return (
       <div className="flex min-h-[400px] flex-col items-center justify-center">
         <Loader2 className="mb-4 h-16 w-16 animate-spin text-[#8A71FF]" />
-        <p className="text-lg text-[#6A6D94]">加载中...</p>
+        <p className="text-lg text-[#6A6D94]">{t("states.loading")}</p>
       </div>
     );
   }
@@ -192,8 +222,10 @@ export default function NFTGallery() {
     return (
       <div className="flex min-h-[400px] flex-col items-center justify-center">
         <Award className="mb-4 h-16 w-16 text-[#6A6D94]" />
-        <p className="text-lg text-[#6A6D94]">暂无NFT收藏</p>
-        <p className="mt-2 text-sm text-[#6A6D94]">完成课程学习获得成就NFT</p>
+        <p className="text-lg text-[#6A6D94]">{t("states.empty.title")}</p>
+        <p className="mt-2 text-sm text-[#6A6D94]">
+          {t("states.empty.subtitle")}
+        </p>
       </div>
     );
   }
@@ -205,13 +237,15 @@ export default function NFTGallery() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold text-[#2B2558] mb-1">
-              我的NFT收藏
+              {t("stats.title")}
             </h2>
-            <p className="text-sm text-[#6A6D94]">共收藏 {nfts.length} 个NFT</p>
+            <p className="text-sm text-[#6A6D94]">
+              {t("stats.subtitle", { count: nfts.length })}
+            </p>
           </div>
           <div className="flex items-center gap-2 rounded-full bg-gradient-to-r from-[#FFB347] to-[#FF8A6B] px-4 py-2 text-sm font-medium text-white shadow-md">
             <Sparkles className="h-4 w-4" />
-            <span>珍藏品</span>
+            <span>{t("badge")}</span>
           </div>
         </div>
       </div>
@@ -260,14 +294,14 @@ export default function NFTGallery() {
                     rarityConfig[nft.rarity].color
                   } border-current px-3 py-1 text-xs font-bold tracking-wider`}
                 >
-                  {rarityConfig[nft.rarity].label}
+                  {t(`rarity.${nft.rarity}`)}
                 </span>
               </div>
 
               {/* Token ID 和获得日期 */}
               <div className="space-y-1 text-center text-xs text-[#6A6D94]">
-                <p>Token ID: #{nft.tokenId}</p>
-                <p>获得日期: {nft.obtainedDate}</p>
+                <p>{t("fields.tokenId", { id: nft.tokenId })}</p>
+                <p>{t("fields.obtainedDate", { date: nft.obtainedDate })}</p>
               </div>
 
               {/* 查看详情按钮 */}
@@ -279,7 +313,7 @@ export default function NFTGallery() {
                 className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#F5F0FF] px-4 py-2 text-sm font-medium text-[#8A71FF] transition-all hover:bg-[#8A71FF] hover:text-white"
               >
                 <ExternalLink className="h-4 w-4" />
-                查看链上信息
+                {t("actions.viewOnChain")}
               </button>
             </div>
           </div>
@@ -306,12 +340,13 @@ export default function NFTGallery() {
                     rarityConfig[selectedNFT.rarity].color
                   } border-current px-3 py-1 text-xs font-bold tracking-wider`}
                 >
-                  {rarityConfig[selectedNFT.rarity].label}
+                  {t(`rarity.${selectedNFT.rarity}`)}
                 </span>
               </div>
               <button
                 onClick={() => setSelectedNFT(null)}
                 className="text-[#6A6D94] hover:text-[#2B2558] transition-colors"
+                aria-label={t("modal.close")}
               >
                 <span className="text-2xl">×</span>
               </button>
@@ -333,13 +368,17 @@ export default function NFTGallery() {
 
             <div className="space-y-4">
               <div>
-                <h4 className="mb-2 font-bold text-[#2B2558]">描述</h4>
+                <h4 className="mb-2 font-bold text-[#2B2558]">
+                  {t("modal.descriptionTitle")}
+                </h4>
                 <p className="text-[#6A6D94]">{selectedNFT.description}</p>
               </div>
 
               {selectedNFT.attributes && selectedNFT.attributes.length > 0 && (
                 <div>
-                  <h4 className="mb-2 font-bold text-[#2B2558]">属性</h4>
+                  <h4 className="mb-2 font-bold text-[#2B2558]">
+                    {t("modal.attributesTitle")}
+                  </h4>
                   <div className="grid grid-cols-2 gap-3">
                     {selectedNFT.attributes.map((attr, index) => (
                       <div key={index} className="rounded-xl bg-[#F5F0FF] p-3">
@@ -354,23 +393,31 @@ export default function NFTGallery() {
               )}
 
               <div>
-                <h4 className="mb-2 font-bold text-[#2B2558]">详细信息</h4>
+                <h4 className="mb-2 font-bold text-[#2B2558]">
+                  {t("modal.detailsTitle")}
+                </h4>
                 <div className="space-y-2 rounded-xl bg-[#F5F0FF] p-4 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-[#6A6D94]">Token ID</span>
+                    <span className="text-[#6A6D94]">
+                      {t("modal.fields.tokenId")}
+                    </span>
                     <span className="font-mono text-[#2B2558]">
                       #{selectedNFT.tokenId}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#6A6D94]">合约地址</span>
+                    <span className="text-[#6A6D94]">
+                      {t("modal.fields.contract")}
+                    </span>
                     <span className="font-mono text-[#2B2558]">
                       {selectedNFT.contractAddress.slice(0, 6)}...
                       {selectedNFT.contractAddress.slice(-4)}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#6A6D94]">获得日期</span>
+                    <span className="text-[#6A6D94]">
+                      {t("modal.fields.obtainedDate")}
+                    </span>
                     <span className="text-[#2B2558]">
                       {selectedNFT.obtainedDate}
                     </span>
@@ -388,7 +435,7 @@ export default function NFTGallery() {
                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#8A71FF] to-[#9D7FFF] px-6 py-3 font-medium text-white shadow-md transition-all hover:shadow-lg hover:scale-105"
               >
                 <ExternalLink className="h-5 w-5" />
-                在区块链浏览器中查看
+                {t("modal.actions.viewOnChain")}
               </button>
             </div>
           </div>

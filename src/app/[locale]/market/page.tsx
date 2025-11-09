@@ -1,8 +1,15 @@
 import { getTranslations } from "next-intl/server";
 import CourseList from "@/components/market/CourseList";
 
-export default async function MarketPage() {
-  const t = await getTranslations("market.page");
+type MarketPageProps = {
+  params: { locale: string };
+};
+
+export default async function MarketPage({ params }: MarketPageProps) {
+  const t = await getTranslations({
+    locale: params.locale,
+    namespace: "market.page",
+  });
 
   return (
     <div className="min-h-screen text-white">
@@ -10,7 +17,7 @@ export default async function MarketPage() {
       <main className="container mx-auto max-w-[1200px] px-4 pt-32">
         {/* 标题部分 */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2">{t("title")}</h1>
+          <h1 className="text-3xl font-bold mb-2 text-black">{t("title")}</h1>
           <p className="text-gray-400">{t("subtitle")}</p>
         </div>
 

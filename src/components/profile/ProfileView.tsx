@@ -2,6 +2,7 @@
 
 import { ArrowRight, Award, Sparkles, User } from "lucide-react";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/navigation";
 import NFTGallery from "./NFTGallery";
 // import TransactionHistory from "./TransactionHistory";
@@ -11,6 +12,7 @@ type Tab = "profile" | "nft";
 // type Tab = "profile" | "nft" | "transactions";
 
 export default function ProfileView() {
+  const t = useTranslations("profile.view");
   const [activeTab, setActiveTab] = useState<Tab>("profile");
 
   return (
@@ -18,8 +20,10 @@ export default function ProfileView() {
       <div className="mx-auto max-w-[1280px] px-6">
         {/* 页面标题 */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-[#2B2558] mb-3">个人中心</h1>
-          <p className="text-lg text-[#6A6D94]">管理你的个人信息</p>
+          <h1 className="text-4xl font-bold text-[#2B2558] mb-3">
+            {t("title")}
+          </h1>
+          <p className="text-lg text-[#6A6D94]">{t("subtitle")}</p>
         </div>
 
         {/* 跳转到学习中心的引导卡片 */}
@@ -32,10 +36,10 @@ export default function ProfileView() {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-white mb-1">
-                    前往学习中心
+                    {t("learnCard.title")}
                   </h3>
                   <p className="text-sm text-white/90">
-                    查看课程进度、学习分析和NFT成就收藏
+                    {t("learnCard.description")}
                   </p>
                 </div>
               </div>
@@ -56,7 +60,7 @@ export default function ProfileView() {
               }`}
             >
               <User className="h-5 w-5" />
-              个人信息
+              {t("tabs.profile")}
             </button>
             <button
               onClick={() => setActiveTab("nft")}
@@ -67,7 +71,7 @@ export default function ProfileView() {
               }`}
             >
               <Sparkles className="h-5 w-5" />
-              NFT收藏
+              {t("tabs.nft")}
             </button>
             {/* 交易记录 Tab 暂时隐藏 */}
             {/* <button

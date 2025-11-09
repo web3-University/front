@@ -17,6 +17,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { formatUnits } from "viem";
 import { http } from "@/lib/http";
 
@@ -30,6 +31,7 @@ interface UserProfile {
 export default function UserInfoSection() {
   const { address, isConnected } = useWalletInfo();
   const { signMessage } = useWalletSign();
+  const t = useTranslations("profile.userInfo");
 
   // YD代币相关
   const tokenAddress = useMemo(() => {
@@ -113,13 +115,13 @@ export default function UserInfoSection() {
 
     // 检查文件类型
     if (!file.type.startsWith("image/")) {
-      setMessage({ type: "error", text: "请选择图片文件" });
+      setMessage({ type: "error", text: t("messages.invalidImageType") });
       return;
     }
 
     // 检查文件大小（限制为 5MB）
     if (file.size > 5 * 1024 * 1024) {
-      setMessage({ type: "error", text: "图片大小不能超过 5MB" });
+      setMessage({ type: "error", text: t("messages.imageTooLarge") });
       return;
     }
 
@@ -136,7 +138,7 @@ export default function UserInfoSection() {
     // 验证邮箱格式
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(profile.email)) {
-      setMessage({ type: "error", text: "请输入有效的邮箱地址" });
+      setMessage({ type: "error", text: t("validation.emailInvalid") });
       return;
     }
 
@@ -160,7 +162,7 @@ export default function UserInfoSection() {
         },
       });
 
-      setMessage({ type: "success", text: "验证码已发送，请查收邮箱" });
+      setMessage({ type: "success", text: t("messages.codeSent") });
       setCountdown(60); // 60秒倒计时
 
       // 3秒后清除成功消息
@@ -169,7 +171,8 @@ export default function UserInfoSection() {
       console.error("发送验证码失败:", error);
       setMessage({
         type: "error",
-        text: error instanceof Error ? error.message : "发送验证码失败，请重试",
+        text:
+          error instanceof Error ? error.message : t("messages.codeSendFailed"),
       });
     } finally {
       setIsSendingCode(false);
@@ -178,24 +181,24 @@ export default function UserInfoSection() {
 
   const handleSave = async () => {
     if (!isConnected || !address) {
-      setMessage({ type: "error", text: "请先连接钱包" });
+      setMessage({ type: "error", text: t("messages.connectWallet") });
       return;
     }
 
     if (!profile.name.trim()) {
-      setMessage({ type: "error", text: "请输入用户名" });
+      setMessage({ type: "error", text: t("validation.nameRequired") });
       return;
     }
 
     if (!profile.email.trim()) {
-      setMessage({ type: "error", text: "请输入邮箱" });
+      setMessage({ type: "error", text: t("validation.emailRequired") });
       return;
     }
 
     // 验证邮箱格式
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(profile.email)) {
-      setMessage({ type: "error", text: "请输入有效的邮箱地址" });
+      setMessage({ type: "error", text: t("validation.emailInvalid") });
       return;
     }
 
@@ -213,7 +216,12 @@ export default function UserInfoSection() {
     try {
       // 生成签名消息用于用户确认
       const timestamp = Date.now();
-      const message = `更新个人信息\n时间戳: ${timestamp}\n钱包地址: ${address}\n名称: ${profile.name}\n邮箱: ${profile.email}`;
+      const message = t("signatureMessage", {
+        timestamp,
+        address,
+        name: profile.name,
+        email: profile.email,
+      });
 
       // 请求钱包签名（用户确认操作）
       let signature: string;
@@ -223,7 +231,7 @@ export default function UserInfoSection() {
       } catch (_signError) {
         // 用户拒绝签名，不继续请求接口
         console.log("用户拒绝签名");
-        setMessage({ type: "error", text: "已取消操作" });
+        setMessage({ type: "error", text: t("messages.operationCancelled") });
         return;
       }
 
@@ -286,7 +294,7 @@ export default function UserInfoSection() {
         console.error("更新 localStorage 失败:", storageError);
       }
 
-      setMessage({ type: "success", text: "保存成功！" });
+      setMessage({ type: "success", text: t("messages.saveSuccess") });
       setIsEditing(false);
       setEmailCode(""); // 清空验证码
       setOriginalEmail(profile.email); // 更新原始邮箱
@@ -300,7 +308,7 @@ export default function UserInfoSection() {
       console.error("保存失败:", error);
       setMessage({
         type: "error",
-        text: error instanceof Error ? error.message : "保存失败，请重试",
+        text: error instanceof Error ? error.message : t("messages.saveFailed"),
       });
     } finally {
       setIsSaving(false);
@@ -311,7 +319,7 @@ export default function UserInfoSection() {
     return (
       <div className="flex min-h-[400px] flex-col items-center justify-center">
         <Wallet className="mb-4 h-16 w-16 text-[#6A6D94]" />
-        <p className="text-lg text-[#6A6D94]">请先连接钱包</p>
+        <p className="text-lg text-[#6A6D94]">{t("connectWalletPrompt")}</p>
       </div>
     );
   }
@@ -375,10 +383,10 @@ export default function UserInfoSection() {
           {/* 用户信息展示 */}
           <div className="flex-1 text-center sm:text-left">
             <h2 className="text-2xl font-bold text-[#2B2558] mb-2">
-              {profile.name || "未设置名称"}
+              {profile.name || t("placeholders.missingName")}
             </h2>
             <p className="text-sm text-[#6A6D94] mb-3">
-              {profile.email || "未设置邮箱"}
+              {profile.email || t("placeholders.missingEmail")}
             </p>
             <div className="flex flex-col sm:flex-row gap-2">
               <div className="inline-flex items-center gap-2 rounded-full bg-[#F5F0FF] px-4 py-2">
@@ -400,28 +408,28 @@ export default function UserInfoSection() {
 
       {/* 表单编辑卡片 */}
       <div className="rounded-2xl bg-white/60 p-6 backdrop-blur-sm shadow-sm ring-1 ring-white/60">
-        <h3 className="text-lg font-bold text-[#2B2558] mb-6">个人资料</h3>
+        <h3 className="text-lg font-bold text-[#2B2558] mb-6">
+          {t("sectionTitle")}
+        </h3>
 
         <div className="space-y-6">
           {/* 钱包地址（只读） */}
           <div>
             <label className="mb-2 flex items-center gap-2 text-sm font-medium text-[#2B2558]">
               <Wallet className="h-4 w-4" />
-              钱包地址
+              {t("wallet.label")}
             </label>
             <div className="rounded-xl bg-[#F5F0FF] px-4 py-3 font-mono text-sm text-[#6A6D94]">
               {address}
             </div>
-            <p className="mt-2 text-xs text-[#6A6D94]">
-              钱包地址不可修改，所有信息都绑定到此地址
-            </p>
+            <p className="mt-2 text-xs text-[#6A6D94]">{t("wallet.note")}</p>
           </div>
 
           {/* 用户名 */}
           <div>
             <label className="mb-2 flex items-center gap-2 text-sm font-medium text-[#2B2558]">
               <User className="h-4 w-4" />
-              用户名
+              {t("fields.name.label")}
             </label>
             <input
               type="text"
@@ -430,7 +438,7 @@ export default function UserInfoSection() {
                 setProfile((prev) => ({ ...prev, name: e.target.value }))
               }
               disabled={!isEditing}
-              placeholder="请输入您的用户名"
+              placeholder={t("fields.name.placeholder")}
               className="w-full rounded-xl border border-[#E0E0E0] bg-white px-4 py-3 text-[#2B2558] transition-all focus:border-[#8A71FF] focus:outline-none focus:ring-2 focus:ring-[#8A71FF]/20 disabled:bg-[#F5F0FF] disabled:text-[#6A6D94]"
             />
           </div>
@@ -439,7 +447,7 @@ export default function UserInfoSection() {
           <div>
             <label className="mb-2 flex items-center gap-2 text-sm font-medium text-[#2B2558]">
               <Mail className="h-4 w-4" />
-              邮箱
+              {t("fields.email.label")}
             </label>
             <div className="flex gap-2">
               <input
@@ -449,7 +457,7 @@ export default function UserInfoSection() {
                   setProfile((prev) => ({ ...prev, email: e.target.value }))
                 }
                 disabled={!isEditing}
-                placeholder="请输入您的邮箱"
+                placeholder={t("fields.email.placeholder")}
                 className="flex-1 rounded-xl border border-[#E0E0E0] bg-white px-4 py-3 text-[#2B2558] transition-all focus:border-[#8A71FF] focus:outline-none focus:ring-2 focus:ring-[#8A71FF]/20 disabled:bg-[#F5F0FF] disabled:text-[#6A6D94]"
               />
               {/* 暂时禁用发送验证码功能 */}
@@ -500,7 +508,7 @@ export default function UserInfoSection() {
               onClick={() => setIsEditing(true)}
               className="rounded-xl bg-gradient-to-r from-[#8A71FF] to-[#9D7FFF] px-6 py-3 font-medium text-white shadow-md transition-all hover:shadow-lg hover:scale-105"
             >
-              编辑信息
+              {t("buttons.edit")}
             </button>
           ) : (
             <>
@@ -512,12 +520,12 @@ export default function UserInfoSection() {
                 {isSaving ? (
                   <>
                     <Loader2 className="h-5 w-5 animate-spin" />
-                    保存中...
+                    {t("buttons.saving")}
                   </>
                 ) : (
                   <>
                     <Save className="h-5 w-5" />
-                    保存
+                    {t("buttons.save")}
                   </>
                 )}
               </button>
@@ -531,7 +539,7 @@ export default function UserInfoSection() {
                 disabled={isSaving}
                 className="rounded-xl border border-[#E0E0E0] px-6 py-3 font-medium text-[#6A6D94] transition-all hover:bg-white/50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                取消
+                {t("buttons.cancel")}
               </button>
             </>
           )}

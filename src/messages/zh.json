@@ -467,5 +467,237 @@
         "claimSuccess": "✅ 奖励领取成功！"
       }
     }
+  },
+  "profile": {
+    "view": {
+      "title": "个人中心",
+      "subtitle": "管理你的个人信息",
+      "learnCard": {
+        "title": "前往学习中心",
+        "description": "查看课程进度、学习分析和 NFT 成就收藏"
+      },
+      "tabs": {
+        "profile": "个人信息",
+        "nft": "NFT 收藏",
+        "transactions": "交易记录"
+      }
+    },
+    "userInfo": {
+      "connectWalletPrompt": "请先连接钱包",
+      "sectionTitle": "个人资料",
+      "wallet": {
+        "label": "钱包地址",
+        "note": "钱包地址不可修改，所有信息都绑定到此地址"
+      },
+      "fields": {
+        "name": {
+          "label": "用户名",
+          "placeholder": "请输入您的用户名"
+        },
+        "email": {
+          "label": "邮箱",
+          "placeholder": "请输入您的邮箱"
+        }
+      },
+      "placeholders": {
+        "missingName": "未设置名称",
+        "missingEmail": "未设置邮箱"
+      },
+      "messages": {
+        "invalidImageType": "请选择图片文件",
+        "imageTooLarge": "图片大小不能超过 5MB",
+        "codeSent": "验证码已发送，请查收邮箱",
+        "codeSendFailed": "发送验证码失败，请重试",
+        "operationCancelled": "已取消操作",
+        "connectWallet": "请先连接钱包",
+        "saveSuccess": "保存成功！",
+        "saveFailed": "保存失败，请重试"
+      },
+      "validation": {
+        "nameRequired": "请输入用户名",
+        "emailRequired": "请输入邮箱",
+        "emailInvalid": "请输入有效的邮箱地址"
+      },
+      "buttons": {
+        "edit": "编辑信息",
+        "save": "保存",
+        "saving": "保存中...",
+        "cancel": "取消"
+      },
+      "signatureMessage": "更新个人信息\\n时间戳: {timestamp}\\n钱包地址: {address}\\n名称: {name}\\n邮箱: {email}"
+    },
+    "nft": {
+      "states": {
+        "connectWallet": "请先连接钱包查看 NFT",
+        "loading": "加载中...",
+        "empty": {
+          "title": "暂无 NFT 收藏",
+          "subtitle": "完成课程学习获得成就 NFT"
+        }
+      },
+      "stats": {
+        "title": "我的 NFT 收藏",
+        "subtitle": "共收藏 {count} 个 NFT"
+      },
+      "badge": "珍藏品",
+      "certificateSuffix": "课程证书",
+      "defaultDescription": "完成课程学习获得的成就证书",
+      "attributes": {
+        "courseName": "课程名称",
+        "difficulty": "难度",
+        "difficultyValue": "Level {level}",
+        "duration": "时长",
+        "durationValue": "{hours} 小时",
+        "category": "分类",
+        "categoryFallback": "通用",
+        "rating": "评分",
+        "ratingValue": "{rating}/5"
+      },
+      "fields": {
+        "tokenId": "Token ID: #{id}",
+        "obtainedDate": "获得日期: {date}"
+      },
+      "actions": {
+        "viewOnChain": "查看链上信息"
+      },
+      "modal": {
+        "close": "关闭详情",
+        "descriptionTitle": "描述",
+        "attributesTitle": "属性",
+        "detailsTitle": "详细信息",
+        "fields": {
+          "tokenId": "Token ID",
+          "contract": "合约地址",
+          "obtainedDate": "获得日期"
+        },
+        "actions": {
+          "viewOnChain": "在区块链浏览器中查看"
+        }
+      },
+      "rarity": {
+        "common": "普通",
+        "rare": "稀有",
+        "epic": "史诗",
+        "legendary": "传说"
+      }
+    },
+    "transactions": {
+      "states": {
+        "connectWallet": "请先连接钱包查看交易记录",
+        "loading": "加载中...",
+        "empty": "暂无交易记录"
+      },
+      "header": {
+        "title": "交易记录",
+        "subtitle": "共 {count} 笔交易"
+      },
+      "actions": {
+        "refresh": "刷新"
+      },
+      "filters": {
+        "label": "筛选",
+        "options": {
+          "all": "全部",
+          "swap": "代币兑换",
+          "purchase": "购买课程",
+          "refund": "课程退款"
+        }
+      },
+      "status": {
+        "completed": "已完成",
+        "pending": "进行中",
+        "failed": "失败"
+      },
+      "details": {
+        "courseLabel": "课程：{name}",
+        "viewOnChain": "查看交易"
+      }
+    }
+  },
+  "instructor": {
+    "hero": {
+      "badge": "成为讲师",
+      "title": "加入 WEB3 大学，开启您的教学旅程",
+      "description": "极简注册，立即开课。支持匿名教学，保障隐私，让知识分享更自由。区块链确权与收益分配，让您的教学价值得到充分认同。"
+    },
+    "form": {
+      "sectionTitle": "基本设置",
+      "sectionSubtitle": "完善您的讲师信息，让学员快速了解您和您的课程。",
+      "fields": {
+        "nameLabel": "姓名 / 昵称 *",
+        "namePlaceholder": "请输入您的姓名或昵称",
+        "emailLabel": "联系邮箱 *",
+        "emailPlaceholder": "用于接收平台通知和收益结算",
+        "emailHint": "邮箱仅用于平台通知，不会公开显示。",
+        "domainsLabel": "专业领域 *",
+        "domainsHint": "可多选，选择最能代表您的方向",
+        "domainsWarning": "请至少选择一个专业领域，以便学员快速了解您擅长的方向。",
+        "bioLabel": "教学简介",
+        "bioPlaceholder": "简要介绍您将要教授的内容和教学风格（可选）..."
+      },
+      "tipImageAlt": "讲师注册图示",
+      "tipMain": "上传课程资料、设置价格，即可完成课程上线。",
+      "tipSub": "平台提供内容审核与上链服务，确保知识版权归属清晰。",
+      "agreementPrefix": "我已阅读并同意",
+      "agreementTeacher": "《讲师服务协议》",
+      "agreementPlatform": "《平台使用条款》",
+      "agreementConnector": "和",
+      "submitNote": "提交后，平台将为您创建讲师中心，支持课程发布与收益管理。",
+      "buttons": {
+        "submit": "提交注册信息",
+        "submitting": "提交中..."
+      },
+      "connectWalletNotice": "请先连接钱包，再提交注册信息。",
+      "errors": {
+        "connectWallet": "请先连接钱包，然后提交注册信息。"
+      }
+    },
+    "formMessages": {
+      "success": "注册成功！讲师中心已创建，您可以开始发布课程。",
+      "failure": "注册失败，请稍后重试或联系平台支持。"
+    },
+    "benefits": {
+      "title": "讲师专享福利",
+      "items": [
+        {
+          "title": "85% 收益分成",
+          "tag": "高收益",
+          "description": "每售出一门课程，您将获得 85% 的收益，平台仅收取 15% 的运营费用。"
+        },
+        {
+          "title": "代币奖励机制",
+          "tag": "持续奖励",
+          "description": "发布课程即刻获得 10 YD 代币，课程被购买、好评都可额外奖励。"
+        },
+        {
+          "title": "全球学员触达",
+          "tag": "广阔市场",
+          "description": "平台覆盖全球 50,000+ 学员，您的知识可以影响到世界各地的学习者。"
+        },
+        {
+          "title": "区块链保障",
+          "tag": "安全可靠",
+          "description": "所有交易记录在区块链上，透明公开，收益结算自动化，无需担心欠款。"
+        }
+      ]
+    },
+    "requirements": {
+      "title": "简单要求",
+      "items": [
+        "具备相关专业知识或技能",
+        "能够制作教学内容",
+        "承诺课程内容的原创性"
+      ],
+      "highlight": "支持匿名教学，无需复杂审核，立即开始！"
+    },
+    "specializations": {
+      "blockchain": "区块链 · Web3",
+      "defi": "去中心化金融",
+      "nft": "NFT 艺术",
+      "security": "智能合约安全",
+      "dao": "DAO 治理",
+      "metaverse": "元宇宙应用",
+      "ai": "AI + Web3"
+    }
   }
 }
