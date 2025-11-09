@@ -2,7 +2,7 @@ import React from "react";
 // import { FaSave, FaEye, FaCheck } from 'react-icons/fa';
 import { useCourseContext } from "./CourseContext";
 
-const QuickActions = () => {
+const QuickActions = ({ onPreview }: { onPreview?: () => void }) => {
   const { saveDraft, previewCourse, publishCourse } = useCourseContext();
 
   return (
@@ -16,7 +16,7 @@ const QuickActions = () => {
         <span>保存草稿</span>
       </button>
       <button
-        onClick={previewCourse}
+        onClick={onPreview}
         className="w-full text-sm bg-purple-100 hover:bg-purple-200 text-purple-700 py-2 rounded-md transition"
       >
         {/* <FaEye className="w-4 h-4" /> */}
