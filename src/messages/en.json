@@ -216,5 +216,256 @@
         "purchaseFailed": "Purchase failed, please try again later"
       }
     }
+  },
+  "dao": {
+    "hero": {
+      "badge": "🔥 Web3 education revolution",
+      "title": "Community governance",
+      "description": "Token holders can submit proposals and vote to shape platform roadmaps, course rules and reward distribution."
+    },
+    "stats": {
+      "items": {
+        "totalVotes": "Total voting power",
+        "activeProposals": "Active proposals",
+        "treasury": "Treasury funds",
+        "totalProposals": "Proposals submitted"
+      }
+    },
+    "config": {
+      "depositLabel": "Proposal deposit",
+      "balanceLabel": "Your balance",
+      "votingPeriodLabel": "Voting window",
+      "votingPeriodValue": "{days} days",
+      "approvalLabel": "Allowance status",
+      "approved": "✅ Approved",
+      "notApproved": "❌ Not approved"
+    },
+    "tabs": {
+      "proposal": "Governance proposals",
+      "dispute": "Dispute resolution",
+      "history": "History",
+      "default": "proposals"
+    },
+    "createButtons": {
+      "connectWallet": "Connect wallet first",
+      "submitting": "Submitting…",
+      "newProposal": "Submit proposal",
+      "newDispute": "File dispute"
+    },
+    "emptyState": {
+      "title": "No {tab} yet",
+      "connectWalletPrompt": "Connect your wallet to view proposals",
+      "createProposalHint": "Use the button above to create the first proposal",
+      "createDisputeHint": "Use the button above to submit a dispute",
+      "tabs": {
+        "proposal": "governance proposals",
+        "dispute": "course disputes",
+        "history": "history",
+        "default": "proposals"
+      }
+    },
+    "list": {
+      "loading": "Loading proposals..."
+    },
+    "proposalCard": {
+      "titles": {
+        "dispute": "Course [{courseId}] dispute",
+        "default": "Governance proposal"
+      },
+      "badges": {
+        "dispute": "Dispute",
+        "proposal": "Proposal"
+      },
+      "status": {
+        "active": "In progress",
+        "passed": "Passed",
+        "executed": "Executed",
+        "rejected": "Rejected",
+        "canceled": "Cancelled",
+        "default": "{status}"
+      },
+      "sync": {
+        "loading": "Syncing…",
+        "onChain": "✓ On-chain data",
+        "loadingDetailed": "Syncing on-chain data…",
+        "synced": "✓ On-chain data synced",
+        "fallback": "Showing cached API data"
+      },
+      "votes": {
+        "for": "✓ For: {count}",
+        "against": "✗ Against: {count}",
+        "total": "Total votes: {count} votes"
+      },
+      "detail": {
+        "statsHeading": "Voting breakdown",
+        "forVotes": "For votes ({percentage}%)",
+        "againstVotes": "Against votes ({percentage}%)",
+        "totalLabel": "Total votes: ",
+        "totalValue": "{count} votes",
+        "typeLabel": "Proposal type",
+        "proposerLabel": "Proposer",
+        "unknownProposer": "Unknown"
+      }
+    },
+    "proposalModal": {
+      "status": {
+        "active": "In progress",
+        "passed": "Passed",
+        "executed": "Executed",
+        "rejected": "Rejected",
+        "canceled": "Cancelled",
+        "default": "{status}"
+      },
+      "title": "Proposal details",
+      "closeLabel": "Close",
+      "votingInfo": {
+        "heading": "Voting info",
+        "loading": "Loading voting status…",
+        "weightLabel": "Your voting power:",
+        "weightValue": "{votes} votes",
+        "statusLabel": "Voting status:",
+        "status": {
+          "voted": "Voted",
+          "notVoted": "Not voted"
+        },
+        "choiceLabel": "Your choice:",
+        "choice": {
+          "for": "✓ For",
+          "against": "✗ Against"
+        },
+        "powerLabel": "Voting weight:",
+        "powerValue": "{power} YD",
+        "walletLabel": "Wallet address:"
+      },
+      "votingButtons": {
+        "loading": "Submitting vote…",
+        "for": "Vote for proposal",
+        "against": "Vote against"
+      },
+      "alerts": {
+        "connectWalletToVote": "Connect your wallet to vote",
+        "tipLabel": "Tip:",
+        "noVotingPower": "You currently have no voting power, please acquire YD tokens first",
+        "noticeLabel": "Heads-up:",
+        "alreadyVoted": "You have already voted on this proposal"
+      },
+      "results": {
+        "heading": "Voting results",
+        "finalStatus": "Final status:",
+        "forLabel": "For votes:",
+        "againstLabel": "Against votes:",
+        "voteValue": "{count} votes"
+      },
+      "actions": {
+        "executing": "Executing…",
+        "execute": "Execute proposal",
+        "claiming": "Claiming…",
+        "claim": "Claim reward"
+      }
+    },
+    "submitProposal": {
+      "header": "Submit proposal",
+      "closeLabel": "Close",
+      "deposit": {
+        "notice": "Submitting a proposal requires staking {amount} YD. If the proposal is rejected, the stake will be slashed.",
+        "balanceLabel": "Current balance:",
+        "balanceValue": "{balance} YD"
+      },
+      "form": {
+        "titleLabel": "Proposal title",
+        "titlePlaceholder": "Enter a proposal title (5-50 chars)",
+        "charCount": "{count}/{max} chars",
+        "typeLabel": "Proposal type",
+        "descriptionLabel": "Detailed description",
+        "descriptionPlaceholder": "Describe your proposal goals and expected impact (10-500 chars)",
+        "balanceWarning": "Not enough YD tokens, please top up first",
+        "cancel": "Cancel",
+        "submitting": "Submitting…",
+        "submitCta": "Submit proposal (stake {amount} YD)",
+        "types": {
+          "platform": "Platform governance",
+          "ecosystem": "Ecosystem growth",
+          "community": "Community building",
+          "other": "Other"
+        },
+        "errors": {
+          "titleRequired": "Please enter a proposal title",
+          "titleTooShort": "The title must be at least 5 characters",
+          "descriptionRequired": "Please add a detailed description",
+          "descriptionTooShort": "The description must be at least 10 characters",
+          "descriptionTooLong": "The description cannot exceed 500 characters",
+          "balance": "Insufficient balance! {required} YD required, current balance {balance} YD"
+        }
+      }
+    },
+    "submitDispute": {
+      "header": "Submit dispute",
+      "closeLabel": "Close",
+      "deposit": {
+        "notice": "Submitting a dispute requires staking {amount} YD. If it is dismissed, the stake will be slashed.",
+        "balanceLabel": "Current balance:",
+        "balanceValue": "{balance} YD"
+      },
+      "form": {
+        "typeLabel": "Dispute type",
+        "courseIdLabel": "Course ID",
+        "courseIdPlaceholder": "Enter the course ID being reported",
+        "courseIdHint": "Tip: the course ID is shown on the course detail page",
+        "descriptionLabel": "Dispute description",
+        "descriptionPlaceholder": "Describe the dispute and provide evidence (10-500 chars)",
+        "charCount": "{count}/{max} chars",
+        "balanceWarning": "Not enough YD tokens, please top up first",
+        "cancel": "Cancel",
+        "submitting": "Submitting…",
+        "submitCta": "Submit dispute (stake {amount} YD)",
+        "types": {
+          "quality": "Content quality",
+          "attitude": "Instructor attitude",
+          "fraud": "Course fraud",
+          "other": "Other"
+        },
+        "errors": {
+          "courseIdRequired": "Enter a course ID",
+          "courseIdInvalid": "Enter a valid course ID (positive integer)",
+          "descriptionRequired": "Enter a dispute description",
+          "descriptionTooShort": "The description must be at least 10 characters",
+          "descriptionTooLong": "The description cannot exceed 500 characters",
+          "balance": "Insufficient balance! {required} YD required, current balance {balance} YD"
+        }
+      }
+    },
+    "operations": {
+      "errors": {
+        "connectWallet": "Please connect your wallet first",
+        "unavailableBalance": "Unable to fetch balance or fee info",
+        "insufficientBalance": "Insufficient balance: {required} YD required, current balance {balance} YD",
+        "approveFailed": "Approval failed",
+        "invalidCourseId": "Enter a valid course ID",
+        "alreadyVoted": "You have already voted",
+        "noVotingPower": "You do not have voting power yet, please acquire YD tokens",
+        "voteTransactionFailed": "Vote transaction failed",
+        "executeTransactionFailed": "Execution transaction failed"
+      },
+      "status": {
+        "prepareProposal": "Preparing proposal…",
+        "checkAllowance": "Checking allowance…",
+        "waitingApprove": "Waiting for approval confirmation…",
+        "confirmingApprove": "Approval transaction confirming…",
+        "waitingProposalConfirm": "Awaiting proposal confirmation…",
+        "proposalSuccess": "✅ Proposal created successfully!",
+        "proposalFailure": "❌ Proposal creation failed",
+        "failureWithReason": "❌ Operation failed: {reason}",
+        "prepareDispute": "Preparing dispute proposal…",
+        "prepareVote": "Preparing vote…",
+        "waitingVoteConfirm": "Waiting for vote confirmation…",
+        "voteRecording": "Vote submitted, recording on-chain…",
+        "voteSuccess": "✅ Vote submitted successfully!",
+        "checkProposal": "Checking proposal status…",
+        "waitingExecute": "Waiting for execution confirmation…",
+        "executeSuccess": "✅ Proposal executed successfully!",
+        "calculatingReward": "Calculating reward…",
+        "claimSuccess": "✅ Reward claimed successfully!"
+      }
+    }
   }
 }

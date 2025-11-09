@@ -12,9 +12,21 @@ interface TransactionStatusProps {
 export function TransactionStatus({ status }: TransactionStatusProps) {
   if (!status) return null;
 
-  const isLoading = status.includes("等待") || status.includes("中");
-  const isSuccess = status.includes("成功");
-  const isError = status.includes("失败");
+  const [prefix, message] = status.includes("|")
+    ? status.split("|", 2)
+    : ["", status];
+
+  const normalizedPrefix = prefix as "pending" | "success" | "error" | "";
+
+  const isLoading =
+    normalizedPrefix === "pending" ||
+    (!normalizedPrefix && (status.includes("等待") || status.includes("中")));
+  const isSuccess =
+    normalizedPrefix === "success" ||
+    (!normalizedPrefix && status.includes("成功"));
+  const isError =
+    normalizedPrefix === "error" ||
+    (!normalizedPrefix && status.includes("失败"));
 
   return (
     <div className="fixed top-4 right-4 z-50 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-lg shadow-lg animate-fade-in">
@@ -43,7 +55,7 @@ export function TransactionStatus({ status }: TransactionStatusProps) {
           </svg>
         )}
 
-        <span className="font-medium">{status}</span>
+        <span className="font-medium">{message}</span>
       </div>
     </div>
   );

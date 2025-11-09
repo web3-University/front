@@ -2,6 +2,7 @@
 
 import React from "react";
 import { formatUnits } from "viem";
+import { useTranslations } from "next-intl";
 
 interface DAOConfigInfoProps {
   createFee?: number;
@@ -19,6 +20,8 @@ export function DAOConfigInfo({
   votingPeriod,
   allowance,
 }: DAOConfigInfoProps) {
+  const t = useTranslations("dao.config");
+
   if (!createFee || !votingPeriod) {
     return null;
   }
@@ -31,14 +34,14 @@ export function DAOConfigInfo({
     <div className="mb-6 bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
         <div>
-          <div className="text-gray-400 mb-1">提案押金</div>
+          <div className="text-gray-400 mb-1">{t("depositLabel")}</div>
           <div className="text-white font-semibold">
             {formatUnits(BigInt(createFee), 18)} YD
           </div>
         </div>
 
         <div>
-          <div className="text-gray-400 mb-1">您的余额</div>
+          <div className="text-gray-400 mb-1">{t("balanceLabel")}</div>
           <div
             className={`font-semibold ${
               hasEnoughBalance ? "text-green-400" : "text-red-400"
@@ -49,20 +52,22 @@ export function DAOConfigInfo({
         </div>
 
         <div>
-          <div className="text-gray-400 mb-1">投票期限</div>
+          <div className="text-gray-400 mb-1">{t("votingPeriodLabel")}</div>
           <div className="text-white font-semibold">
-            {Number(votingPeriod) / 86400} 天
+            {t("votingPeriodValue", {
+              days: (Number(votingPeriod) / 86400).toFixed(1),
+            })}
           </div>
         </div>
 
         <div>
-          <div className="text-gray-400 mb-1">授权状态</div>
+          <div className="text-gray-400 mb-1">{t("approvalLabel")}</div>
           <div
             className={`font-semibold ${
               isApproved ? "text-green-400" : "text-yellow-400"
             }`}
           >
-            {isApproved ? "✅ 已授权" : "❌ 未授权"}
+            {isApproved ? t("approved") : t("notApproved")}
           </div>
         </div>
       </div>

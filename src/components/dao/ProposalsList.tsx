@@ -17,6 +17,7 @@ import {
   useWalletInfo,
   useDAO,
 } from "@web3-university/uni-wallet-lib";
+import { useTranslations } from "next-intl";
 import { formatUnits } from "viem";
 import { CONTRACTS } from "@/config/contracts";
 import { VoteOption } from "@/lib/api/dao";
@@ -31,6 +32,7 @@ import { useProposalOperations } from "@/hooks/useProposalOperations";
  * - 链上数据同步
  */
 export default function ProposalsList() {
+  const t = useTranslations("dao.list");
   // ==================== UI 状态 ====================
   const [activeTab, setActiveTab] = useState<DaoTabKey>("dispute");
   const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(
@@ -260,7 +262,7 @@ export default function ProposalsList() {
       {isLoading ? (
         <div className="flex flex-col justify-center items-center py-20">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500 mb-4"></div>
-          <p className="text-gray-400">加载提案中...</p>
+          <p className="text-gray-400">{t("loading")}</p>
         </div>
       ) : (
         <>

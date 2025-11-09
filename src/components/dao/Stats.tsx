@@ -1,8 +1,9 @@
 "use client";
 
 import { Award, TrendingUp, Users, Vote } from "lucide-react";
+import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 
-// 模拟数据
 const stats = {
   totalVotes: "1,234,567",
   holders: "15,234",
@@ -10,39 +11,44 @@ const stats = {
   proposalsCount: 45,
 };
 
-const STAT_ITEMS = [
-  {
-    icon: Vote,
-    label: "总投票权重",
-    value: stats.totalVotes,
-    gradient: "from-blue-400 to-blue-600",
-  },
-  {
-    icon: Users,
-    label: "活跃提案",
-    value: stats.holders,
-    gradient: "from-green-400 to-green-600",
-  },
-  {
-    icon: TrendingUp,
-    label: "国库资金",
-    value: `$${stats.treasury}`,
-    gradient: "from-purple-400 to-purple-600",
-  },
-  {
-    icon: Award,
-    label: "提案总数",
-    value: stats.proposalsCount,
-    gradient: "from-orange-400 to-pink-600",
-  },
-];
-
 export default function Stats() {
+  const t = useTranslations("dao.stats");
+
+  const statItems = useMemo(
+    () => [
+      {
+        icon: Vote,
+        label: t("items.totalVotes"),
+        value: stats.totalVotes,
+        gradient: "from-blue-400 to-blue-600",
+      },
+      {
+        icon: Users,
+        label: t("items.activeProposals"),
+        value: stats.holders,
+        gradient: "from-green-400 to-green-600",
+      },
+      {
+        icon: TrendingUp,
+        label: t("items.treasury"),
+        value: `$${stats.treasury}`,
+        gradient: "from-purple-400 to-purple-600",
+      },
+      {
+        icon: Award,
+        label: t("items.totalProposals"),
+        value: stats.proposalsCount,
+        gradient: "from-orange-400 to-pink-600",
+      },
+    ],
+    [t],
+  );
+
   return (
     <section className="relative">
       {/* ⭐ 响应式网格：移动端1列，平板2列，桌面4列 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-12">
-        {STAT_ITEMS.map((item, index) => {
+        {statItems.map((item, index) => {
           const Icon = item.icon;
           return (
             <div

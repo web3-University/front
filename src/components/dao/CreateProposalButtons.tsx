@@ -2,6 +2,7 @@
 
 import React from "react";
 import { DaoTabKey } from "@/types/dao";
+import { useTranslations } from "next-intl";
 
 interface CreateProposalButtonsProps {
   activeTab: DaoTabKey;
@@ -21,6 +22,8 @@ export function CreateProposalButtons({
   onCreateProposal,
   onCreateDispute,
 }: CreateProposalButtonsProps) {
+  const t = useTranslations("dao.createButtons");
+
   if (activeTab === "history") {
     return null;
   }
@@ -36,10 +39,10 @@ export function CreateProposalButtons({
           <span className="text-base font-light">+</span>
           <span>
             {!isConnected
-              ? "请先连接钱包"
+              ? t("connectWallet")
               : isCreating
-                ? "提交中..."
-                : "提交新提案"}
+                ? t("submitting")
+                : t("newProposal")}
           </span>
         </button>
       </div>
@@ -69,10 +72,10 @@ export function CreateProposalButtons({
           </svg>
           <span>
             {!isConnected
-              ? "请先连接钱包"
+              ? t("connectWallet")
               : isCreating
-                ? "提交中..."
-                : "提交争议"}
+                ? t("submitting")
+                : t("newDispute")}
           </span>
         </button>
       </div>

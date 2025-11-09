@@ -216,5 +216,256 @@
         "purchaseFailed": "购买失败，请稍后重试"
       }
     }
+  },
+  "dao": {
+    "hero": {
+      "badge": "🔥 Web3 教育革命",
+      "title": "社区治理",
+      "description": "持有代币的社区成员可以提交提案并投票，共同决定平台的发展方向、课程规则和奖励分配机制"
+    },
+    "stats": {
+      "items": {
+        "totalVotes": "总投票权重",
+        "activeProposals": "活跃提案",
+        "treasury": "国库资金",
+        "totalProposals": "提案总数"
+      }
+    },
+    "config": {
+      "depositLabel": "提案押金",
+      "balanceLabel": "您的余额",
+      "votingPeriodLabel": "投票期限",
+      "votingPeriodValue": "{days} 天",
+      "approvalLabel": "授权状态",
+      "approved": "✅ 已授权",
+      "notApproved": "❌ 未授权"
+    },
+    "tabs": {
+      "proposal": "治理提案",
+      "dispute": "争议解决",
+      "history": "历史记录",
+      "default": "提案"
+    },
+    "createButtons": {
+      "connectWallet": "请先连接钱包",
+      "submitting": "提交中...",
+      "newProposal": "提交新提案",
+      "newDispute": "提交争议"
+    },
+    "emptyState": {
+      "title": "暂无{tab}",
+      "connectWalletPrompt": "请先连接钱包查看提案",
+      "createProposalHint": "点击上方按钮创建第一个提案",
+      "createDisputeHint": "点击上方按钮提交课程争议",
+      "tabs": {
+        "proposal": "治理提案",
+        "dispute": "课程争议",
+        "history": "历史记录",
+        "default": "提案"
+      }
+    },
+    "list": {
+      "loading": "加载提案中..."
+    },
+    "proposalCard": {
+      "titles": {
+        "dispute": "课程[{courseId}]争议",
+        "default": "治理提案"
+      },
+      "badges": {
+        "dispute": "争议",
+        "proposal": "提案"
+      },
+      "status": {
+        "active": "进行中",
+        "passed": "通过",
+        "executed": "已执行",
+        "rejected": "未通过",
+        "canceled": "已取消",
+        "default": "{status}"
+      },
+      "sync": {
+        "loading": "同步中",
+        "onChain": "✓ 链上数据",
+        "loadingDetailed": "正在同步链上数据...",
+        "synced": "✓ 链上数据已同步",
+        "fallback": "显示 API 缓存数据"
+      },
+      "votes": {
+        "for": "✓ 支持: {count}",
+        "against": "✗ 反对: {count}",
+        "total": "总投票数: {count} 票"
+      },
+      "detail": {
+        "statsHeading": "投票统计",
+        "forVotes": "支持票 ({percentage}%)",
+        "againstVotes": "反对票 ({percentage}%)",
+        "totalLabel": "总投票数: ",
+        "totalValue": "{count} 票",
+        "typeLabel": "提案类型",
+        "proposerLabel": "提案人",
+        "unknownProposer": "未知"
+      }
+    },
+    "proposalModal": {
+      "status": {
+        "active": "进行中",
+        "passed": "通过",
+        "executed": "已执行",
+        "rejected": "未通过",
+        "canceled": "已取消",
+        "default": "{status}"
+      },
+      "title": "提案详情",
+      "closeLabel": "关闭",
+      "votingInfo": {
+        "heading": "投票信息",
+        "loading": "加载投票状态...",
+        "weightLabel": "您的投票权重:",
+        "weightValue": "{votes} 票",
+        "statusLabel": "投票状态:",
+        "status": {
+          "voted": "已投票",
+          "notVoted": "未投票"
+        },
+        "choiceLabel": "您的选择:",
+        "choice": {
+          "for": "✓ 支持",
+          "against": "✗ 反对"
+        },
+        "powerLabel": "投票权重:",
+        "powerValue": "{power} YD",
+        "walletLabel": "钱包地址:"
+      },
+      "votingButtons": {
+        "loading": "投票中...",
+        "for": "支持提案",
+        "against": "反对提案"
+      },
+      "alerts": {
+        "connectWalletToVote": "请先连接钱包以进行投票",
+        "tipLabel": "提示:",
+        "noVotingPower": "您当前没有投票权重，请先获取 YD Token",
+        "noticeLabel": "注意:",
+        "alreadyVoted": "您已对此提案投票，无法再次投票"
+      },
+      "results": {
+        "heading": "投票结果",
+        "finalStatus": "最终状态:",
+        "forLabel": "支持票:",
+        "againstLabel": "反对票:",
+        "voteValue": "{count} 票"
+      },
+      "actions": {
+        "executing": "执行中...",
+        "execute": "执行提案",
+        "claiming": "领取中...",
+        "claim": "领取奖励"
+      }
+    },
+    "submitProposal": {
+      "header": "提交新提案",
+      "closeLabel": "关闭",
+      "deposit": {
+        "notice": "提交提案需要质押 {amount} YD 代币，如果提案被拒绝，质押将被扣除。",
+        "balanceLabel": "当前余额:",
+        "balanceValue": "{balance} YD"
+      },
+      "form": {
+        "titleLabel": "提案标题",
+        "titlePlaceholder": "请输入提案标题（5-50字）",
+        "charCount": "{count}/{max} 字符",
+        "typeLabel": "提案类型",
+        "descriptionLabel": "详细描述",
+        "descriptionPlaceholder": "请详细描述你的提案内容、目标和预期效果（10-500字）",
+        "balanceWarning": "YD Token 余额不足，请先获取足够的代币",
+        "cancel": "取消",
+        "submitting": "提交中...",
+        "submitCta": "提交提案（质押 {amount} YD）",
+        "types": {
+          "platform": "平台治理",
+          "ecosystem": "生态发展",
+          "community": "社区建设",
+          "other": "其他"
+        },
+        "errors": {
+          "titleRequired": "请输入提案标题",
+          "titleTooShort": "提案标题至少需要 5 个字符",
+          "descriptionRequired": "请输入详细描述",
+          "descriptionTooShort": "详细描述至少需要 10 个字符",
+          "descriptionTooLong": "详细描述不能超过 500 个字符",
+          "balance": "余额不足！需要 {required} YD，当前余额 {balance} YD"
+        }
+      }
+    },
+    "submitDispute": {
+      "header": "提交争议",
+      "closeLabel": "关闭",
+      "deposit": {
+        "notice": "提交争议需要质押 {amount} YD 代币，如果争议被驳回，质押将被扣除。",
+        "balanceLabel": "当前余额:",
+        "balanceValue": "{balance} YD"
+      },
+      "form": {
+        "typeLabel": "争议类型",
+        "courseIdLabel": "课程 ID",
+        "courseIdPlaceholder": "请输入被投诉的课程 ID",
+        "courseIdHint": "提示：课程 ID 可在课程详情页面找到",
+        "descriptionLabel": "争议描述",
+        "descriptionPlaceholder": "请详细描述争议情况，提供相关证据（10-500字）",
+        "charCount": "{count}/{max} 字符",
+        "balanceWarning": "YD Token 余额不足，请先获取足够的代币",
+        "cancel": "取消",
+        "submitting": "提交中...",
+        "submitCta": "提交争议（质押 {amount} YD）",
+        "types": {
+          "quality": "内容质量",
+          "attitude": "教师态度",
+          "fraud": "课程欺诈",
+          "other": "其他"
+        },
+        "errors": {
+          "courseIdRequired": "请输入课程 ID",
+          "courseIdInvalid": "请输入有效的课程 ID（正整数）",
+          "descriptionRequired": "请输入争议描述",
+          "descriptionTooShort": "争议描述至少需要 10 个字符",
+          "descriptionTooLong": "争议描述不能超过 500 个字符",
+          "balance": "余额不足！需要 {required} YD，当前余额 {balance} YD"
+        }
+      }
+    },
+    "operations": {
+      "errors": {
+        "connectWallet": "请先连接钱包",
+        "unavailableBalance": "无法获取余额或费用信息",
+        "insufficientBalance": "余额不足，需要 {required} YD，当前余额 {balance} YD",
+        "approveFailed": "授权失败",
+        "invalidCourseId": "请输入有效的课程 ID",
+        "alreadyVoted": "您已经投过票了",
+        "noVotingPower": "您没有投票权重，请先获取 YD Token",
+        "voteTransactionFailed": "投票交易失败",
+        "executeTransactionFailed": "执行交易提交失败"
+      },
+      "status": {
+        "prepareProposal": "准备创建提案...",
+        "checkAllowance": "检查授权...",
+        "waitingApprove": "等待授权确认...",
+        "confirmingApprove": "授权交易确认中...",
+        "waitingProposalConfirm": "等待创建提案确认...",
+        "proposalSuccess": "✅ 提案创建成功！",
+        "proposalFailure": "❌ 创建失败: 提案创建失败",
+        "failureWithReason": "❌ 操作失败: {reason}",
+        "prepareDispute": "准备创建争议提案...",
+        "prepareVote": "准备投票...",
+        "waitingVoteConfirm": "等待投票确认...",
+        "voteRecording": "投票成功，记录投票信息...",
+        "voteSuccess": "✅ 投票成功！",
+        "checkProposal": "检查提案状态...",
+        "waitingExecute": "等待执行确认...",
+        "executeSuccess": "✅ 提案执行成功！",
+        "calculatingReward": "计算奖励...",
+        "claimSuccess": "✅ 奖励领取成功！"
+      }
+    }
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
+import { useTranslations } from "next-intl";
 
 interface SubmitProposalModalProps {
   isOpen: boolean;
@@ -25,7 +26,7 @@ function CustomSelect({
 }: {
   value: string;
   onChange: (value: string) => void;
-  options: string[];
+  options: { value: string; label: string }[];
   className?: string;
   disabled?: boolean;
 }) {
@@ -55,7 +56,9 @@ function CustomSelect({
           disabled ? "opacity-50 cursor-not-allowed" : ""
         }`}
       >
-        <span>{value}</span>
+        <span>
+          {options.find((option) => option.value === value)?.label ?? ""}
+        </span>
         <svg
           className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
           fill="none"
@@ -75,20 +78,22 @@ function CustomSelect({
         <div className="absolute z-10 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden">
           {options.map((option, index) => (
             <button
-              key={option}
+              key={option.value}
               type="button"
               onClick={() => {
-                onChange(option);
+                onChange(option.value);
                 setIsOpen(false);
               }}
               className={`w-full px-4 py-3 text-left hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 transition-all ${
-                value === option
+                value === option.value
                   ? "bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 font-medium"
                   : "text-gray-700"
               } ${index !== options.length - 1 ? "border-b border-gray-100" : ""}`}
             >
-              {value === option && <span className="inline-block mr-2">✓</span>}
-              {option}
+              {value === option.value && (
+                <span className="inline-block mr-2">✓</span>
+              )}
+              {option.label}
             </button>
           ))}
         </div>
@@ -105,6 +110,7 @@ export default function SubmitProposalModal({
   requiredDeposit = "1000",
   userBalance = "0",
 }: SubmitProposalModalProps) {
+  const t = useTranslations("dao.submitProposal");
   const [title, setTitle] = useState("");
   const [type, setType] = useState("平台治理");
   const [description, setDescription] = useState("");
@@ -118,28 +124,38 @@ export default function SubmitProposalModal({
     }
   }, [isOpen]);
 
+  const proposalTypes = useMemo(
+    () => [
+      { value: "平台治理", label: t("form.types.platform") },
+      { value: "生态发展", label: t("form.types.ecosystem") },
+      { value: "社区建设", label: t("form.types.community") },
+      { value: "其他", label: t("form.types.other") },
+    ],
+    [t],
+  );
+
   if (!isOpen) return null;
 
   const handleSubmit = () => {
     // 验证表单
     if (!title.trim()) {
-      alert("请输入提案标题");
+      alert(t("form.errors.titleRequired"));
       return;
     }
     if (title.trim().length < 5) {
-      alert("提案标题至少需要 5 个字符");
+      alert(t("form.errors.titleTooShort"));
       return;
     }
     if (!description.trim()) {
-      alert("请输入详细描述");
+      alert(t("form.errors.descriptionRequired"));
       return;
     }
     if (description.trim().length < 10) {
-      alert("详细描述至少需要 10 个字符");
+      alert(t("form.errors.descriptionTooShort"));
       return;
     }
     if (description.trim().length > 500) {
-      alert("详细描述不能超过 500 个字符");
+      alert(t("form.errors.descriptionTooLong"));
       return;
     }
 
@@ -147,14 +163,17 @@ export default function SubmitProposalModal({
     const balance = parseFloat(userBalance);
     const deposit = parseFloat(requiredDeposit);
     if (balance < deposit) {
-      alert(`余额不足！需要 ${requiredDeposit} YD，当前余额 ${userBalance} YD`);
+      alert(
+        t("form.errors.balance", {
+          required: requiredDeposit,
+          balance: userBalance,
+        }),
+      );
       return;
     }
 
     onSubmit({ title, type, description });
   };
-
-  const proposalTypes = ["平台治理", "生态发展", "社区建设", "其他"];
 
   // 检查余额是否充足
   const hasEnoughBalance =
@@ -171,11 +190,12 @@ export default function SubmitProposalModal({
       >
         {/* Header */}
         <div className="flex justify-between items-start mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">提交新提案</h2>
+          <h2 className="text-2xl font-bold text-gray-900">{t("header")}</h2>
           <button
             onClick={onClose}
             disabled={isSubmitting}
             className="text-gray-400 hover:text-gray-600 text-3xl leading-none hover:rotate-90 transition-all duration-300 disabled:opacity-50"
+            aria-label={t("closeLabel")}
           >
             ×
           </button>
@@ -199,20 +219,16 @@ export default function SubmitProposalModal({
             </svg>
             <div className="flex-1">
               <p className="text-sm text-gray-700">
-                提交提案需要质押{" "}
-                <span className="font-semibold text-purple-600">
-                  {requiredDeposit} YD
-                </span>{" "}
-                代币，如果提案被拒绝，质押将被扣除。
+                {t("deposit.notice", { amount: requiredDeposit })}
               </p>
               <p className="text-xs text-gray-500 mt-2">
-                当前余额:{" "}
+                {t("deposit.balanceLabel")}{" "}
                 <span
                   className={
                     hasEnoughBalance ? "text-green-600" : "text-red-600"
                   }
                 >
-                  {userBalance} YD
+                  {t("deposit.balanceValue", { balance: userBalance })}
                 </span>
               </p>
             </div>
@@ -223,23 +239,25 @@ export default function SubmitProposalModal({
         <div className="space-y-5">
           <div>
             <label className="block text-gray-700 font-medium mb-2">
-              提案标题 <span className="text-red-500">*</span>
+              {t("form.titleLabel")} <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="请输入提案标题（5-50字）"
+              placeholder={t("form.titlePlaceholder")}
               maxLength={50}
               disabled={isSubmitting}
               className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-purple-500 focus:outline-none bg-white disabled:opacity-50 disabled:cursor-not-allowed"
             />
-            <p className="text-xs text-gray-500 mt-1">{title.length}/50 字符</p>
+            <p className="text-xs text-gray-500 mt-1">
+              {t("form.charCount", { count: title.length, max: 50 })}
+            </p>
           </div>
 
           <div>
             <label className="block text-gray-700 font-medium mb-2">
-              提案类型 <span className="text-red-500">*</span>
+              {t("form.typeLabel")} <span className="text-red-500">*</span>
             </label>
             <CustomSelect
               value={type}
@@ -251,19 +269,20 @@ export default function SubmitProposalModal({
 
           <div>
             <label className="block text-gray-700 font-medium mb-2">
-              详细描述 <span className="text-red-500">*</span>
+              {t("form.descriptionLabel")}{" "}
+              <span className="text-red-500">*</span>
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={5}
-              placeholder="请详细描述你的提案内容、目标和预期效果（10-500字）"
+              placeholder={t("form.descriptionPlaceholder")}
               maxLength={500}
               disabled={isSubmitting}
               className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-purple-500 focus:outline-none bg-white resize-none disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <p className="text-xs text-gray-500 mt-1">
-              {description.length}/500 字符
+              {t("form.charCount", { count: description.length, max: 500 })}
             </p>
           </div>
         </div>
@@ -284,9 +303,7 @@ export default function SubmitProposalModal({
                 d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
               />
             </svg>
-            <p className="text-sm text-red-700">
-              YD Token 余额不足，请先获取足够的代币
-            </p>
+            <p className="text-sm text-red-700">{t("form.balanceWarning")}</p>
           </div>
         )}
 
@@ -297,7 +314,7 @@ export default function SubmitProposalModal({
             disabled={isSubmitting}
             className="px-6 py-2.5 rounded-xl bg-gray-200 text-gray-800 hover:bg-gray-300 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            取消
+            {t("form.cancel")}
           </button>
           <button
             onClick={handleSubmit}
@@ -324,8 +341,8 @@ export default function SubmitProposalModal({
             )}
             <span>
               {isSubmitting
-                ? "提交中..."
-                : `提交提案（质押 ${requiredDeposit} YD）`}
+                ? t("form.submitting")
+                : t("form.submitCta", { amount: requiredDeposit })}
             </span>
           </button>
         </div>

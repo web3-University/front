@@ -2,6 +2,7 @@
 
 import React from "react";
 import { DaoTabKey } from "@/types/dao";
+import { useTranslations } from "next-intl";
 
 interface EmptyStateProps {
   activeTab: DaoTabKey;
@@ -12,30 +13,26 @@ interface EmptyStateProps {
  * 📭 空状态组件
  */
 export function EmptyState({ activeTab, isConnected }: EmptyStateProps) {
+  const t = useTranslations("dao.emptyState");
+
   const getTabName = () => {
-    switch (activeTab) {
-      case "proposal":
-        return "治理提案";
-      case "dispute":
-        return "课程争议";
-      case "history":
-        return "历史记录";
-      default:
-        return "提案";
-    }
+    if (activeTab === "proposal") return t("tabs.proposal");
+    if (activeTab === "dispute") return t("tabs.dispute");
+    if (activeTab === "history") return t("tabs.history");
+    return t("tabs.default");
   };
 
   const getEmptyMessage = () => {
     if (!isConnected) {
-      return "请先连接钱包查看提案";
+      return t("connectWalletPrompt");
     }
 
     if (activeTab === "proposal") {
-      return "点击上方按钮创建第一个提案";
+      return t("createProposalHint");
     }
 
     if (activeTab === "dispute") {
-      return "点击上方按钮提交课程争议";
+      return t("createDisputeHint");
     }
 
     return null;
@@ -57,7 +54,7 @@ export function EmptyState({ activeTab, isConnected }: EmptyStateProps) {
         />
       </svg>
 
-      <p className="text-lg mb-2">暂无{getTabName()}</p>
+      <p className="text-lg mb-2">{t("title", { tab: getTabName() })}</p>
 
       {getEmptyMessage() && (
         <p className="text-sm text-gray-500">{getEmptyMessage()}</p>

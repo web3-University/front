@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Proposal } from "@/lib/api/dao";
 import ProposalCard from "./ProposalCard";
 import { formatUnits } from "viem";
@@ -40,6 +41,7 @@ export default function ProposalModal({
   onFinalize,
   daoAddress = "0x5E3Ab3256cfa5C89bEb63DbB8e12ba42d63F216f",
 }: ProposalModalProps) {
+  const t = useTranslations("dao.proposalModal");
   // ==================== 状态管理 ====================
   const [userVote, setUserVote] = useState<Vote | null>(null);
   const [loadingVoteStatus, setLoadingVoteStatus] = useState(false);
@@ -148,20 +150,26 @@ export default function ProposalModal({
    * 获取状态显示信息
    */
   const getStatusDisplay = (status: string) => {
-    const statusMap: Record<string, { label: string; color: string }> = {
-      Active: { label: "进行中", color: "text-green-600" },
-      active: { label: "进行中", color: "text-green-600" },
-      Succeeded: { label: "通过", color: "text-blue-600" },
-      passed: { label: "通过", color: "text-blue-600" },
-      Executed: { label: "已执行", color: "text-purple-600" },
-      executed: { label: "已执行", color: "text-purple-600" },
-      Failed: { label: "未通过", color: "text-red-600" },
-      rejected: { label: "未通过", color: "text-red-600" },
-      Canceled: { label: "已取消", color: "text-gray-600" },
-      cancelled: { label: "已取消", color: "text-gray-600" },
+    const normalized = status?.toLowerCase() ?? "unknown";
+    const statusMap: Record<string, { key: string; color: string }> = {
+      active: { key: "status.active", color: "text-green-600" },
+      succeeded: { key: "status.passed", color: "text-blue-600" },
+      passed: { key: "status.passed", color: "text-blue-600" },
+      executed: { key: "status.executed", color: "text-purple-600" },
+      failed: { key: "status.rejected", color: "text-red-600" },
+      rejected: { key: "status.rejected", color: "text-red-600" },
+      canceled: { key: "status.canceled", color: "text-gray-600" },
+      cancelled: { key: "status.canceled", color: "text-gray-600" },
     };
 
-    return statusMap[status] || { label: status, color: "text-gray-600" };
+    const entry = statusMap[normalized] || {
+      key: "status.default",
+      color: "text-gray-600",
+    };
+    return {
+      label: t(entry.key, { status }),
+      color: entry.color,
+    };
   };
 
   // ==================== 渲染 ====================
@@ -206,12 +214,12 @@ export default function ProposalModal({
           {/* 头部 */}
           <div className="flex justify-between items-start mb-6">
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
-              提案详情
+              {t("title")}
             </h2>
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 text-3xl font-light leading-none hover:rotate-90 transition-all duration-300"
-              aria-label="关闭"
+              aria-label={t("closeLabel")}
             >
               ×
             </button>
@@ -230,53 +238,72 @@ export default function ProposalModal({
               {/* 用户投票信息 */}
               <div className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl border border-purple-200">
                 <h3 className="font-bold text-gray-900 mb-4 text-lg">
-                  投票信息
+                  {t("votingInfo.heading")}
                 </h3>
                 {loadingVoteStatus ? (
                   <div className="flex items-center justify-center py-4">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500"></div>
-                    <span className="ml-2 text-gray-600">加载投票状态...</span>
+                    <span className="ml-2 text-gray-600">
+                      {t("votingInfo.loading")}
+                    </span>
                   </div>
                 ) : (
                   <div className="space-y-3 text-sm">
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-600">您的投票权重:</span>
+                      <span className="text-gray-600">
+                        {t("votingInfo.weightLabel")}
+                      </span>
                       <span className="font-bold text-gray-900 text-lg">
-                        {votingPowerDisplay} 票
+                        {t("votingInfo.weightValue", {
+                          votes: votingPowerDisplay,
+                        })}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-600">投票状态:</span>
+                      <span className="text-gray-600">
+                        {t("votingInfo.statusLabel")}
+                      </span>
                       <span
                         className={`font-bold ${hasVoted ? "text-green-600" : "text-orange-600"}`}
                       >
-                        {hasVoted ? "已投票" : "未投票"}
+                        {hasVoted
+                          ? t("votingInfo.status.voted")
+                          : t("votingInfo.status.notVoted")}
                       </span>
                     </div>
                     {hasVoted && userVote && (
                       <>
                         <div className="flex justify-between items-center">
-                          <span className="text-gray-600">您的选择:</span>
+                          <span className="text-gray-600">
+                            {t("votingInfo.choiceLabel")}
+                          </span>
                           <span
                             className={`font-bold ${userVote.option === VoteOption.For ? "text-green-600" : "text-red-600"}`}
                           >
                             {userVote.option === VoteOption.For
-                              ? "✓ 支持"
-                              : "✗ 反对"}
+                              ? t("votingInfo.choice.for")
+                              : t("votingInfo.choice.against")}
                           </span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-gray-600">投票权重:</span>
+                          <span className="text-gray-600">
+                            {t("votingInfo.powerLabel")}
+                          </span>
                           <span className="font-bold text-gray-700">
-                            {parseFloat(userVote.votingPower).toLocaleString()}{" "}
-                            YD
+                            {t("votingInfo.powerValue", {
+                              power: parseFloat(
+                                userVote.votingPower,
+                              ).toLocaleString(),
+                            })}
                           </span>
                         </div>
                       </>
                     )}
                     {userAddress && (
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">钱包地址:</span>
+                        <span className="text-gray-600">
+                          {t("votingInfo.walletLabel")}
+                        </span>
                         <span className="font-mono text-xs text-gray-700">
                           {userAddress.slice(0, 6)}...{userAddress.slice(-4)}
                         </span>
@@ -302,7 +329,7 @@ export default function ProposalModal({
                     {isVoting ? (
                       <>
                         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                        <span>投票中...</span>
+                        <span>{t("votingButtons.loading")}</span>
                       </>
                     ) : (
                       <>
@@ -319,7 +346,7 @@ export default function ProposalModal({
                             d="M5 13l4 4L19 7"
                           />
                         </svg>
-                        <span>支持提案</span>
+                        <span>{t("votingButtons.for")}</span>
                       </>
                     )}
                   </button>
@@ -337,7 +364,7 @@ export default function ProposalModal({
                     {isVoting ? (
                       <>
                         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                        <span>投票中...</span>
+                        <span>{t("votingButtons.loading")}</span>
                       </>
                     ) : (
                       <>
@@ -354,7 +381,7 @@ export default function ProposalModal({
                             d="M6 18L18 6M6 6l12 12"
                           />
                         </svg>
-                        <span>反对提案</span>
+                        <span>{t("votingButtons.against")}</span>
                       </>
                     )}
                   </button>
@@ -362,7 +389,7 @@ export default function ProposalModal({
               ) : (
                 <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-xl text-center">
                   <p className="text-yellow-800 font-medium">
-                    请先连接钱包以进行投票
+                    {t("alerts.connectWalletToVote")}
                   </p>
                 </div>
               )}
@@ -371,7 +398,8 @@ export default function ProposalModal({
               {userVotingPower === BigInt(0) && userAddress && (
                 <div className="p-4 bg-orange-50 border border-orange-200 rounded-xl">
                   <p className="text-orange-800 text-sm">
-                    <strong>提示:</strong> 您当前没有投票权重，请先获取 YD Token
+                    <strong>{t("alerts.tipLabel")}</strong>{" "}
+                    {t("alerts.noVotingPower")}
                   </p>
                 </div>
               )}
@@ -379,7 +407,8 @@ export default function ProposalModal({
               {hasVoted && (
                 <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
                   <p className="text-blue-800 text-sm">
-                    <strong>注意:</strong> 您已对此提案投票，无法再次投票
+                    <strong>{t("alerts.noticeLabel")}</strong>{" "}
+                    {t("alerts.alreadyVoted")}
                   </p>
                 </div>
               )}
@@ -392,11 +421,13 @@ export default function ProposalModal({
               {/* 最终结果 */}
               <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl border border-gray-200">
                 <h3 className="font-bold text-gray-900 mb-4 text-lg">
-                  投票结果
+                  {t("results.heading")}
                 </h3>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-600">最终状态:</span>
+                    <span className="text-gray-600">
+                      {t("results.finalStatus")}
+                    </span>
                     <span
                       className={`font-bold text-lg ${statusDisplay.color}`}
                     >
@@ -405,16 +436,22 @@ export default function ProposalModal({
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-green-600 font-semibold">
-                      支持票:
+                      {t("results.forLabel")}
                     </span>
                     <span className="font-bold text-gray-900">
-                      {proposal.forVotes.toLocaleString()} 票
+                      {t("results.voteValue", {
+                        count: proposal.forVotes.toLocaleString(),
+                      })}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-red-600 font-semibold">反对票:</span>
+                    <span className="text-red-600 font-semibold">
+                      {t("results.againstLabel")}
+                    </span>
                     <span className="font-bold text-gray-900">
-                      {proposal.againstVotes.toLocaleString()} 票
+                      {t("results.voteValue", {
+                        count: proposal.againstVotes.toLocaleString(),
+                      })}
                     </span>
                   </div>
                 </div>
@@ -432,7 +469,7 @@ export default function ProposalModal({
                     {isFinalizing ? (
                       <>
                         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                        <span>执行中...</span>
+                        <span>{t("actions.executing")}</span>
                       </>
                     ) : (
                       <>
@@ -449,7 +486,7 @@ export default function ProposalModal({
                             d="M13 10V3L4 14h7v7l9-11h-7z"
                           />
                         </svg>
-                        <span>执行提案</span>
+                        <span>{t("actions.execute")}</span>
                       </>
                     )}
                   </button>
@@ -465,7 +502,7 @@ export default function ProposalModal({
                     {isClaimingReward ? (
                       <>
                         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                        <span>领取中...</span>
+                        <span>{t("actions.claiming")}</span>
                       </>
                     ) : (
                       <>
@@ -482,7 +519,7 @@ export default function ProposalModal({
                             d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                           />
                         </svg>
-                        <span>领取奖励</span>
+                        <span>{t("actions.claim")}</span>
                       </>
                     )}
                   </button>
