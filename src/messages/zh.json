@@ -127,5 +127,94 @@
         "generic": "兑换失败，请稍后重试"
       }
     }
+  },
+  "market": {
+    "page": {
+      "title": "课程市场",
+      "subtitle": "探索高质量的 Web3 教育课程，提升你的技能"
+    },
+    "filters": {
+      "searchPlaceholder": "搜索课程名称...",
+      "icons": {
+        "search": "搜索图标",
+        "filter": "筛选图标"
+      },
+      "categories": {
+        "all": "全部分类",
+        "blockchain": "区块链",
+        "web3": "Web3",
+        "defi": "DeFi",
+        "nft": "NFT"
+      },
+      "sorting": {
+        "popular": "最受欢迎",
+        "newest": "最新上线",
+        "priceAsc": "价格从低到高",
+        "priceDesc": "价格从高到低"
+      },
+      "advancedFilter": "高级筛选",
+      "priceRange": {
+        "label": "价格范围 ({currency} 币)",
+        "minLabel": "{value}",
+        "maxLabel": "{value}"
+      },
+      "totalCount": "共找到 <highlight>{value}</highlight> 门课程"
+    },
+    "courseList": {
+      "loading": "加载中...",
+      "loadError": "⚠️ {message}",
+      "sampleData": "正在显示示例数据",
+      "alerts": {
+        "error": "❌ 购买失败：{message}",
+        "success": "🎉 购买成功！\\n\\n课程：{title}\\n交易哈希：{tx}\\n\\n即将跳转到学习页面...",
+        "unknownCourse": "未知课程"
+      },
+      "fallback": {
+        "title": "未命名课程",
+        "description": "暂无描述",
+        "category": "未分类",
+        "instructor": "未知讲师"
+      },
+      "noData": "暂无课程数据"
+    },
+    "courseItem": {
+      "purchasedLabel": "✅ 已购买"
+    },
+    "courseButton": {
+      "connectWalletPrompt": "请先连接钱包",
+      "insufficientBalancePrompt": "YD Token 余额不足",
+      "approveButton": {
+        "loading": "授权中...",
+        "label": "授权 {amount} YD"
+      },
+      "purchaseButton": {
+        "loading": "购买中...",
+        "needApproval": "请先授权",
+        "label": "立即购买"
+      },
+      "inlineMessages": {
+        "error": "❌ 购买失败：{message}",
+        "success": "🎉 购买成功！",
+        "defaultError": "购买失败，请稍后重试"
+      },
+      "status": {
+        "checkingAllowance": "检查授权额度...",
+        "approvingToken": "请在钱包中确认授权...",
+        "waitingApprove": "等待授权确认...",
+        "purchasingCourse": "请在钱包中确认购买...",
+        "waitingTransaction": "等待交易确认...",
+        "savingToDb": "保存购买记录..."
+      },
+      "errors": {
+        "walletDisconnected": "请先连接钱包",
+        "insufficientBalance": "YD Token 余额不足",
+        "needApproval": "请先授权 YD Token",
+        "invalidCourseId": "无效的课程 ID",
+        "approveNoHash": "授权失败，未返回交易哈希",
+        "approveFailed": "授权失败，请稍后重试",
+        "purchaseNoHash": "购买失败，未返回交易哈希",
+        "purchaseFailed": "购买失败，请稍后重试"
+      }
+    }
   }
 }

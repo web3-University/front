@@ -127,5 +127,94 @@
         "generic": "Swap failed, please try again later"
       }
     }
+  },
+  "market": {
+    "page": {
+      "title": "Course marketplace",
+      "subtitle": "Discover curated Web3 learning paths and level up fast"
+    },
+    "filters": {
+      "searchPlaceholder": "Search course name...",
+      "icons": {
+        "search": "Search icon",
+        "filter": "Filter icon"
+      },
+      "categories": {
+        "all": "All categories",
+        "blockchain": "Blockchain",
+        "web3": "Web3",
+        "defi": "DeFi",
+        "nft": "NFT"
+      },
+      "sorting": {
+        "popular": "Most popular",
+        "newest": "New arrivals",
+        "priceAsc": "Price: low to high",
+        "priceDesc": "Price: high to low"
+      },
+      "advancedFilter": "Advanced filters",
+      "priceRange": {
+        "label": "Price range ({currency})",
+        "minLabel": "{value}",
+        "maxLabel": "{value}"
+      },
+      "totalCount": "Found <highlight>{value}</highlight> courses"
+    },
+    "courseList": {
+      "loading": "Loading...",
+      "loadError": "⚠️ {message}",
+      "sampleData": "Showing demo data",
+      "alerts": {
+        "error": "❌ Purchase failed: {message}",
+        "success": "🎉 Purchase successful!\\n\\nCourse: {title}\\nTransaction hash: {tx}\\n\\nRedirecting to the learning page...",
+        "unknownCourse": "Unknown course"
+      },
+      "fallback": {
+        "title": "Untitled course",
+        "description": "No description yet",
+        "category": "Uncategorized",
+        "instructor": "Unknown instructor"
+      },
+      "noData": "No courses available"
+    },
+    "courseItem": {
+      "purchasedLabel": "✅ Purchased"
+    },
+    "courseButton": {
+      "connectWalletPrompt": "Connect wallet first",
+      "insufficientBalancePrompt": "Not enough YD tokens",
+      "approveButton": {
+        "loading": "Authorizing…",
+        "label": "Authorize {amount} YD"
+      },
+      "purchaseButton": {
+        "loading": "Purchasing…",
+        "needApproval": "Authorize first",
+        "label": "Buy now"
+      },
+      "inlineMessages": {
+        "error": "❌ Purchase failed: {message}",
+        "success": "🎉 Purchase successful!",
+        "defaultError": "Purchase failed, please try again"
+      },
+      "status": {
+        "checkingAllowance": "Checking allowance…",
+        "approvingToken": "Confirm the approval in your wallet…",
+        "waitingApprove": "Waiting for approval confirmation…",
+        "purchasingCourse": "Confirm the purchase in your wallet…",
+        "waitingTransaction": "Waiting for transaction confirmation…",
+        "savingToDb": "Saving purchase record…"
+      },
+      "errors": {
+        "walletDisconnected": "Connect your wallet first",
+        "insufficientBalance": "Not enough YD tokens",
+        "needApproval": "Please authorize YD tokens first",
+        "invalidCourseId": "Invalid course ID",
+        "approveNoHash": "Approval failed with no transaction hash",
+        "approveFailed": "Authorization failed, please try again later",
+        "purchaseNoHash": "Purchase failed with no transaction hash",
+        "purchaseFailed": "Purchase failed, please try again later"
+      }
+    }
   }
 }

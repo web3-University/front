@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import type { CourseFilters } from "@/lib/api/course";
 
 interface FilterNavProps {
@@ -8,13 +9,47 @@ interface FilterNavProps {
   totalCount?: number;
 }
 
+const CATEGORY_VALUE_MAP = {
+  all: null,
+  blockchain: "区块链",
+  web3: "Web3",
+  defi: "DeFi",
+  nft: "NFT",
+} as const;
+
+type CategoryKey = keyof typeof CATEGORY_VALUE_MAP;
+type SortKey = "popular" | "newest" | "priceAsc" | "priceDesc";
+
 const FilterNav = ({ onFilterChange, totalCount = 0 }: FilterNavProps) => {
+  const t = useTranslations("market.filters");
+
   // 状态管理
   const [searchTerm, setSearchTerm] = useState("");
-  const [category, setCategory] = useState("全部分类");
-  const [sortBy, setSortBy] = useState("最受欢迎");
+  const [category, setCategory] = useState<CategoryKey>("all");
+  const [sortBy, setSortBy] = useState<SortKey>("popular");
   const [priceRange, setPriceRange] = useState([0, 1000]);
   const [sliderValue, setSliderValue] = useState(60);
+
+  const categoryOptions = useMemo(
+    () => [
+      { key: "all" as CategoryKey, label: t("categories.all") },
+      { key: "blockchain" as CategoryKey, label: t("categories.blockchain") },
+      { key: "web3" as CategoryKey, label: t("categories.web3") },
+      { key: "defi" as CategoryKey, label: t("categories.defi") },
+      { key: "nft" as CategoryKey, label: t("categories.nft") },
+    ],
+    [t],
+  );
+
+  const sortOptions = useMemo(
+    () => [
+      { key: "popular" as SortKey, label: t("sorting.popular") },
+      { key: "newest" as SortKey, label: t("sorting.newest") },
+      { key: "priceAsc" as SortKey, label: t("sorting.priceAsc") },
+      { key: "priceDesc" as SortKey, label: t("sorting.priceDesc") },
+    ],
+    [t],
+  );
 
   /**
    * 处理价格滑块变化
@@ -44,8 +79,9 @@ const FilterNav = ({ onFilterChange, totalCount = 0 }: FilterNavProps) => {
     }
 
     // 分类筛选
-    if (category !== "全部分类") {
-      filters.categories = [category];
+    const selectedCategory = CATEGORY_VALUE_MAP[category];
+    if (selectedCategory) {
+      filters.categories = [selectedCategory];
     }
 
     // 价格范围
@@ -88,8 +124,8 @@ const FilterNav = ({ onFilterChange, totalCount = 0 }: FilterNavProps) => {
                 viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg"
                 aria-hidden="true"
+                title={t("icons.search")}
               >
-                <title>搜索图标</title>
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -100,7 +136,7 @@ const FilterNav = ({ onFilterChange, totalCount = 0 }: FilterNavProps) => {
             </div>
             <input
               type="text"
-              placeholder="搜索课程名称..."
+              placeholder={t("searchPlaceholder")}
               className="w-full pl-10 pr-4 py-2 bg-[#F8F8FF] rounded-full text-sm font-medium text-[#2B2558] shadow-sm ring-1 ring-[#E7E5FB] focus:outline-none focus:ring-2 focus:ring-[#ECEBFF]"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -112,7 +148,7 @@ const FilterNav = ({ onFilterChange, totalCount = 0 }: FilterNavProps) => {
             <select
               className="w-full px-4 py-2 bg-[#F8F8FF] rounded-full text-sm font-medium text-[#2B2558] shadow-sm ring-1 ring-[#E7E5FB] focus:outline-none focus:ring-2 focus:ring-[#ECEBFF] appearance-none pr-8"
               value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              onChange={(e) => setCategory(e.target.value as CategoryKey)}
               style={{
                 backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%238B8EB5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
                 backgroundRepeat: "no-repeat",
@@ -120,11 +156,11 @@ const FilterNav = ({ onFilterChange, totalCount = 0 }: FilterNavProps) => {
                 backgroundSize: "1rem",
               }}
             >
-              <option>全部分类</option>
-              <option>区块链</option>
-              <option>Web3</option>
-              <option>DeFi</option>
-              <option>NFT</option>
+              {categoryOptions.map((option) => (
+                <option key={option.key} value={option.key}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -133,7 +169,7 @@ const FilterNav = ({ onFilterChange, totalCount = 0 }: FilterNavProps) => {
             <select
               className="w-full px-4 py-2 bg-[#F8F8FF] rounded-full text-sm font-medium text-[#2B2558] shadow-sm ring-1 ring-[#E7E5FB] focus:outline-none focus:ring-2 focus:ring-[#ECEBFF] appearance-none pr-8"
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
+              onChange={(e) => setSortBy(e.target.value as SortKey)}
               style={{
                 backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%238B8EB5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
                 backgroundRepeat: "no-repeat",
@@ -141,10 +177,11 @@ const FilterNav = ({ onFilterChange, totalCount = 0 }: FilterNavProps) => {
                 backgroundSize: "1rem",
               }}
             >
-              <option>最受欢迎</option>
-              <option>最新上线</option>
-              <option>价格从低到高</option>
-              <option>价格从高到低</option>
+              {sortOptions.map((option) => (
+                <option key={option.key} value={option.key}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -161,8 +198,8 @@ const FilterNav = ({ onFilterChange, totalCount = 0 }: FilterNavProps) => {
                 viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg"
                 aria-hidden="true"
+                title={t("icons.filter")}
               >
-                <title>筛选图标</title>
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -170,7 +207,7 @@ const FilterNav = ({ onFilterChange, totalCount = 0 }: FilterNavProps) => {
                   d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
                 ></path>
               </svg>
-              高级筛选
+              {t("advancedFilter")}
             </button>
           </div>
         </div>
@@ -179,7 +216,7 @@ const FilterNav = ({ onFilterChange, totalCount = 0 }: FilterNavProps) => {
         <div className="mb-4 px-2">
           <div className="flex justify-between mb-2">
             <span className="text-xs uppercase tracking-[0.08em] text-[#8B8EB5]">
-              价格范围 (USDT币)
+              {t("priceRange.label", { currency: "USDT" })}
             </span>
             <span className="text-xs font-medium text-[#5F6094] rounded-full bg-[#F4F4FF] px-3 py-1">
               {priceRange[1] >= 1000 ? "1000+" : priceRange[1]}
@@ -198,16 +235,23 @@ const FilterNav = ({ onFilterChange, totalCount = 0 }: FilterNavProps) => {
               }}
             />
             <div className="flex justify-between mt-1">
-              <span className="text-xs text-[#8B8EB5]">0</span>
-              <span className="text-xs text-[#8B8EB5]">1000+</span>
+              <span className="text-xs text-[#8B8EB5]">
+                {t("priceRange.minLabel", { value: 0 })}
+              </span>
+              <span className="text-xs text-[#8B8EB5]">
+                {t("priceRange.maxLabel", { value: "1000+" })}
+              </span>
             </div>
           </div>
         </div>
 
         <div className="text-sm font-medium text-[#6A6D94]">
-          共找到{" "}
-          <span className="text-[#4B6CFF] font-semibold">{totalCount}</span>{" "}
-          门课程
+          {t.rich("totalCount", {
+            value: totalCount,
+            highlight: (chunks) => (
+              <span className="text-[#4B6CFF] font-semibold">{chunks}</span>
+            ),
+          })}
         </div>
       </div>
     </div>

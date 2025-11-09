@@ -1,6 +1,7 @@
 "use client";
 import { useWalletInfo } from "@web3-university/uni-wallet-lib";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useCourse } from "@/hooks/useCourse";
 import { PurchaseStatus, usePurchaseCourse } from "@/hooks/usePurchaseCourse";
 import type { CourseFilters } from "@/lib/api/course";
@@ -24,6 +25,9 @@ export type FeaturedCourse = {
 };
 
 const CourseList = () => {
+  const t = useTranslations("market.courseList");
+  const buttonT = useTranslations("market.courseButton");
+
   // 获取钱包信息
   const { address, isConnected } = useWalletInfo();
 
@@ -99,15 +103,20 @@ const CourseList = () => {
 
   // 当 API 课程数据变化时，映射到前端格式
   useEffect(() => {
+    const fallbackTitle = t("fallback.title");
+    const fallbackDescription = t("fallback.description");
+    const fallbackCategory = t("fallback.category");
+    const fallbackInstructor = t("fallback.instructor");
+
     const mappedCourses: FeaturedCourse[] = apiCourses.map((course) => {
       // 确保price字段有有效值
       const courseId = course.courseId?.toString() || "";
       return {
         id: courseId,
-        title: course.title || "未知课程",
-        description: course.description || "暂无描述",
-        category: course.categories?.[0] || "未分类",
-        instructor: course.instructorName || "未知讲师",
+        title: course.title || fallbackTitle,
+        description: course.description || fallbackDescription,
+        category: course.categories?.[0] || fallbackCategory,
+        instructor: course.instructorName || fallbackInstructor,
         rating: course.rating || 0,
         cover: course.cover || "",
         students: course.studentCount || 0,
@@ -119,7 +128,7 @@ const CourseList = () => {
       };
     });
     setCourses(mappedCourses);
-  }, [apiCourses, purchasedCourseIds]);
+  }, [apiCourses, purchasedCourseIds, t]);
 
   // 处理筛选条件变化
   const handleFilterChange = useCallback(
@@ -133,7 +142,11 @@ const CourseList = () => {
   // 监听购买错误
   useEffect(() => {
     if (purchaseStatus === PurchaseStatus.ERROR && purchaseError) {
-      alert(`❌ 购买失败：${purchaseError}`);
+      alert(
+        t("alerts.error", {
+          message: purchaseError || buttonT("inlineMessages.defaultError"),
+        }),
+      );
       // 清除购买中的课程 ID
       setPurchasingCourseId(null);
       setPurchasingCourseTitle(null);
@@ -143,7 +156,10 @@ const CourseList = () => {
     } else if (purchaseStatus === PurchaseStatus.SUCCESS) {
       console.log("购买成功！交易哈希:", transactionHash);
       alert(
-        `🎉 购买成功！\n\n课程: ${purchasingCourseTitle}\n交易哈希: ${transactionHash}\n\n即将跳转到学习页面...`,
+        t("alerts.success", {
+          title: purchasingCourseTitle || t("alerts.unknownCourse"),
+          tx: transactionHash,
+        }),
       );
       setPurchasingCourseId(null);
       setPurchasingCourseTitle(null);
@@ -156,11 +172,30 @@ const CourseList = () => {
   }, [
     purchaseStatus,
     purchaseError,
-    setPurchasingCourseTitle,
+    purchasingCourseTitle,
     resetPurchase,
     transactionHash,
     fetchPurchasedCourses,
+    t,
+    buttonT,
   ]);
+
+  const statusMessages = useMemo(
+    () => ({
+      [PurchaseStatus.CHECKING_ALLOWANCE]: buttonT("status.checkingAllowance"),
+      [PurchaseStatus.APPROVING_TOKEN]: buttonT("status.approvingToken"),
+      [PurchaseStatus.WAITING_APPROVE]: buttonT("status.waitingApprove"),
+      [PurchaseStatus.PURCHASING_COURSE]: buttonT("status.purchasingCourse"),
+      [PurchaseStatus.WAITING_TRANSACTION]: buttonT(
+        "status.waitingTransaction",
+      ),
+      [PurchaseStatus.SAVING_TO_DB]: buttonT("status.savingToDb"),
+      [PurchaseStatus.IDLE]: "",
+      [PurchaseStatus.SUCCESS]: "",
+      [PurchaseStatus.ERROR]: "",
+    }),
+    [buttonT],
+  );
 
   return (
     <div>
@@ -172,14 +207,14 @@ const CourseList = () => {
       {loading && (
         <div className="text-center py-8">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-          <p className="mt-2 text-gray-600">加载中...</p>
+          <p className="mt-2 text-gray-600">{t("loading")}</p>
         </div>
       )}
 
       {error && (
         <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded mb-4">
-          <p className="text-sm">⚠️ {error}</p>
-          <p className="text-xs mt-1">正在显示示例数据</p>
+          <p className="text-sm">{t("loadError", { message: error })}</p>
+          <p className="text-xs mt-1">{t("sampleData")}</p>
         </div>
       )}
 
@@ -188,20 +223,7 @@ const CourseList = () => {
         <div className="fixed top-20 left-1/2 z-50 -translate-x-1/2 rounded-lg bg-blue-500 px-6 py-3 text-white shadow-lg">
           <div className="flex items-center gap-3">
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-            <span>
-              {purchaseStatus === PurchaseStatus.CHECKING_ALLOWANCE &&
-                "检查授权额度..."}
-              {purchaseStatus === PurchaseStatus.APPROVING_TOKEN &&
-                "请在钱包中确认授权..."}
-              {purchaseStatus === PurchaseStatus.WAITING_APPROVE &&
-                "等待授权确认..."}
-              {purchaseStatus === PurchaseStatus.PURCHASING_COURSE &&
-                "请在钱包中确认购买..."}
-              {purchaseStatus === PurchaseStatus.WAITING_TRANSACTION &&
-                "等待交易确认..."}
-              {purchaseStatus === PurchaseStatus.SAVING_TO_DB &&
-                "保存购买记录..."}
-            </span>
+            <span>{statusMessages[purchaseStatus]}</span>
           </div>
         </div>
       )}
@@ -226,7 +248,7 @@ const CourseList = () => {
 
       {!loading && courses.length === 0 && (
         <div className="text-center py-12 text-gray-500">
-          <p>暂无课程数据</p>
+          <p>{t("noData")}</p>
         </div>
       )}
     </div>
