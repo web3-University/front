@@ -1,9 +1,9 @@
 import React from "react";
 // import { FaSave, FaEye, FaCheck } from 'react-icons/fa';
-import { useCourseContext } from "./CourseContext";
+import { useCourseCreateStore } from "@/state/courseCreate/hooks";
 
 const QuickActions = ({ onPreview }: { onPreview?: () => void }) => {
-  const { saveDraft, previewCourse, publishCourse } = useCourseContext();
+  const { saveDraft, previewCourse, publishCourse } = useCourseCreateStore();
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-4 shadow space-y-2">

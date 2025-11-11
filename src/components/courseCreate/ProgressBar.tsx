@@ -1,8 +1,8 @@
 import React from "react";
-import { useCourseContext } from "./CourseContext";
+import { useCourseCreateStore } from "@/state/courseCreate/hooks";
 
 export default function ProgressBar() {
-  const { formData, errors } = useCourseContext();
+  const { formData, errors } = useCourseCreateStore();
 
   // 计算各部分完成度（0-100）
   const calculateBasicInfoProgress = () => {

@@ -1,6 +1,7 @@
 import React, { type ChangeEvent, useState, useEffect } from "react";
-import { type CourseContentItem, useCourseContext } from "./CourseContext";
 import { useUpload, formatFileSize, formatSpeed } from "@/hooks/useUpload";
+import { useCourseCreateStore } from "@/state/courseCreate/hooks";
+import type { CourseContentItem } from "@/state/courseCreate/types";
 
 // 上传状态管理
 interface ChapterUploadState {
@@ -16,7 +17,7 @@ interface ChapterUploadState {
 
 const ContentTab = () => {
   const { formData, updateChapter, addChapter, removeChapter, errors } =
-    useCourseContext();
+    useCourseCreateStore();
 
   // 为每个章节维护独立的上传状态
   const [uploadStates, setUploadStates] = useState<ChapterUploadState>({});

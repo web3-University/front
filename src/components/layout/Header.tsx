@@ -9,6 +9,7 @@ import { useEffect, useRef } from "react";
 import { MAIN_ROUTES } from "@/config/routes";
 import { checkUserRegistered, registerUser } from "@/lib/api/user";
 import { Link, usePathname, useRouter } from "@/navigation";
+import { useNavDrawer } from "@/state/ui/navDrawer"; // 新增
 
 function isRouteActive(href: string, pathname: string, aliases: string[] = []) {
   if (pathname === href) return true;

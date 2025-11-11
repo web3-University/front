@@ -1,8 +1,8 @@
 import React from "react";
-import { useCourseContext } from "./CourseContext";
+import { useCourseCreateStore } from "@/state/courseCreate/hooks";
 
 const CompletionStatus = () => {
-  const { formData, errors } = useCourseContext();
+  const { formData, errors } = useCourseCreateStore();
 
   // 计算基本信息完成状态
   const isBasicInfoComplete = () => {

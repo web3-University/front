@@ -4,11 +4,11 @@ import { getMessages, setRequestLocale } from "next-intl/server";
 import type { ReactNode } from "react";
 
 import { type Locale, locales } from "@/i18n/config";
-import { Providers } from "../providers";
+import Providers from "../providers";
 
 type Props = {
   children: ReactNode;
-  params: Promise<{ locale: string }>;
+  params: { locale: string };
 };
 
 export function generateStaticParams() {
@@ -16,7 +16,7 @@ export function generateStaticParams() {
 }
 
 export default async function LocaleLayout({ children, params }: Props) {
-  const { locale } = await params;
+  const { locale } = params;
 
   if (!locales.includes(locale as Locale)) {
     notFound();

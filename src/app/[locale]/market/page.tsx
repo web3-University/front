@@ -17,8 +17,10 @@ export default async function MarketPage({ params }: MarketPageProps) {
       <main className="container mx-auto max-w-[1200px] px-4 pt-32">
         {/* 标题部分 */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2 text-black">{t("title")}</h1>
-          <p className="text-gray-400">{t("subtitle")}</p>
+          <h1 className="text-3xl font-bold mb-2 text-black">课程市场</h1>
+          <p className="text-gray-400">
+            探索高质量的Web3教育课程，提升你的技能
+          </p>
         </div>
 
         {/* 课程卡片列表（包含筛选功能）*/}

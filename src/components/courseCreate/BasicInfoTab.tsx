@@ -1,6 +1,6 @@
 import React, { type ChangeEvent, useState } from "react";
 import { useUpload } from "../../hooks/useUpload";
-import { useCourseContext } from "./CourseContext";
+import { useCourseCreateStore } from "@/state/courseCreate/hooks";
 
 // 课程分类数据，每个对象包含value和label
 const courseCategories = [
@@ -26,7 +26,7 @@ const difficultyLevels = [
 ];
 
 const BasicInfoTab = () => {
-  const { formData, setFormData, errors } = useCourseContext();
+  const { formData, setFormData, errors } = useCourseCreateStore();
   const { uploadFile, isUploading, error, progress, reset } = useUpload();
   console.log(error, "___error");
   // 保存本地文件用于预览

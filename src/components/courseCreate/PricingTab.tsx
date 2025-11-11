@@ -1,8 +1,8 @@
 import React, { type ChangeEvent } from "react";
-import { useCourseContext } from "./CourseContext";
+import { useCourseCreateStore } from "@/state/courseCreate/hooks";
 
 const PricingTab = () => {
-  const { formData, updatePricing, errors } = useCourseContext();
+  const { formData, updatePricing, errors } = useCourseCreateStore();
 
   const handlePriceChange = (e: ChangeEvent<HTMLInputElement>) => {
     const price = parseInt(e.target.value, 10) || 0;
