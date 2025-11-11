@@ -1,8 +1,8 @@
 import React from "react";
-import { useCourseContext } from "./CourseContext";
+import { useCourseCreateStore } from "@/state/courseCreate/hooks";
 
 const PreviewTab = () => {
-  const { formData } = useCourseContext();
+  const { formData } = useCourseCreateStore();
 
   // 模拟预览课程的方法
   const handlePreviewCourse = () => {

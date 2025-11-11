@@ -91,6 +91,7 @@ export function useCourse(
 
     try {
       const response = await getCourseList(filters);
+      console.log(response.data, "__-++=rsponse.data");
       setCourses(response.data || []);
     } catch (err) {
       const errorMessage =
