@@ -1,8 +1,10 @@
 import React from "react";
+import { useTranslations } from "next-intl";
 import { useCourseCreateStore } from "@/state/courseCreate/hooks";
 
 export default function ProgressBar() {
   const { formData, errors } = useCourseCreateStore();
+  const tProgress = useTranslations("courseCreate.progress");
 
   // 计算各部分完成度（0-100）
   const calculateBasicInfoProgress = () => {
@@ -57,7 +59,9 @@ export default function ProgressBar() {
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-4 shadow mb-4">
-      <h3 className="text-sm font-medium text-gray-700 mb-2">课程完成度</h3>
+      <h3 className="text-sm font-medium text-gray-700 mb-2">
+        {tProgress("title")}
+      </h3>
       <div className="text-right text-xs text-gray-500 mb-1">{progress}%</div>
       <div className="w-full bg-gray-100 rounded-full h-2">
         <div
@@ -72,7 +76,7 @@ export default function ProgressBar() {
           progress >= 60 ? "text-emerald-600" : "text-gray-500"
         }`}
       >
-        {progress >= 60 ? "已满足发布条件！" : "至少需要60%完成度才能发布课程"}
+        {progress >= 60 ? tProgress("ready") : tProgress("requirement")}
       </p>
     </div>
   );

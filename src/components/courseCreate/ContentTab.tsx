@@ -1,4 +1,5 @@
 import React, { type ChangeEvent, useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { useUpload, formatFileSize, formatSpeed } from "@/hooks/useUpload";
 import { useCourseCreateStore } from "@/state/courseCreate/hooks";
 import type { CourseContentItem } from "@/state/courseCreate/types";
@@ -18,6 +19,7 @@ interface ChapterUploadState {
 const ContentTab = () => {
   const { formData, updateChapter, addChapter, removeChapter, errors } =
     useCourseCreateStore();
+  const tContent = useTranslations("courseCreate.content");
 
   // 为每个章节维护独立的上传状态
   const [uploadStates, setUploadStates] = useState<ChapterUploadState>({});
@@ -96,7 +98,7 @@ const ContentTab = () => {
           },
         }));
       } else {
-        throw new Error("上传失败，未获取到视频URL");
+        throw new Error(tContent("uploadMissingUrl"));
       }
     } catch (error) {
       console.error("❌ 视频上传失败:", error);
@@ -108,7 +110,10 @@ const ContentTab = () => {
           ...prev[id],
           isUploading: false,
           progress: 0,
-          error: error instanceof Error ? error.message : "上传失败",
+          error:
+            error instanceof Error
+              ? error.message
+              : tContent("uploadFailedFallback"),
         },
       }));
 
@@ -151,7 +156,7 @@ const ContentTab = () => {
         ...prev[id],
         isUploading: false,
         progress: 0,
-        error: "上传已取消",
+        error: tContent("uploadCancelled"),
       },
     }));
 
@@ -176,12 +181,14 @@ const ContentTab = () => {
 
   return (
     <div className="space-y-6">
-      <h3 className="text-gray-800 text-lg font-semibold">课程内容</h3>
+      <h3 className="text-gray-800 text-lg font-semibold">
+        {tContent("title")}
+      </h3>
       <button
         onClick={addChapter}
         className="bg-gradient-to-r from-pink-400 to-purple-500 text-white px-4 py-2 rounded-md shadow hover:opacity-90 transition"
       >
-        + 添加章节
+        + {tContent("addChapter")}
       </button>
 
       {formData.courseContent.map((chapter) => {
@@ -206,7 +213,7 @@ const ContentTab = () => {
                 onChange={(e) =>
                   handleChapterChange(chapter.id, "title", e.target.value)
                 }
-                placeholder="章节标题"
+                placeholder={tContent("chapterTitlePlaceholder")}
                 className="flex-1 rounded-md border border-gray-300 p-2 text-gray-800"
                 disabled={isUploading}
               />
@@ -223,13 +230,14 @@ const ContentTab = () => {
                   className="rounded-md border border-gray-300 p-2 text-gray-800"
                   disabled={isUploading}
                 >
-                  <option value="video">视频</option>
-                  <option value="text">文字</option>
+                  <option value="video">{tContent("types.video")}</option>
+                  <option value="text">{tContent("types.text")}</option>
                 </select>
                 <button
                   onClick={() => removeChapter(chapter.id)}
                   className="bg-red-500 text-white px-3 py-1 rounded-md disabled:opacity-50"
                   disabled={isUploading}
+                  aria-label={tContent("removeChapterAria")}
                 >
                   ×
                 </button>
@@ -242,7 +250,7 @@ const ContentTab = () => {
               onChange={(e) =>
                 handleChapterChange(chapter.id, "description", e.target.value)
               }
-              placeholder="章节描述..."
+              placeholder={tContent("descriptionPlaceholder")}
               className={`w-full rounded-md border p-2 text-gray-800 ${
                 errors[`courseContent.${chapter.id}.description`]
                   ? "border-red-400"
@@ -268,7 +276,9 @@ const ContentTab = () => {
                 >
                   {!isUploading && !chapter.videoUrl && (
                     <>
-                      <p className="text-gray-600 mb-2">上传视频文件</p>
+                      <p className="text-gray-600 mb-2">
+                        {tContent("uploadPrompt")}
+                      </p>
                       <input
                         type="file"
                         accept="video/*"
@@ -280,14 +290,15 @@ const ContentTab = () => {
                         htmlFor={`video-${chapter.id}`}
                         className="inline-block px-4 py-2 bg-purple-500 text-white text-sm rounded-md cursor-pointer hover:bg-purple-600 transition"
                       >
-                        选择视频
+                        {tContent("selectVideo")}
                       </label>
                       {chapter.videoFile && (
                         <p className="text-sm text-gray-500 mt-2">
-                          已选择：
+                          {tContent("selectedLabel")}
                           {chapter.videoFile instanceof File
                             ? chapter.videoFile.name
-                            : chapter.videoFile || "已上传视频"}
+                            : chapter.videoFile ||
+                              tContent("uploadedVideoFallback")}
                         </p>
                       )}
                     </>
@@ -300,8 +311,11 @@ const ContentTab = () => {
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
                         <span className="ml-3 text-purple-600 font-medium">
                           {totalChunks > 1
-                            ? `正在上传分片 ${currentChunk}/${totalChunks}...`
-                            : "正在上传..."}
+                            ? tContent("uploadingChunk", {
+                                current: currentChunk,
+                                total: totalChunks,
+                              })
+                            : tContent("uploading")}
                         </span>
                       </div>
 
@@ -317,14 +331,20 @@ const ContentTab = () => {
                       <div className="flex justify-between text-sm text-gray-600">
                         <span>{uploadProgress}%</span>
                         {uploadSpeed > 0 && (
-                          <span>速度: {formatSpeed(uploadSpeed)}</span>
+                          <span>
+                            {tContent("speedLabel", {
+                              speed: formatSpeed(uploadSpeed),
+                            })}
+                          </span>
                         )}
                         {chapter.videoFile && (
                           <span>
-                            大小:{" "}
-                            {chapter.videoFile instanceof File
-                              ? formatFileSize(chapter.videoFile.size)
-                              : "未知"}
+                            {tContent("sizeLabel", {
+                              size:
+                                chapter.videoFile instanceof File
+                                  ? formatFileSize(chapter.videoFile.size)
+                                  : tContent("uploadedVideoFallback"),
+                            })}
                           </span>
                         )}
                       </div>
@@ -334,7 +354,7 @@ const ContentTab = () => {
                         onClick={() => handleCancelUpload(chapter.id)}
                         className="px-3 py-1 bg-gray-500 text-white text-sm rounded-md hover:bg-gray-600 transition"
                       >
-                        取消上传
+                        {tContent("cancelUpload")}
                       </button>
                     </div>
                   )}
@@ -356,13 +376,16 @@ const ContentTab = () => {
                             d="M5 13l4 4L19 7"
                           />
                         </svg>
-                        <span className="font-medium">视频上传成功</span>
+                        <span className="font-medium">
+                          {tContent("uploadSuccess")}
+                        </span>
                       </div>
                       {chapter.videoFile && (
                         <p className="text-sm text-gray-600">
                           {chapter.videoFile instanceof File
                             ? `${chapter.videoFile.name} (${formatFileSize(chapter.videoFile.size)})`
-                            : chapter.videoFile || "已上传视频"}
+                            : chapter.videoFile ||
+                              tContent("uploadedVideoFallback")}
                         </p>
                       )}
                       <div className="flex gap-2 justify-center">
@@ -377,7 +400,7 @@ const ContentTab = () => {
                           htmlFor={`video-replace-${chapter.id}`}
                           className="px-3 py-1 bg-gray-500 text-white text-sm rounded-md cursor-pointer hover:bg-gray-600 transition"
                         >
-                          重新上传
+                          {tContent("replaceVideo")}
                         </label>
                       </div>
                     </div>
@@ -406,7 +429,7 @@ const ContentTab = () => {
                         onClick={() => handleRetryUpload(chapter.id)}
                         className="mt-2 px-3 py-1 bg-purple-500 text-white text-sm rounded-md hover:bg-purple-600 transition"
                       >
-                        重试上传
+                        {tContent("retryUpload")}
                       </button>
                     </div>
                   )}
@@ -424,7 +447,7 @@ const ContentTab = () => {
                 onChange={(e) =>
                   handleChapterChange(chapter.id, "textContent", e.target.value)
                 }
-                placeholder="输入课程文字内容..."
+                placeholder={tContent("textContentPlaceholder")}
                 className={`w-full rounded-md border p-2 text-gray-800 ${
                   errors[`courseContent.${chapter.id}.textContent`]
                     ? "border-red-400"
@@ -443,7 +466,7 @@ const ContentTab = () => {
                 onChange={(e) =>
                   handleChapterChange(chapter.id, "duration", e.target.value)
                 }
-                placeholder="时长 (分钟)"
+                placeholder={tContent("durationPlaceholder")}
                 className="w-28 rounded-md border border-gray-300 p-2 text-gray-800"
                 disabled={isUploading}
               />
@@ -461,7 +484,7 @@ const ContentTab = () => {
                   className="accent-purple-500"
                   disabled={isUploading}
                 />
-                免费预览
+                {tContent("freePreview")}
               </label>
             </div>
           </div>

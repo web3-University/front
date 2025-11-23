@@ -2,6 +2,7 @@
 
 import { useCallback } from "react";
 import { useAtom } from "jotai";
+import { useTranslations } from "next-intl";
 import { useAuth, useCourseContract } from "@web3-university/uni-wallet-lib";
 import {
   createCourse,
@@ -60,6 +61,7 @@ export const useCourseCreateStore = () => {
   const [formData, setFormData] = useAtom(courseFormAtom);
   const [errors, setErrors] = useAtom(courseErrorsAtom);
   const [isLoading, setIsLoading] = useAtom(courseLoadingAtom);
+  const tValidation = useTranslations("courseCreate.validation");
 
   const auth = useAuth();
   const { registerCourse } = useCourseContract();
@@ -69,56 +71,58 @@ export const useCourseCreateStore = () => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.basicInfo.title.trim()) {
-      newErrors["basicInfo.title"] = "课程标题不能为空";
+      newErrors["basicInfo.title"] = tValidation("titleRequired");
       isValid = false;
     }
     if (!formData.basicInfo.description.trim()) {
-      newErrors["basicInfo.description"] = "课程描述不能为空";
+      newErrors["basicInfo.description"] = tValidation("descriptionRequired");
       isValid = false;
     }
     if (!formData.basicInfo.category) {
-      newErrors["basicInfo.category"] = "请选择课程分类";
+      newErrors["basicInfo.category"] = tValidation("categoryRequired");
       isValid = false;
     }
     if (!formData.basicInfo.difficulty) {
-      newErrors["basicInfo.difficulty"] = "请选择难度级别";
+      newErrors["basicInfo.difficulty"] = tValidation("difficultyRequired");
       isValid = false;
     }
     if (!formData.basicInfo.coverImage) {
-      newErrors["basicInfo.coverImage"] = "请上传课程封面图";
+      newErrors["basicInfo.coverImage"] = tValidation("coverRequired");
       isValid = false;
     }
 
     formData.courseContent.forEach((chapter) => {
       if (!chapter.description.trim()) {
-        newErrors[`courseContent.${chapter.id}.description`] =
-          "章节描述不能为空";
+        newErrors[`courseContent.${chapter.id}.description`] = tValidation(
+          "chapterDescriptionRequired",
+        );
         isValid = false;
       }
       if (chapter.type === "video" && !chapter.videoFile) {
         newErrors[`courseContent.${chapter.id}.videoFile`] =
-          "视频章节需上传视频";
+          tValidation("videoRequired");
         isValid = false;
       }
       if (chapter.type === "text" && !chapter.textContent) {
         newErrors[`courseContent.${chapter.id}.textContent`] =
-          "文字章节需填写内容";
+          tValidation("textRequired");
         isValid = false;
       }
     });
 
     if (!formData.pricingSetting.price) {
-      newErrors["pricingSetting.price"] = "课程价格不能为空";
+      newErrors["pricingSetting.price"] = tValidation("priceRequired");
       isValid = false;
     }
     if (!formData.pricingSetting.estimatedDuration.trim()) {
-      newErrors["pricingSetting.estimatedDuration"] = "预估学习时长不能为空";
+      newErrors["pricingSetting.estimatedDuration"] =
+        tValidation("durationRequired");
       isValid = false;
     }
 
     setErrors(newErrors);
     return isValid;
-  }, [formData, setErrors]);
+  }, [formData, setErrors, tValidation]);
 
   const saveDraft = useCallback(() => {
     try {
@@ -133,10 +137,10 @@ export const useCourseCreateStore = () => {
       console.error("保存草稿失败:", error);
       setErrors((prev) => ({
         ...prev,
-        draft: "保存草稿失败，请重试",
+        draft: tValidation("draftSaveFailed"),
       }));
     }
-  }, [formData, setErrors]);
+  }, [formData, setErrors, tValidation]);
 
   const previewCourse = useCallback(() => {
     if (validateForm()) {
@@ -148,7 +152,10 @@ export const useCourseCreateStore = () => {
     if (!validateForm()) return;
 
     if (!auth.address) {
-      setErrors((prev) => ({ ...prev, auth: "请先连接钱包" }));
+      setErrors((prev) => ({
+        ...prev,
+        auth: tValidation("connectWallet"),
+      }));
       return;
     }
 
@@ -192,7 +199,7 @@ export const useCourseCreateStore = () => {
       setErrors((prev) => ({
         ...prev,
         publish:
-          error instanceof Error ? error.message : "创建课程失败，请重试",
+          error instanceof Error ? error.message : tValidation("publishFailed"),
       }));
     } finally {
       setIsLoading(false);
@@ -203,6 +210,7 @@ export const useCourseCreateStore = () => {
     registerCourse,
     setErrors,
     setIsLoading,
+    tValidation,
     validateForm,
   ]);
 

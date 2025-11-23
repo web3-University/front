@@ -35,7 +35,7 @@ export interface CourseFormData {
 
 export const createDefaultChapter = (): CourseContentItem => ({
   id: `chapter-${Date.now()}`,
-  title: "新章节",
+  title: "",
   type: "video",
   description: "",
   videoFile: null,
@@ -52,13 +52,13 @@ export const defaultCourseFormState: CourseFormData = {
     difficulty: "1",
     coverImage: null,
     tags: [],
-    learningGoals: ["掌握基础"],
+    learningGoals: [],
     prerequisites: [],
   },
   courseContent: [
     {
       id: "chapter-1",
-      title: "课程介绍",
+      title: "",
       type: "video",
       description: "",
       videoFile: null,

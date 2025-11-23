@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { uploadCouseImage, uploadCouseVideo } from "@/lib/api/course";
 import SparkMD5 from "spark-md5";
 
@@ -95,6 +96,7 @@ export const useUpload = () => {
   });
 
   const abortControllerRef = useRef<AbortController | null>(null);
+  const tUpload = useTranslations("courseCreate.upload");
 
   /**
    * 计算文件 Hash
@@ -122,7 +124,7 @@ export const useUpload = () => {
         };
 
         fileReader.onerror = () => {
-          reject(new Error("文件读取失败"));
+          reject(new Error(tUpload("fileReadFailed")));
         };
 
         const loadNext = () => {
@@ -134,7 +136,7 @@ export const useUpload = () => {
         loadNext();
       });
     },
-    [],
+    [tUpload],
   );
 
   /**
@@ -207,7 +209,12 @@ export const useUpload = () => {
 
     if (!response || !response.data) {
       console.error(`❌ 分片 ${chunkInfo.index + 1} 响应异常:`, response);
-      throw new Error(`分片 ${chunkInfo.index + 1} 上传失败: 响应数据为空`);
+      throw new Error(
+        tUpload("chunkResponseEmpty", {
+          index: chunkInfo.index + 1,
+          total: totalChunks,
+        }),
+      );
     }
 
     return response.data;
@@ -262,17 +269,17 @@ export const useUpload = () => {
 
       // 详细检查响应结构
       if (!response) {
-        throw new Error("上传失败: 无响应");
+        throw new Error(tUpload("noResponse"));
       }
 
       if (!response.data) {
         console.error("❌ 响应缺少 data 字段:", response);
-        throw new Error("上传失败: 响应格式错误 - 缺少 data 字段");
+        throw new Error(tUpload("missingDataField"));
       }
 
       if (!response.data.url) {
         console.error("❌ 响应缺少 url 字段:", response.data);
-        throw new Error("上传失败: 响应格式错误 - 缺少 url 字段");
+        throw new Error(tUpload("missingUrlField"));
       }
 
       console.log("✅ 获取到URL:", response.data.url);
@@ -351,7 +358,12 @@ export const useUpload = () => {
       } catch (error) {
         console.error(`❌ 分片 ${chunkInfo.index + 1} 失败:`, error);
         throw new Error(
-          `分片 ${chunkInfo.index + 1}/${totalChunks} 上传失败: ${error}`,
+          tUpload("chunkUploadFailed", {
+            index: chunkInfo.index + 1,
+            total: totalChunks,
+            message:
+              error instanceof Error ? error.message : String(error ?? ""),
+          }),
         );
       }
     };
@@ -371,7 +383,7 @@ export const useUpload = () => {
 
     if (!finalUrl) {
       console.error("❌ 分片上传完成但未获取到URL");
-      throw new Error("分片上传完成，但未获取到文件 URL");
+      throw new Error(tUpload("chunkUploadMissingUrl"));
     }
 
     console.log("✅ 分片上传完成，最终URL:", finalUrl);
@@ -395,7 +407,7 @@ export const useUpload = () => {
         await new Promise((resolve) => setTimeout(resolve, delay));
       }
     }
-    throw new Error("重试次数耗尽");
+    throw new Error(tUpload("retriesExhausted"));
   };
 
   /**
@@ -416,7 +428,7 @@ export const useUpload = () => {
       });
 
       if (!file) {
-        throw new Error("请选择文件");
+        throw new Error(tUpload("fileRequired"));
       }
       const mimeType = getMimeType(file, fileType);
       const fileName = file instanceof File ? file.name : undefined;
@@ -487,7 +499,8 @@ export const useUpload = () => {
       console.log("========== 上传完成 ==========");
       return finalUrl;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "上传失败";
+      const errorMessage =
+        err instanceof Error ? err.message : tUpload("genericFailure");
       console.error("❌ 上传失败:", err);
       console.error("========== 上传失败 ==========");
 
@@ -515,7 +528,7 @@ export const useUpload = () => {
     setState((prev) => ({
       isUploading: false,
       progress: 0,
-      error: "上传已取消",
+      error: tUpload("uploadCancelled"),
       url: prev.previousUrl,
       previousUrl: prev.previousUrl,
       currentChunk: 0,
@@ -523,7 +536,7 @@ export const useUpload = () => {
       uploadSpeed: 0,
       isChunked: false,
     }));
-  }, []);
+  }, [tUpload]);
 
   const reset = useCallback(() => {
     setState({

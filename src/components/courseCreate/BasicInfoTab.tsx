@@ -1,33 +1,45 @@
-import React, { type ChangeEvent, useState } from "react";
-import { useUpload } from "../../hooks/useUpload";
+import React, { type ChangeEvent, useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
+import { useUpload } from "@/hooks/useUpload";
 import { useCourseCreateStore } from "@/state/courseCreate/hooks";
 
-// 课程分类数据，每个对象包含value和label
+// 课程分类数据，每个对象包含value和历史 label，便于兼容旧数据
 const courseCategories = [
-  { value: "blockchain_dev", label: "区块链开发" },
-  { value: "frontend_dev", label: "前端开发" },
-  { value: "security_audit", label: "安全审计" },
-  { value: "defi_protocol", label: "DeFi协议" },
-  { value: "nft_development", label: "NFT开发" },
-  { value: "dao_governance", label: "DAO治理" },
-];
+  { value: "blockchain_dev", legacyLabels: ["区块链开发"] },
+  { value: "frontend_dev", legacyLabels: ["前端开发"] },
+  { value: "security_audit", legacyLabels: ["安全审计"] },
+  { value: "defi_protocol", legacyLabels: ["DeFi协议"] },
+  { value: "nft_development", legacyLabels: ["NFT开发"] },
+  { value: "dao_governance", legacyLabels: ["DAO治理"] },
+] as const;
 
-// 难度级别数据，每个对象包含value和label
-// const difficultyLevels = [
-//   { value: "beginner", label: "初级" },
-//   { value: "intermediate", label: "中级" },
-//   { value: "advanced", label: "高级" },
-// ];
+const difficultyLevels = ["1", "2", "3"] as const;
 
-const difficultyLevels = [
-  { value: "1", label: "初级" },
-  { value: "2", label: "中级" },
-  { value: "3", label: "高级" },
-];
+const normalizeCategoryValue = (value: string) => {
+  const match = courseCategories.find(
+    (category) =>
+      category.value === value || category.legacyLabels.includes(value),
+  );
+  return match ? match.value : value;
+};
 
 const BasicInfoTab = () => {
   const { formData, setFormData, errors } = useCourseCreateStore();
   const { uploadFile, isUploading, error, progress, reset } = useUpload();
+  const tBasicInfo = useTranslations("courseCreate.basicInfo");
+  const normalizedCategory = useMemo(
+    () => normalizeCategoryValue(formData.basicInfo.category),
+    [formData.basicInfo.category],
+  );
+
+  useEffect(() => {
+    if (normalizedCategory !== formData.basicInfo.category) {
+      setFormData((prev) => ({
+        ...prev,
+        basicInfo: { ...prev.basicInfo, category: normalizedCategory },
+      }));
+    }
+  }, [normalizedCategory, formData.basicInfo.category, setFormData]);
   console.log(error, "___error");
   // 保存本地文件用于预览
   const [localFile, setLocalFile] = useState<File | null>(null);
@@ -135,7 +147,7 @@ const BasicInfoTab = () => {
     ) {
       // 从 URL 提取文件名
       const urlParts = formData.basicInfo.coverImage.split("/");
-      return urlParts[urlParts.length - 1] || "课程封面";
+      return urlParts[urlParts.length - 1] || tBasicInfo("coverFallback");
     }
     return "";
   };
@@ -206,7 +218,7 @@ const BasicInfoTab = () => {
           htmlFor="title"
           className="block text-sm font-medium text-gray-700 mb-1"
         >
-          课程标题 *
+          {tBasicInfo("titleLabel")}
         </label>
         <input
           type="text"
@@ -214,7 +226,7 @@ const BasicInfoTab = () => {
           name="title"
           value={formData.basicInfo.title}
           onChange={handleInputChange}
-          placeholder="输入吸引人的课程标题..."
+          placeholder={tBasicInfo("titlePlaceholder")}
           className={`w-full rounded-md border p-2 shadow-sm ${
             errors["basicInfo.title"] ? "border-red-400" : "border-gray-300"
           }`}
@@ -231,7 +243,7 @@ const BasicInfoTab = () => {
           htmlFor="description"
           className="block text-sm font-medium text-gray-700 mb-1"
         >
-          课程描述 *
+          {tBasicInfo("descriptionLabel")}
         </label>
         <textarea
           id="description"
@@ -239,7 +251,7 @@ const BasicInfoTab = () => {
           rows={4}
           value={formData.basicInfo.description}
           onChange={handleInputChange}
-          placeholder="详细描述课程内容、目标学员、学习收益..."
+          placeholder={tBasicInfo("descriptionPlaceholder")}
           className={`w-full rounded-md border p-2 shadow-sm ${
             errors["basicInfo.description"]
               ? "border-red-400"
@@ -256,10 +268,10 @@ const BasicInfoTab = () => {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            课程分类 *
+            {tBasicInfo("categoryLabel")}
           </label>
           <select
-            value={formData.basicInfo.category}
+            value={normalizedCategory}
             onChange={(e) => handleSelectChange("category", e.target.value)}
             className={`w-full rounded-md border p-2 ${
               errors["basicInfo.category"]
@@ -268,11 +280,11 @@ const BasicInfoTab = () => {
             }`}
           >
             <option value="" hidden>
-              选择课程分类
+              {tBasicInfo("categoryPlaceholder")}
             </option>
-            {courseCategories.map((c) => (
-              <option key={c.label} value={c.label}>
-                {c.label}
+            {courseCategories.map((category) => (
+              <option key={category.value} value={category.value}>
+                {tBasicInfo(`categories.${category.value}`)}
               </option>
             ))}
           </select>
@@ -284,7 +296,7 @@ const BasicInfoTab = () => {
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            难度级别 *
+            {tBasicInfo("difficultyLabel")}
           </label>
           <select
             value={formData.basicInfo.difficulty}
@@ -296,8 +308,8 @@ const BasicInfoTab = () => {
             }`}
           >
             {difficultyLevels.map((level) => (
-              <option key={level.value} value={level.value}>
-                {level.label}
+              <option key={level} value={level}>
+                {tBasicInfo(`difficultyOptions.${level}`)}
               </option>
             ))}
           </select>
@@ -311,7 +323,7 @@ const BasicInfoTab = () => {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          课程封面图 *
+          {tBasicInfo("coverLabel")}
         </label>
 
         {hasImage ? (
@@ -342,16 +354,18 @@ const BasicInfoTab = () => {
                   type="button"
                   onClick={handlePreviewImage}
                   className="text-xs px-3 py-1 bg-purple-500 text-white rounded hover:bg-purple-600"
+                  aria-label={tBasicInfo("preview")}
                 >
-                  预览
+                  {tBasicInfo("preview")}
                 </button>
                 <button
                   type="button"
                   onClick={handleRemoveCoverImage}
                   disabled={isUploading}
                   className="text-xs px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50 ml-3"
+                  aria-label={tBasicInfo("remove")}
                 >
-                  移除
+                  {tBasicInfo("remove")}
                 </button>
               </div>
             </div>
@@ -366,7 +380,7 @@ const BasicInfoTab = () => {
                   ></div>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  上传中... {progress}%
+                  {tBasicInfo("uploading", { progress })}
                 </p>
               </div>
             )}
@@ -385,7 +399,7 @@ const BasicInfoTab = () => {
                     clipRule="evenodd"
                   />
                 </svg>
-                <span>上传失败（显示本地文件）</span>
+                <span>{tBasicInfo("uploadError")}</span>
               </div>
             )}
 
@@ -403,15 +417,15 @@ const BasicInfoTab = () => {
                     clipRule="evenodd"
                   />
                 </svg>
-                <span>上传成功</span>
+                <span>{tBasicInfo("uploadSuccess")}</span>
               </div>
             )}
           </div>
         ) : (
           <div className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center">
-            <p className="text-gray-500 mb-1">上传课程封面</p>
+            <p className="text-gray-500 mb-1">{tBasicInfo("uploadTitle")}</p>
             <p className="text-gray-400 text-xs mb-3">
-              建议尺寸 1280x720，支持 JPG / PNG
+              {tBasicInfo("uploadHint")}
             </p>
             <input
               type="file"
@@ -424,7 +438,7 @@ const BasicInfoTab = () => {
               htmlFor="coverImage"
               className="inline-block px-4 py-2 bg-purple-500 text-white text-sm rounded-md cursor-pointer hover:bg-purple-600"
             >
-              选择文件
+              {tBasicInfo("chooseFile")}
             </label>
           </div>
         )}
@@ -446,12 +460,13 @@ const BasicInfoTab = () => {
             <button
               onClick={handleClosePreview}
               className="absolute top-2 right-2 text-white bg-black bg-opacity-50 rounded-full w-8 h-8 flex items-center justify-center hover:bg-opacity-75"
+              aria-label={tBasicInfo("closePreview")}
             >
               ×
             </button>
             <img
               src={imageUrl}
-              alt="封面预览"
+              alt={tBasicInfo("previewAlt")}
               className="max-w-full max-h-[85vh] object-contain rounded"
               onClick={(e) => e.stopPropagation()}
               onError={(e) => {
@@ -466,7 +481,7 @@ const BasicInfoTab = () => {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          课程标签
+          {tBasicInfo("tagLabel")}
         </label>
         <div className="flex flex-wrap gap-2 mb-2">
           {formData.basicInfo.tags.map((tag, index) => (
@@ -475,7 +490,11 @@ const BasicInfoTab = () => {
               className="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs"
             >
               {tag}
-              <button onClick={() => handleRemoveTag(index)} className="ml-1">
+              <button
+                onClick={() => handleRemoveTag(index)}
+                className="ml-1"
+                aria-label={tBasicInfo("removeTagAria")}
+              >
                 ×
               </button>
             </span>
@@ -487,12 +506,13 @@ const BasicInfoTab = () => {
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
             className="flex-1 rounded-l-md border border-gray-300 p-2"
-            placeholder="添加标签..."
+            placeholder={tBasicInfo("tagPlaceholder")}
           />
           <button
             type="button"
             onClick={handleAddTag}
             className="bg-purple-500 text-white px-3 py-2 rounded-r-md"
+            aria-label={tBasicInfo("addTagAria")}
           >
             +
           </button>
@@ -501,7 +521,7 @@ const BasicInfoTab = () => {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          学习目标
+          {tBasicInfo("learningGoalsLabel")}
         </label>
         {formData.basicInfo.learningGoals.map((goal, index) => (
           <div key={index} className="flex items-stretch mb-2">
@@ -525,6 +545,7 @@ const BasicInfoTab = () => {
               type="button"
               onClick={() => handleRemoveLearningGoal(index)}
               className="bg-red-500 text-white w-10 flex items-center justify-center rounded-r-md hover:bg-red-600"
+              aria-label={tBasicInfo("removeGoalAria")}
             >
               ×
             </button>
@@ -534,12 +555,13 @@ const BasicInfoTab = () => {
           <input
             id="goalInput"
             className="flex-1 rounded-l-md border border-gray-300 p-2 border-r-0"
-            placeholder="新的学习目标..."
+            placeholder={tBasicInfo("newGoalPlaceholder")}
           />
           <button
             type="button"
             onClick={handleAddLearningGoal}
             className="bg-green-500 text-white w-10 flex items-center justify-center rounded-r-md hover:bg-green-600"
+            aria-label={tBasicInfo("addGoalAria")}
           >
             +
           </button>

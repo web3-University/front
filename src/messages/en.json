@@ -699,5 +699,214 @@
       "metaverse": "Metaverse apps",
       "ai": "AI + Web3"
     }
+  },
+  "courseCreate": {
+    "layout": {
+      "title": "Course creation workspace",
+      "subtitle": "Create high-quality Web3 courses and earn token rewards",
+      "tabs": {
+        "basicInfo": "Basic info",
+        "courseContent": "Course content",
+        "pricingSetting": "Pricing",
+        "preview": "Preview & publish"
+      }
+    },
+    "progress": {
+      "title": "Course progress",
+      "ready": "Ready to publish!",
+      "requirement": "At least 60% progress is required before publishing"
+    },
+    "basicInfo": {
+      "titleLabel": "Course title *",
+      "titlePlaceholder": "Enter a compelling course title…",
+      "descriptionLabel": "Course description *",
+      "descriptionPlaceholder": "Describe the content, learners and learning outcomes…",
+      "categoryLabel": "Course category *",
+      "categoryPlaceholder": "Select a category",
+      "categories": {
+        "blockchain_dev": "Blockchain development",
+        "frontend_dev": "Frontend development",
+        "security_audit": "Security auditing",
+        "defi_protocol": "DeFi protocols",
+        "nft_development": "NFT development",
+        "dao_governance": "DAO governance"
+      },
+      "difficultyLabel": "Difficulty level *",
+      "difficultyOptions": {
+        "1": "Beginner",
+        "2": "Intermediate",
+        "3": "Advanced"
+      },
+      "coverLabel": "Course cover image *",
+      "coverFallback": "Course cover",
+      "preview": "Preview",
+      "remove": "Remove",
+      "uploading": "Uploading… {progress}%",
+      "uploadError": "Upload failed (showing local file)",
+      "uploadSuccess": "Upload successful",
+      "uploadTitle": "Upload course cover",
+      "uploadHint": "Recommended size 1280x720, supports JPG / PNG",
+      "chooseFile": "Choose file",
+      "previewAlt": "Cover preview",
+      "closePreview": "Close preview",
+      "tagLabel": "Course tags",
+      "tagPlaceholder": "Add a tag…",
+      "removeTagAria": "Remove tag",
+      "addTagAria": "Add tag",
+      "learningGoalsLabel": "Learning goals",
+      "newGoalPlaceholder": "New learning goal…",
+      "removeGoalAria": "Remove learning goal",
+      "addGoalAria": "Add learning goal"
+    },
+    "content": {
+      "title": "Course content",
+      "addChapter": "Add chapter",
+      "chapterTitlePlaceholder": "Chapter title",
+      "types": {
+        "video": "Video",
+        "text": "Text"
+      },
+      "removeChapterAria": "Remove chapter",
+      "descriptionPlaceholder": "Chapter description…",
+      "uploadPrompt": "Upload a video file",
+      "selectVideo": "Choose video",
+      "selectedLabel": "Selected:",
+      "uploadedVideoFallback": "Uploaded video",
+      "uploadingChunk": "Uploading chunk {current}/{total}…",
+      "uploading": "Uploading…",
+      "speedLabel": "Speed: {speed}",
+      "sizeLabel": "Size: {size}",
+      "cancelUpload": "Cancel upload",
+      "uploadSuccess": "Video uploaded successfully",
+      "replaceVideo": "Re-upload",
+      "retryUpload": "Retry upload",
+      "textContentPlaceholder": "Enter the lesson text…",
+      "durationPlaceholder": "Duration (minutes)",
+      "freePreview": "Free preview",
+      "uploadMissingUrl": "Upload failed, no video URL returned",
+      "uploadCancelled": "Upload cancelled",
+      "uploadFailedFallback": "Upload failed"
+    },
+    "pricing": {
+      "title": "Pricing",
+      "priceLabel": "Course price (YD tokens) *",
+      "priceHint": "Suggested price: 200-2000 YD",
+      "durationLabel": "Estimated learning time",
+      "durationPlaceholder": "e.g. 20 hours",
+      "strategyLabel": "Pricing strategy",
+      "strategies": {
+        "basic": {
+          "label": "Basic pricing",
+          "range": "200 - 400 YD"
+        },
+        "standard": {
+          "label": "Standard pricing",
+          "range": "400 - 600 YD"
+        },
+        "premium": {
+          "label": "Premium pricing",
+          "range": "600+ YD"
+        }
+      },
+      "revenueTitle": "💡 Revenue share rules",
+      "revenue": {
+        "instructorShare": "Instructors keep 85% of each sale",
+        "platformFee": "Platform takes 15% to cover operations",
+        "publishReward": "Publishing a course unlocks 10 YD instantly",
+        "ratingReward": "Courses rated 4.5+ earn extra rewards"
+      }
+    },
+    "preview": {
+      "title": "Course preview",
+      "coverAlt": "Course cover",
+      "noCover": "No cover yet",
+      "titleFallback": "Course title",
+      "descriptionFallback": "Course description…",
+      "difficultyFallback": "Beginner",
+      "button": "Preview course",
+      "chaptersTitle": "Course chapters",
+      "chapterFallback": "Chapter {index}",
+      "freeLabel": "Free",
+      "paidLabel": "Paid"
+    },
+    "sidebar": {
+      "quickActions": {
+        "title": "Quick actions",
+        "saveDraft": "Save draft",
+        "preview": "Preview course",
+        "publish": "Publish course"
+      },
+      "completion": {
+        "title": "📊 Progress overview",
+        "basicInfo": "Basic info:",
+        "courseContent": "Course content:",
+        "pricing": "Pricing:",
+        "status": {
+          "complete": "Complete",
+          "inProgress": "In progress",
+          "set": "Configured",
+          "notSet": "Not set"
+        }
+      },
+      "suggestions": {
+        "title": "💡 Creation tips",
+        "items": {
+          "conciseTitle": "Keep the title punchy and highlight the value",
+          "detailedDescription": "Describe the target learners and outcomes in detail",
+          "videoQuality": "Record videos in 1080p or higher for clarity",
+          "chapterLength": "Keep each chapter between 10-30 minutes",
+          "caseStudies": "Add hands-on cases to boost course value"
+        }
+      },
+      "reward": {
+        "title": "Reward system",
+        "items": {
+          "publish": {
+            "label": "Publish bonus",
+            "value": "+10 YD"
+          },
+          "firstPurchase": {
+            "label": "First purchase",
+            "value": "+5 YD"
+          },
+          "fiveStar": {
+            "label": "5-star review",
+            "value": "+3 YD"
+          },
+          "estimated": {
+            "label": "Estimated earnings",
+            "value": "+254 YD"
+          }
+        }
+      }
+    },
+    "validation": {
+      "titleRequired": "Course title is required",
+      "descriptionRequired": "Course description is required",
+      "categoryRequired": "Please select a category",
+      "difficultyRequired": "Please select a difficulty level",
+      "coverRequired": "Please upload a cover image",
+      "chapterDescriptionRequired": "Chapter description is required",
+      "videoRequired": "Video chapters must include a video file",
+      "textRequired": "Text chapters must include content",
+      "priceRequired": "Course price is required",
+      "durationRequired": "Estimated duration is required",
+      "draftSaveFailed": "Failed to save draft, please try again",
+      "connectWallet": "Connect your wallet first",
+      "publishFailed": "Failed to create course, please try again"
+    },
+    "upload": {
+      "fileReadFailed": "Failed to read the file",
+      "chunkResponseEmpty": "Chunk {index}/{total} failed: empty response data",
+      "noResponse": "Upload failed: no response",
+      "missingDataField": "Upload failed: missing data field",
+      "missingUrlField": "Upload failed: missing url field",
+      "chunkUploadMissingUrl": "Upload finished but no file URL was returned",
+      "retriesExhausted": "Retry attempts exhausted",
+      "fileRequired": "Please select a file",
+      "genericFailure": "Upload failed",
+      "chunkUploadFailed": "Chunk {index}/{total} failed: {message}",
+      "uploadCancelled": "Upload cancelled"
+    }
   }
 }

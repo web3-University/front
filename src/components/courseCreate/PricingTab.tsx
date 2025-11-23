@@ -1,8 +1,10 @@
 import React, { type ChangeEvent } from "react";
+import { useTranslations } from "next-intl";
 import { useCourseCreateStore } from "@/state/courseCreate/hooks";
 
 const PricingTab = () => {
   const { formData, updatePricing, errors } = useCourseCreateStore();
+  const tPricing = useTranslations("courseCreate.pricing");
 
   const handlePriceChange = (e: ChangeEvent<HTMLInputElement>) => {
     const price = parseInt(e.target.value, 10) || 0;
@@ -23,13 +25,13 @@ const PricingTab = () => {
 
   return (
     <div className="space-y-6 text-gray-800">
-      <h3 className="text-lg font-semibold">定价设置</h3>
+      <h3 className="text-lg font-semibold">{tPricing("title")}</h3>
 
       {/* 价格和时长输入 */}
       <div className="grid grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-medium mb-1">
-            课程价格 (YD代币) *
+            {tPricing("priceLabel")}
           </label>
           <div className="flex items-center">
             <input
@@ -55,18 +57,20 @@ const PricingTab = () => {
           {/* 合法价格时显示建议范围 */}
           {!errors["pricingSetting.price"] && (
             <p className="text-sm text-purple-500 mt-1">
-              建议价格: 200-2000 YD
+              {tPricing("priceHint")}
             </p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">预估学习时长</label>
+          <label className="block text-sm font-medium mb-1">
+            {tPricing("durationLabel")}
+          </label>
           <input
             type="text"
             value={formData.pricingSetting.estimatedDuration}
             onChange={handleDurationChange}
-            placeholder="例：20小时"
+            placeholder={tPricing("durationPlaceholder")}
             className={`w-full rounded-md border p-2 shadow-sm ${
               errors["pricingSetting.estimatedDuration"]
                 ? "border-red-400"
@@ -78,7 +82,9 @@ const PricingTab = () => {
 
       {/* 定价策略 */}
       <div>
-        <label className="block text-sm font-medium mb-2">定价策略</label>
+        <label className="block text-sm font-medium mb-2">
+          {tPricing("strategyLabel")}
+        </label>
         <div className="grid grid-cols-3 gap-4">
           <button
             onClick={() => handleStrategySelect("basic")}
@@ -89,8 +95,12 @@ const PricingTab = () => {
             } flex flex-col items-center hover:shadow-md transition`}
           >
             <span className="text-green-500 text-xl mb-1">💸</span>
-            <span className="font-medium">基础定价</span>
-            <span className="text-sm text-gray-500">200 - 400 YD</span>
+            <span className="font-medium">
+              {tPricing("strategies.basic.label")}
+            </span>
+            <span className="text-sm text-gray-500">
+              {tPricing("strategies.basic.range")}
+            </span>
           </button>
 
           <button
@@ -102,8 +112,12 @@ const PricingTab = () => {
             } flex flex-col items-center hover:shadow-md transition`}
           >
             <span className="text-blue-500 text-xl mb-1">💰</span>
-            <span className="font-medium">标准定价</span>
-            <span className="text-sm text-gray-500">400 - 600 YD</span>
+            <span className="font-medium">
+              {tPricing("strategies.standard.label")}
+            </span>
+            <span className="text-sm text-gray-500">
+              {tPricing("strategies.standard.range")}
+            </span>
           </button>
 
           <button
@@ -115,20 +129,26 @@ const PricingTab = () => {
             } flex flex-col items-center hover:shadow-md transition`}
           >
             <span className="text-purple-500 text-xl mb-1">🌟</span>
-            <span className="font-medium">高级定价</span>
-            <span className="text-sm text-gray-500">600+ YD</span>
+            <span className="font-medium">
+              {tPricing("strategies.premium.label")}
+            </span>
+            <span className="text-sm text-gray-500">
+              {tPricing("strategies.premium.range")}
+            </span>
           </button>
         </div>
       </div>
 
       {/* 收益分成规则 */}
       <div className="bg-gradient-to-r from-purple-100 via-pink-100 to-yellow-50 border border-purple-200 rounded-md p-4">
-        <h4 className="text-purple-700 font-semibold mb-2">💡 收益分成规则</h4>
+        <h4 className="text-purple-700 font-semibold mb-2">
+          {tPricing("revenueTitle")}
+        </h4>
         <ul className="text-sm text-gray-700 list-disc list-inside space-y-1">
-          <li>教师获得课程销售价格的 85%</li>
-          <li>平台收取 15% 作为运营费用</li>
-          <li>发布课程立即获得 10 YD代币奖励</li>
-          <li>课程评分达到 4.5+ 获得额外奖励</li>
+          <li>{tPricing("revenue.instructorShare")}</li>
+          <li>{tPricing("revenue.platformFee")}</li>
+          <li>{tPricing("revenue.publishReward")}</li>
+          <li>{tPricing("revenue.ratingReward")}</li>
         </ul>
       </div>
     </div>

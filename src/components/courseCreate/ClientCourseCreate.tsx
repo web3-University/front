@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import BasicInfoTab from "@/components/courseCreate/BasicInfoTab";
 import CompletionStatus from "@/components/courseCreate/CompletionStatus";
 import ContentTab from "@/components/courseCreate/ContentTab";
@@ -14,6 +15,13 @@ import RewardInfo from "@/components/courseCreate/RewardInfo";
 
 export default function ClientCourseCreate() {
   const [activeTab, setActiveTab] = useState("basicInfo");
+  const tLayout = useTranslations("courseCreate.layout");
+  const tabs = [
+    "basicInfo",
+    "courseContent",
+    "pricingSetting",
+    "preview",
+  ] as const;
   const handlePreview = () => {
     setActiveTab("preview");
   };
@@ -23,11 +31,9 @@ export default function ClientCourseCreate() {
       <div className="max-w-7xl mx-auto mt-10">
         {/* 顶部标题 */}
         <h1 className="text-gray-900 text-2xl font-bold mb-1">
-          课程创建工作台
+          {tLayout("title")}
         </h1>
-        <p className="text-sm text-gray-600 mb-6">
-          创建高质量的Web3教育课程，获得代币奖励
-        </p>
+        <p className="text-sm text-gray-600 mb-6">{tLayout("subtitle")}</p>
 
         <ProgressBar />
 
@@ -35,23 +41,18 @@ export default function ClientCourseCreate() {
           {/* 主内容区域 */}
           <div className="flex-1">
             <div className="flex mb-6 bg-white/70 p-2 rounded-xl gap-4 text-sm border border-purple-100 shadow-sm">
-              {[
-                { key: "basicInfo", label: "基本信息" },
-                { key: "courseContent", label: "课程内容" },
-                { key: "pricingSetting", label: "定价设置" },
-                { key: "preview", label: "预览发布" },
-              ].map((tab) => (
+              {tabs.map((tab) => (
                 <button
-                  key={tab.key}
+                  key={tab}
                   type="button"
-                  onClick={() => setActiveTab(tab.key)}
+                  onClick={() => setActiveTab(tab)}
                   className={`px-4 py-2 rounded-lg transition font-medium ${
-                    activeTab === tab.key
+                    activeTab === tab
                       ? "bg-gradient-to-r from-pink-400 to-purple-500 text-white shadow-md"
                       : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                   }`}
                 >
-                  {tab.label}
+                  {tLayout(`tabs.${tab}`)}
                 </button>
               ))}
             </div>

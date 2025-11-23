@@ -699,5 +699,214 @@
       "metaverse": "元宇宙应用",
       "ai": "AI + Web3"
     }
+  },
+  "courseCreate": {
+    "layout": {
+      "title": "课程创建工作台",
+      "subtitle": "创建高质量的 Web3 教育课程，获得代币奖励",
+      "tabs": {
+        "basicInfo": "基本信息",
+        "courseContent": "课程内容",
+        "pricingSetting": "定价设置",
+        "preview": "预览发布"
+      }
+    },
+    "progress": {
+      "title": "课程完成度",
+      "ready": "已满足发布条件！",
+      "requirement": "至少需要60%完成度才能发布课程"
+    },
+    "basicInfo": {
+      "titleLabel": "课程标题 *",
+      "titlePlaceholder": "输入吸引人的课程标题...",
+      "descriptionLabel": "课程描述 *",
+      "descriptionPlaceholder": "详细描述课程内容、目标学员、学习收益...",
+      "categoryLabel": "课程分类 *",
+      "categoryPlaceholder": "选择课程分类",
+      "categories": {
+        "blockchain_dev": "区块链开发",
+        "frontend_dev": "前端开发",
+        "security_audit": "安全审计",
+        "defi_protocol": "DeFi 协议",
+        "nft_development": "NFT 开发",
+        "dao_governance": "DAO 治理"
+      },
+      "difficultyLabel": "难度级别 *",
+      "difficultyOptions": {
+        "1": "初级",
+        "2": "中级",
+        "3": "高级"
+      },
+      "coverLabel": "课程封面图 *",
+      "coverFallback": "课程封面",
+      "preview": "预览",
+      "remove": "移除",
+      "uploading": "上传中... {progress}%",
+      "uploadError": "上传失败（显示本地文件）",
+      "uploadSuccess": "上传成功",
+      "uploadTitle": "上传课程封面",
+      "uploadHint": "建议尺寸 1280x720，支持 JPG / PNG",
+      "chooseFile": "选择文件",
+      "previewAlt": "封面预览",
+      "closePreview": "关闭预览",
+      "tagLabel": "课程标签",
+      "tagPlaceholder": "添加标签...",
+      "removeTagAria": "移除此标签",
+      "addTagAria": "添加标签",
+      "learningGoalsLabel": "学习目标",
+      "newGoalPlaceholder": "新的学习目标...",
+      "removeGoalAria": "移除该学习目标",
+      "addGoalAria": "添加学习目标"
+    },
+    "content": {
+      "title": "课程内容",
+      "addChapter": "添加章节",
+      "chapterTitlePlaceholder": "章节标题",
+      "types": {
+        "video": "视频",
+        "text": "文字"
+      },
+      "removeChapterAria": "移除章节",
+      "descriptionPlaceholder": "章节描述...",
+      "uploadPrompt": "上传视频文件",
+      "selectVideo": "选择视频",
+      "selectedLabel": "已选择：",
+      "uploadedVideoFallback": "已上传视频",
+      "uploadingChunk": "正在上传分片 {current}/{total}...",
+      "uploading": "正在上传...",
+      "speedLabel": "速度: {speed}",
+      "sizeLabel": "大小: {size}",
+      "cancelUpload": "取消上传",
+      "uploadSuccess": "视频上传成功",
+      "replaceVideo": "重新上传",
+      "retryUpload": "重试上传",
+      "textContentPlaceholder": "输入课程文字内容...",
+      "durationPlaceholder": "时长 (分钟)",
+      "freePreview": "免费预览",
+      "uploadMissingUrl": "上传失败，未获取到视频 URL",
+      "uploadCancelled": "上传已取消",
+      "uploadFailedFallback": "上传失败"
+    },
+    "pricing": {
+      "title": "定价设置",
+      "priceLabel": "课程价格 (YD 代币) *",
+      "priceHint": "建议价格: 200-2000 YD",
+      "durationLabel": "预估学习时长",
+      "durationPlaceholder": "例：20小时",
+      "strategyLabel": "定价策略",
+      "strategies": {
+        "basic": {
+          "label": "基础定价",
+          "range": "200 - 400 YD"
+        },
+        "standard": {
+          "label": "标准定价",
+          "range": "400 - 600 YD"
+        },
+        "premium": {
+          "label": "高级定价",
+          "range": "600+ YD"
+        }
+      },
+      "revenueTitle": "💡 收益分成规则",
+      "revenue": {
+        "instructorShare": "教师获得课程销售价格的 85%",
+        "platformFee": "平台收取 15% 作为运营费用",
+        "publishReward": "发布课程立即获得 10 YD 代币奖励",
+        "ratingReward": "课程评分达到 4.5+ 获得额外奖励"
+      }
+    },
+    "preview": {
+      "title": "课程预览",
+      "coverAlt": "课程封面",
+      "noCover": "暂无封面",
+      "titleFallback": "课程标题",
+      "descriptionFallback": "课程描述...",
+      "difficultyFallback": "初级",
+      "button": "预览课程",
+      "chaptersTitle": "课程章节",
+      "chapterFallback": "章节 {index}",
+      "freeLabel": "免费",
+      "paidLabel": "付费"
+    },
+    "sidebar": {
+      "quickActions": {
+        "title": "快捷操作",
+        "saveDraft": "保存草稿",
+        "preview": "预览课程",
+        "publish": "发布课程"
+      },
+      "completion": {
+        "title": "📊 完成情况",
+        "basicInfo": "基本信息：",
+        "courseContent": "课程内容：",
+        "pricing": "定价设置：",
+        "status": {
+          "complete": "已完成",
+          "inProgress": "进行中",
+          "set": "已设置",
+          "notSet": "未设置"
+        }
+      },
+      "suggestions": {
+        "title": "💡 创建建议",
+        "items": {
+          "conciseTitle": "标题要简洁有力，突出核心价值",
+          "detailedDescription": "描述要详尽，包含学习目标和适用人群",
+          "videoQuality": "视频画质建议 1080p 以上",
+          "chapterLength": "每章节时长控制在 10-30 分钟",
+          "caseStudies": "添加实践案例增加课程价值"
+        }
+      },
+      "reward": {
+        "title": "奖励机制",
+        "items": {
+          "publish": {
+            "label": "发布奖励",
+            "value": "+10 YD"
+          },
+          "firstPurchase": {
+            "label": "首次购买",
+            "value": "+5 YD"
+          },
+          "fiveStar": {
+            "label": "5 星评价",
+            "value": "+3 YD"
+          },
+          "estimated": {
+            "label": "预估收益",
+            "value": "+254 YD"
+          }
+        }
+      }
+    },
+    "validation": {
+      "titleRequired": "课程标题不能为空",
+      "descriptionRequired": "课程描述不能为空",
+      "categoryRequired": "请选择课程分类",
+      "difficultyRequired": "请选择难度级别",
+      "coverRequired": "请上传课程封面图",
+      "chapterDescriptionRequired": "章节描述不能为空",
+      "videoRequired": "视频章节需上传视频",
+      "textRequired": "文字章节需填写内容",
+      "priceRequired": "课程价格不能为空",
+      "durationRequired": "预估学习时长不能为空",
+      "draftSaveFailed": "保存草稿失败，请重试",
+      "connectWallet": "请先连接钱包",
+      "publishFailed": "创建课程失败，请重试"
+    },
+    "upload": {
+      "fileReadFailed": "文件读取失败",
+      "chunkResponseEmpty": "分片 {index}/{total} 上传失败：响应数据为空",
+      "noResponse": "上传失败：无响应",
+      "missingDataField": "上传失败：响应缺少 data 字段",
+      "missingUrlField": "上传失败：响应缺少 url 字段",
+      "chunkUploadMissingUrl": "分片上传完成，但未获取到文件 URL",
+      "retriesExhausted": "重试次数耗尽",
+      "fileRequired": "请选择文件",
+      "genericFailure": "上传失败",
+      "chunkUploadFailed": "分片 {index}/{total} 上传失败：{message}",
+      "uploadCancelled": "上传已取消"
+    }
   }
 }

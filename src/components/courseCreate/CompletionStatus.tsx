@@ -1,8 +1,10 @@
 import React from "react";
+import { useTranslations } from "next-intl";
 import { useCourseCreateStore } from "@/state/courseCreate/hooks";
 
 const CompletionStatus = () => {
   const { formData, errors } = useCourseCreateStore();
+  const tCompletion = useTranslations("courseCreate.sidebar.completion");
 
   // 计算基本信息完成状态
   const isBasicInfoComplete = () => {
@@ -47,20 +49,26 @@ const CompletionStatus = () => {
     );
   };
 
-  const basicInfoStatus = isBasicInfoComplete() ? "已完成" : "进行中";
+  const basicInfoStatus = isBasicInfoComplete()
+    ? tCompletion("status.complete")
+    : tCompletion("status.inProgress");
   const { completed: contentCompleted, total: contentTotal } =
     getCourseContentStatus();
-  const pricingStatus = isPricingComplete() ? "已设置" : "未设置";
+  const pricingStatus = isPricingComplete()
+    ? tCompletion("status.set")
+    : tCompletion("status.notSet");
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-4 shadow">
-      <h3 className="text-sm font-semibold text-gray-700 mb-3">📊 完成情况</h3>
+      <h3 className="text-sm font-semibold text-gray-700 mb-3">
+        {tCompletion("title")}
+      </h3>
       <ul className="space-y-2 text-sm text-gray-700">
         <li className="flex justify-between items-center">
-          <span>基本信息：</span>
+          <span>{tCompletion("basicInfo")}</span>
           <span
             className={`font-medium ${
-              basicInfoStatus === "已完成"
+              basicInfoStatus === tCompletion("status.complete")
                 ? "text-emerald-500"
                 : "text-yellow-500"
             }`}
@@ -69,7 +77,7 @@ const CompletionStatus = () => {
           </span>
         </li>
         <li className="flex justify-between items-center">
-          <span>课程内容：</span>
+          <span>{tCompletion("courseContent")}</span>
           <span
             className={`font-medium ${
               contentCompleted === contentTotal
@@ -81,10 +89,10 @@ const CompletionStatus = () => {
           </span>
         </li>
         <li className="flex justify-between items-center">
-          <span>定价设置：</span>
+          <span>{tCompletion("pricing")}</span>
           <span
             className={`font-medium ${
-              pricingStatus === "已设置"
+              pricingStatus === tCompletion("status.set")
                 ? "text-emerald-500"
                 : "text-yellow-500"
             }`}
